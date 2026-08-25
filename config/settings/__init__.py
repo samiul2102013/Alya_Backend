@@ -1,0 +1,1 @@
+DEFAULT_SETTINGS = 'config.settings.development'
