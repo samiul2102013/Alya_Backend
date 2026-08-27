@@ -101,7 +101,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'user': '1000/day',
-        'anon': '100/day',
+        'anon': '10000/day',
     },
     'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
 }
