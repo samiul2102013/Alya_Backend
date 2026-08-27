@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
       POSTGRES_DB: ${POSTGRES_DB:-alia_db}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_v2:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -155,7 +155,7 @@ services:
       - traefik.http.middlewares.redirect-http-to-https.redirectscheme.permanent=true
 
 volumes:
-  postgres_data:
+  postgres_data_v2:
   redis_data:
   static_volume:
   media_volume:
