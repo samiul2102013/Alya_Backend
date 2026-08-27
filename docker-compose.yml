@@ -43,9 +43,9 @@ services:
       DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-config.settings.production}
       SECRET_KEY: ${SECRET_KEY:-change-me-to-a-long-random-secret}
       DEBUG: ${DEBUG:-false}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-aliabackend.kodevio.com,localhost,127.0.0.1}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://aia.kodevio.com,https://aiaadmin.kodevio.com}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://aia.kodevio.com,https://aiaadmin.kodevio.com}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-api.wileef.com,localhost,127.0.0.1}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://wileef.com,https://admin.wileef.com}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://wileef.com,https://admin.wileef.com}
       DATABASE_URL: postgres://${POSTGRES_USER:-alia_db_user}:${POSTGRES_PASSWORD:-change_me}@db:5432/${POSTGRES_DB:-alia_db}
       REDIS_URL: redis://redis:6379/0
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@kodevio.com}
@@ -86,9 +86,9 @@ services:
       DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-config.settings.production}
       SECRET_KEY: ${SECRET_KEY:-change-me-to-a-long-random-secret}
       DEBUG: ${DEBUG:-false}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-aliabackend.kodevio.com,localhost,127.0.0.1}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://aia.kodevio.com,https://aiaadmin.kodevio.com}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://aia.kodevio.com,https://aiaadmin.kodevio.com}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-api.wileef.com,localhost,127.0.0.1}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://wileef.com,https://admin.wileef.com}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://wileef.com,https://admin.wileef.com}
       DATABASE_URL: postgres://${POSTGRES_USER:-alia_db_user}:${POSTGRES_PASSWORD:-change_me}@db:5432/${POSTGRES_DB:-alia_db}
       REDIS_URL: redis://redis:6379/0
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
@@ -112,9 +112,9 @@ services:
       DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-config.settings.production}
       SECRET_KEY: ${SECRET_KEY:-change-me-to-a-long-random-secret}
       DEBUG: ${DEBUG:-false}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-aliabackend.kodevio.com,localhost,127.0.0.1}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://aia.kodevio.com,https://aiaadmin.kodevio.com}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://aia.kodevio.com,https://aiaadmin.kodevio.com}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-api.wileef.com,localhost,127.0.0.1}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://wileef.com,https://admin.wileef.com}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://wileef.com,https://admin.wileef.com}
       DATABASE_URL: postgres://${POSTGRES_USER:-alia_db_user}:${POSTGRES_PASSWORD:-change_me}@db:5432/${POSTGRES_DB:-alia_db}
       REDIS_URL: redis://redis:6379/0
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
@@ -141,13 +141,13 @@ services:
       - dokploy-network
     labels:
       - traefik.enable=true
-      - traefik.http.routers.alia-backend-nginx.rule=Host(`aliabackend.kodevio.com`)
+      - traefik.http.routers.alia-backend-nginx.rule=Host(`api.wileef.com`)
       - traefik.http.routers.alia-backend-nginx.entrypoints=websecure
       - traefik.http.routers.alia-backend-nginx.tls.certResolver=letsencrypt
       - traefik.docker.network=dokploy-network
       - traefik.http.services.alia-backend-nginx.loadbalancer.server.port=80
       # HTTP -> HTTPS redirect (so plain http:// requests return 301, not Traefik 404)
-      - traefik.http.routers.alia-backend-http.rule=Host(`aliabackend.kodevio.com`)
+      - traefik.http.routers.alia-backend-http.rule=Host(`api.wileef.com`)
       - traefik.http.routers.alia-backend-http.entrypoints=web
       - traefik.http.routers.alia-backend-http.middlewares=redirect-http-to-https
       - traefik.http.middlewares.redirect-http-to-https.redirectscheme.scheme=https
