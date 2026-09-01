@@ -2,7 +2,7 @@ from django.db.models import Q
 
 from rest_framework import serializers
 
-from .models import Category, Consultation, Emirate, HomepageContent, Initiative, NewsArticle, PagePresentation, Short
+from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 
 
 class ShortListSerializer(serializers.ModelSerializer):
@@ -394,3 +394,179 @@ class HomepageContentSerializer(serializers.ModelSerializer):
                   'ctaTitle', 'ctaTitleAr', 'ctaSubtitle', 'ctaSubtitleAr',
                   'ctaPrimaryLabel', 'ctaPrimaryLabelAr', 'ctaPrimaryLink',
                   'ctaSecondaryLabel', 'ctaSecondaryLabelAr', 'ctaSecondaryLink']
+
+
+class AboutContentSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+    titleAr = serializers.CharField(source='title_ar', read_only=True)
+    descriptionAr = serializers.CharField(source='description_ar', read_only=True)
+    browseSession = serializers.CharField(source='browse_session', read_only=True)
+    browseSessionAr = serializers.CharField(source='browse_session_ar', read_only=True)
+    contactSupport = serializers.CharField(source='contact_support', read_only=True)
+    contactSupportAr = serializers.CharField(source='contact_support_ar', read_only=True)
+    ourStory = serializers.CharField(source='our_story', read_only=True)
+    ourStoryAr = serializers.CharField(source='our_story_ar', read_only=True)
+    ourStoryText = serializers.CharField(source='our_story_text', read_only=True)
+    ourStoryTextAr = serializers.CharField(source='our_story_text_ar', read_only=True)
+    ourMission = serializers.CharField(source='our_mission', read_only=True)
+    ourMissionAr = serializers.CharField(source='our_mission_ar', read_only=True)
+    ourMissionText = serializers.CharField(source='our_mission_text', read_only=True)
+    ourMissionTextAr = serializers.CharField(source='our_mission_text_ar', read_only=True)
+    ourVision = serializers.CharField(source='our_vision', read_only=True)
+    ourVisionAr = serializers.CharField(source='our_vision_ar', read_only=True)
+    ourVisionText = serializers.CharField(source='our_vision_text', read_only=True)
+    ourVisionTextAr = serializers.CharField(source='our_vision_text_ar', read_only=True)
+    ourObjective = serializers.CharField(source='our_objective', read_only=True)
+    ourObjectiveAr = serializers.CharField(source='our_objective_ar', read_only=True)
+    ourObjectiveText = serializers.CharField(source='our_objective_text', read_only=True)
+    ourObjectiveTextAr = serializers.CharField(source='our_objective_text_ar', read_only=True)
+    objectives = serializers.JSONField(read_only=True)
+    whatWeOffer = serializers.CharField(source='what_we_offer', read_only=True)
+    whatWeOfferAr = serializers.CharField(source='what_we_offer_ar', read_only=True)
+    whatWeOfferText = serializers.CharField(source='what_we_offer_text', read_only=True)
+    whatWeOfferTextAr = serializers.CharField(source='what_we_offer_text_ar', read_only=True)
+    offerings = serializers.JSONField(read_only=True)
+    ourImpact = serializers.CharField(source='our_impact', read_only=True)
+    ourImpactAr = serializers.CharField(source='our_impact_ar', read_only=True)
+    ourImpactText = serializers.CharField(source='our_impact_text', read_only=True)
+    ourImpactTextAr = serializers.CharField(source='our_impact_text_ar', read_only=True)
+    impact = serializers.JSONField(read_only=True)
+    whyChoose = serializers.CharField(source='why_choose', read_only=True)
+    whyChooseAr = serializers.CharField(source='why_choose_ar', read_only=True)
+    whyChooseText = serializers.CharField(source='why_choose_text', read_only=True)
+    whyChooseTextAr = serializers.CharField(source='why_choose_text_ar', read_only=True)
+    whyValues = serializers.JSONField(source='why_values', read_only=True)
+    coreValues = serializers.CharField(source='core_values', read_only=True)
+    coreValuesAr = serializers.CharField(source='core_values_ar', read_only=True)
+    coreValuesText = serializers.CharField(source='core_values_text', read_only=True)
+    coreValuesTextAr = serializers.CharField(source='core_values_text_ar', read_only=True)
+    coreValueList = serializers.JSONField(source='core_value_list', read_only=True)
+
+    class Meta:
+        model = AboutContent
+        fields = ['id',
+                  'title', 'titleAr', 'description', 'descriptionAr',
+                  'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
+                  'ourStory', 'ourStoryAr', 'ourStoryText', 'ourStoryTextAr',
+                  'ourMission', 'ourMissionAr', 'ourMissionText', 'ourMissionTextAr',
+                  'ourVision', 'ourVisionAr', 'ourVisionText', 'ourVisionTextAr',
+                  'ourObjective', 'ourObjectiveAr', 'ourObjectiveText', 'ourObjectiveTextAr', 'objectives',
+                  'whatWeOffer', 'whatWeOfferAr', 'whatWeOfferText', 'whatWeOfferTextAr', 'offerings',
+                  'ourImpact', 'ourImpactAr', 'ourImpactText', 'ourImpactTextAr', 'impact',
+                  'whyChoose', 'whyChooseAr', 'whyChooseText', 'whyChooseTextAr', 'whyValues',
+                  'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList']
+
+
+class ContactContentSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+    titleAr = serializers.CharField(source='title_ar', read_only=True)
+    descriptionAr = serializers.CharField(source='description_ar', read_only=True)
+    browseSession = serializers.CharField(source='browse_session', read_only=True)
+    browseSessionAr = serializers.CharField(source='browse_session_ar', read_only=True)
+    contactSupport = serializers.CharField(source='contact_support', read_only=True)
+    contactSupportAr = serializers.CharField(source='contact_support_ar', read_only=True)
+    sendMessage = serializers.CharField(source='send_message', read_only=True)
+    sendMessageAr = serializers.CharField(source='send_message_ar', read_only=True)
+    sendMessageSub = serializers.CharField(source='send_message_sub', read_only=True)
+    sendMessageSubAr = serializers.CharField(source='send_message_sub_ar', read_only=True)
+    fullName = serializers.CharField(source='full_name', read_only=True)
+    fullNameAr = serializers.CharField(source='full_name_ar', read_only=True)
+    fullNamePlaceholder = serializers.CharField(source='full_name_placeholder', read_only=True)
+    fullNamePlaceholderAr = serializers.CharField(source='full_name_placeholder_ar', read_only=True)
+    emailLabel = serializers.CharField(source='email_label', read_only=True)
+    emailLabelAr = serializers.CharField(source='email_label_ar', read_only=True)
+    emailPlaceholder = serializers.CharField(source='email_placeholder', read_only=True)
+    emailPlaceholderAr = serializers.CharField(source='email_placeholder_ar', read_only=True)
+    userType = serializers.CharField(source='user_type', read_only=True)
+    userTypeAr = serializers.CharField(source='user_type_ar', read_only=True)
+    selectUserType = serializers.CharField(source='select_user_type', read_only=True)
+    selectUserTypeAr = serializers.CharField(source='select_user_type_ar', read_only=True)
+    individual = serializers.CharField(read_only=True)
+    individualAr = serializers.CharField(source='individual_ar', read_only=True)
+    couple = serializers.CharField(read_only=True)
+    coupleAr = serializers.CharField(source='couple_ar', read_only=True)
+    organization = serializers.CharField(read_only=True)
+    organizationAr = serializers.CharField(source='organization_ar', read_only=True)
+    subjectLabel = serializers.CharField(source='subject_label', read_only=True)
+    subjectLabelAr = serializers.CharField(source='subject_label_ar', read_only=True)
+    subjectPlaceholder = serializers.CharField(source='subject_placeholder', read_only=True)
+    subjectPlaceholderAr = serializers.CharField(source='subject_placeholder_ar', read_only=True)
+    phoneLabel = serializers.CharField(source='phone_label', read_only=True)
+    phoneLabelAr = serializers.CharField(source='phone_label_ar', read_only=True)
+    phonePlaceholder = serializers.CharField(source='phone_placeholder', read_only=True)
+    phonePlaceholderAr = serializers.CharField(source='phone_placeholder_ar', read_only=True)
+    messageLabel = serializers.CharField(source='message_label', read_only=True)
+    messageLabelAr = serializers.CharField(source='message_label_ar', read_only=True)
+    messagePlaceholder = serializers.CharField(source='message_placeholder', read_only=True)
+    messagePlaceholderAr = serializers.CharField(source='message_placeholder_ar', read_only=True)
+    sendButton = serializers.CharField(source='send_button', read_only=True)
+    sendButtonAr = serializers.CharField(source='send_button_ar', read_only=True)
+    successMessage = serializers.CharField(source='success_message', read_only=True)
+    successMessageAr = serializers.CharField(source='success_message_ar', read_only=True)
+    sending = serializers.CharField(read_only=True)
+    sendingAr = serializers.CharField(source='sending_ar', read_only=True)
+    contactInfo = serializers.CharField(source='contact_info', read_only=True)
+    contactInfoAr = serializers.CharField(source='contact_info_ar', read_only=True)
+    officeAddress = serializers.CharField(source='office_address', read_only=True)
+    officeAddressAr = serializers.CharField(source='office_address_ar', read_only=True)
+    workingHours = serializers.CharField(source='working_hours', read_only=True)
+    workingHoursAr = serializers.CharField(source='working_hours_ar', read_only=True)
+    generalInquiries = serializers.CharField(source='general_inquiries', read_only=True)
+    generalInquiriesAr = serializers.CharField(source='general_inquiries_ar', read_only=True)
+    supportHeading = serializers.CharField(source='support_heading', read_only=True)
+    supportHeadingAr = serializers.CharField(source='support_heading_ar', read_only=True)
+    addressLines = serializers.JSONField(source='address_lines', read_only=True)
+    addressLinesAr = serializers.JSONField(source='address_lines_ar', read_only=True)
+    hoursLines = serializers.JSONField(source='hours_lines', read_only=True)
+    hoursLinesAr = serializers.JSONField(source='hours_lines_ar', read_only=True)
+    inquiriesLines = serializers.JSONField(source='inquiries_lines', read_only=True)
+    inquiriesLinesAr = serializers.JSONField(source='inquiries_lines_ar', read_only=True)
+    supportLines = serializers.JSONField(source='support_lines', read_only=True)
+    supportLinesAr = serializers.JSONField(source='support_lines_ar', read_only=True)
+    ourLocation = serializers.CharField(source='our_location', read_only=True)
+    ourLocationAr = serializers.CharField(source='our_location_ar', read_only=True)
+    ourLocationText = serializers.CharField(source='our_location_text', read_only=True)
+    ourLocationTextAr = serializers.CharField(source='our_location_text_ar', read_only=True)
+    mapTitle = serializers.CharField(source='map_title', read_only=True)
+    mapTitleAr = serializers.CharField(source='map_title_ar', read_only=True)
+    mapEmbedUrl = serializers.CharField(source='map_embed_url', read_only=True)
+    latitude = serializers.CharField(read_only=True)
+    longitude = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = ContactContent
+        fields = ['id',
+                  'title', 'titleAr', 'description', 'descriptionAr',
+                  'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
+                  'sendMessage', 'sendMessageAr', 'sendMessageSub', 'sendMessageSubAr',
+                  'fullName', 'fullNameAr', 'fullNamePlaceholder', 'fullNamePlaceholderAr',
+                  'emailLabel', 'emailLabelAr', 'emailPlaceholder', 'emailPlaceholderAr',
+                  'userType', 'userTypeAr', 'selectUserType', 'selectUserTypeAr',
+                  'individual', 'individualAr', 'couple', 'coupleAr',
+                  'organization', 'organizationAr',
+                  'subjectLabel', 'subjectLabelAr', 'subjectPlaceholder', 'subjectPlaceholderAr',
+                  'phoneLabel', 'phoneLabelAr', 'phonePlaceholder', 'phonePlaceholderAr',
+                  'messageLabel', 'messageLabelAr', 'messagePlaceholder', 'messagePlaceholderAr',
+                  'sendButton', 'sendButtonAr', 'successMessage', 'successMessageAr',
+                  'sending', 'sendingAr',
+                  'contactInfo', 'contactInfoAr', 'officeAddress', 'officeAddressAr',
+                  'workingHours', 'workingHoursAr', 'generalInquiries', 'generalInquiriesAr',
+                  'supportHeading', 'supportHeadingAr',
+                  'addressLines', 'addressLinesAr', 'hoursLines', 'hoursLinesAr',
+                  'inquiriesLines', 'inquiriesLinesAr', 'supportLines', 'supportLinesAr',
+                  'ourLocation', 'ourLocationAr', 'ourLocationText', 'ourLocationTextAr',
+                  'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude']
+
+
+class MediaItemListSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+    fileUrl = serializers.URLField(source='file_url', read_only=True)
+    altAr = serializers.CharField(source='alt_ar', read_only=True)
+    captionAr = serializers.CharField(source='caption_ar', read_only=True)
+    fileSize = serializers.IntegerField(source='file_size', read_only=True)
+    status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = MediaItem
+        fields = ['id', 'slug', 'fileUrl', 'filename', 'alt', 'altAr', 'caption', 'captionAr',
+                  'category', 'fileSize', 'width', 'height', 'status', 'created_at']

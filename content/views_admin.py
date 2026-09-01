@@ -6,21 +6,27 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 
 from .admin_serializers import (
+    AboutContentAdminSerializer,
     CategoryAdminSerializer,
     ConsultationAdminSerializer,
+    ContactContentAdminSerializer,
     EmirateAdminSerializer,
     HomepageContentAdminSerializer,
     InitiativeAdminSerializer,
+    MediaItemAdminSerializer,
     NewsAdminSerializer,
     PagePresentationAdminSerializer,
     ShortAdminSerializer,
 )
 from .models import (
+    AboutContent,
     Category,
     Consultation,
+    ContactContent,
     Emirate,
     HomepageContent,
     Initiative,
+    MediaItem,
     NewsArticle,
     PagePresentation,
     Short,
@@ -161,3 +167,62 @@ class HomepageContentAdminView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AboutContentAdminView(APIView):
+    """/api/admin/about — upsert singleton about content."""
+
+    def get(self, request):
+        obj, _ = AboutContent.objects.get_or_create(pk=AboutContent.objects.first().pk if AboutContent.objects.exists() else None)
+        serializer = AboutContentAdminSerializer(obj)
+        return Response(serializer.data)
+
+    def post(self, request):
+        obj = AboutContent.objects.first()
+        if obj:
+            serializer = AboutContentAdminSerializer(obj, data=request.data, partial=True)
+        else:
+            serializer = AboutContentAdminSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ContactContentAdminView(APIView):
+    """/api/admin/contact — upsert singleton contact content."""
+
+    def get(self, request):
+        obj, _ = ContactContent.objects.get_or_create(pk=ContactContent.objects.first().pk if ContactContent.objects.exists() else None)
+        serializer = ContactContentAdminSerializer(obj)
+        return Response(serializer.data)
+
+    def post(self, request):
+        obj = ContactContent.objects.first()
+        if obj:
+            serializer = ContactContentAdminSerializer(obj, data=request.data, partial=True)
+        else:
+            serializer = ContactContentAdminSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MediaItemAdminViewSet(ModelViewSet):
+    """/api/admin/media"""
+
+    queryset = MediaItem.objects.all().order_by('-created_at')
+    serializer_class = MediaItemAdminSerializer
+    lookup_field = 'pk'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        search = self.request.query_params.get('search')
+        status_filter = self.request.query_params.get('status')
+        category_filter = self.request.query_params.get('category')
+        if search:
+            qs = qs.filter(Q(filename__icontains=search) | Q(alt__icontains=search))
+        if status_filter:
+            qs = qs.filter(status__iexact=status_filter)
+        if category_filter:
+            qs = qs.filter(category__iexact=category_filter)
+        return qs

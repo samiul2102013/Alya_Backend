@@ -8,16 +8,19 @@ from .dashboard import (
     MetaView,
 )
 from .views_public import (
+    AboutContentPublicView,
     CategoryPublicList,
     ConsultationPublicDetailByNameView,
     ConsultationPublicDetailView,
     ConsultationPublicList,
+    ContactContentPublicView,
     EmiratePublicDetailView,
     EmiratePublicList,
     HomepageContentPublicView,
     InitiativeFeaturedPublicView,
     InitiativePublicDetailView,
     InitiativePublicList,
+    MediaItemPublicList,
     NewsPublicDetailView,
     NewsPublicList,
     PagePresentationPublicDetailView,
@@ -26,11 +29,14 @@ from .views_public import (
     ShortPublicView,
 )
 from .views_admin import (
+    AboutContentAdminView,
     CategoryAdminViewSet,
     ConsultationAdminViewSet,
+    ContactContentAdminView,
     EmirateAdminViewSet,
     HomepageContentAdminView,
     InitiativeAdminViewSet,
+    MediaItemAdminViewSet,
     NewsAdminViewSet,
     PagePresentationAdminViewSet,
     ShortAdminViewSet,
@@ -44,6 +50,7 @@ router.register(r'admin/consultations', ConsultationAdminViewSet, basename='admi
 router.register(r'admin/emirates', EmirateAdminViewSet, basename='admin-emirates')
 router.register(r'admin/categories', CategoryAdminViewSet, basename='admin-categories')
 router.register(r'admin/presentations', PagePresentationAdminViewSet, basename='admin-presentations')
+router.register(r'admin/media', MediaItemAdminViewSet, basename='admin-media')
 
 urlpatterns = router.urls + [
     # Dashboard
@@ -52,6 +59,8 @@ urlpatterns = router.urls + [
     path('admin/dashboard/latest-content', DashboardLatestContentView.as_view(), name='admin-dashboard-latest'),
     path('admin/meta', MetaView.as_view(), name='admin-meta'),
     path('admin/homepage', HomepageContentAdminView.as_view(), name='admin-homepage'),
+    path('admin/about', AboutContentAdminView.as_view(), name='admin-about'),
+    path('admin/contact', ContactContentAdminView.as_view(), name='admin-contact'),
     # Public
     path('shorts', ShortPublicView.as_view(), name='shorts-list'),
     path('shorts/<str:slug>', ShortPublicDetail.as_view(), name='shorts-detail'),
@@ -68,4 +77,7 @@ urlpatterns = router.urls + [
     path('presentations', PagePresentationPublicListView.as_view(), name='presentations-list'),
     path('presentations/<str:key>', PagePresentationPublicDetailView.as_view(), name='presentations-detail'),
     path('homepage', HomepageContentPublicView.as_view(), name='homepage-content'),
+    path('about', AboutContentPublicView.as_view(), name='about-content'),
+    path('contact', ContactContentPublicView.as_view(), name='contact-content'),
+    path('media', MediaItemPublicList.as_view(), name='media-list'),
 ]

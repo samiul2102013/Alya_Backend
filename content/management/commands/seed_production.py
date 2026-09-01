@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from accounts.models import AdminUser, PrivacyPolicy, Terms
-from content.models import Category, Consultation, Emirate, HomepageContent, Initiative, NewsArticle, PagePresentation, Short
+from content.models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, NewsArticle, PagePresentation, Short
 
 
 class Command(BaseCommand):
@@ -902,5 +902,115 @@ class Command(BaseCommand):
         }
         for model, slugs in seed_slugs.items():
             model.objects.exclude(pk__in=model.objects.filter(**({'slug__in': slugs} if model is not PagePresentation else {'key__in': slugs})).values('pk')).delete()
+
+        # ---------------------------------------------------------------- about content
+        about_data = {
+            'title': 'About Alia - Supporting Stronger Families Across the UAE',
+            'title_ar': 'عن عالية - دعم أسراً أقوى في جميع أنحاء الإمارات',
+            'description': 'Alia is the official UAE platform dedicated to empowering Emirati families through trusted marriage guidance, government programs, expert consultation sessions, and community-driven initiatives.',
+            'description_ar': 'عالية هي المنصة الرسمية الإماراتية المكرسة لتمكين الأسر الإماراتية من خلال إرشادات الزواج الموثوقة والبرامج الحكومية وجلسات الاستشارات المتخصصة والمبادرات المجتمعية.',
+            'browse_session': 'Browse Session', 'browse_session_ar': 'تصفح الجلسة',
+            'contact_support': 'Contact Support', 'contact_support_ar': 'تواصل مع الدعم',
+            'our_story': 'Our Story', 'our_story_ar': 'قصتنا',
+            'our_story_text': 'Alia was created to serve as the centralized platform for marriage support services across the UAE.',
+            'our_story_text_ar': 'تم إنشاء عالية لتكون المنصة المركزة لخدمات دعم الزواج في جميع أنحاء الإمارات.',
+            'our_mission': 'Our Mission', 'our_mission_ar': 'مهمتنا',
+            'our_mission_text': 'Provide easy access to trusted marriage support services, resources, and expert guidance.',
+            'our_mission_text_ar': 'توفير سهل الوصول إلى خدمات دعم الزواج الموثوقة والموارد والإرشادات المتخصصة.',
+            'our_vision': 'Our Vision', 'our_vision_ar': 'رؤيتنا',
+            'our_vision_text': 'A UAE where every marriage is supported, every family is empowered.',
+            'our_vision_text_ar': 'إمارات حيث كل زواج مدعوم، وكل أسرة ممكّنة.',
+            'our_objective': 'Our Objective', 'our_objective_ar': 'أهدافنا',
+            'our_objective_text': 'Our objective is to focus on making trusted marriage support services more accessible.',
+            'our_objective_text_ar': 'هدفنا هو التركيز على جعل خدمات دعم الزواج الموثوقة أكثر سهولة في الوصول.',
+            'objectives': ['Promote Healthy Marriage', 'Connect Users with Trusted Initiatives', 'Improve Access to Consultation Service', "Support Families' Well-being", 'Increase Awareness of Available Programs', 'Encourage Lifelong Learning'],
+            'what_we_offer': 'What We Offer', 'what_we_offer_ar': 'ما نقدمه',
+            'what_we_offer_text': 'Access trusted resources, expert consultations, educational content, and community support services.',
+            'what_we_offer_text_ar': 'الوصول إلى موارد موثوقة واستشارات متخصصة ومحتوى تعليمي وخدمات دعم مجتمعية.',
+            'offerings': [
+                {'title': 'Marriage Initiative', 'titleAr': 'مبادرة الزواج', 'desc': 'Explore verified government and private programs.', 'descAr': 'استكشف البرامج الحكومية والخاصة المعتمدة.'},
+                {'title': 'Consultation Sessions', 'titleAr': 'جلسات الاستشارة', 'desc': 'Connect with professional counselors and marriage experts.', 'descAr': 'تواصل مع المستشارين المحترفين وخبراء الزواج.'},
+                {'title': 'Educational Shorts', 'titleAr': 'مقاطع تعليمية', 'desc': 'Watch informative videos covering marriage preparation.', 'descAr': 'شاهد مقاطع فيديو تعليمية تغطي التحضير للزواج.'},
+                {'title': 'Marriage News', 'titleAr': 'أخبار الزواج', 'desc': 'Stay informed with the latest announcements.', 'descAr': 'ابقَ على اطلاع بأحدث الإعلانات.'},
+                {'title': 'Emirates Discovery', 'titleAr': 'اكتشاف الإمارات', 'desc': 'Browse marriage support services, organizations.', 'descAr': 'تصفح خدمات دعم الزواج والمؤسسات.'},
+                {'title': 'Community Support & Resources', 'titleAr': 'الدعم المجتمعي والموارد', 'desc': 'Access trusted charities, financial assistance programs.', 'descAr': 'الوصول إلى الجمعيات الخيرية الموثوقة وبرامج المساعدة المالية.'},
+            ],
+            'our_impact': 'Our Impact', 'our_impact_ar': 'تأثيرنا',
+            'our_impact_text': 'Measurable results that reflect our commitment to strengthening families.',
+            'our_impact_text_ar': 'نتائج قابلة للقياس تعكس التزامنا بتعزيز الأسر.',
+            'impact': [
+                {'label': 'Total Emirates Support Initiatives', 'labelAr': 'إجمالي مبادرات الدعم في الإمارات', 'value': '240+ Support Initiatives', 'valueAr': 'أكثر من 240 مبادرة دعم'},
+                {'label': 'Partner Organizations', 'labelAr': 'منظمات شريكة', 'value': '100+ Partner Organizations', 'valueAr': 'أكثر من 100 منظمة شريكة'},
+                {'label': 'Consulting Program', 'labelAr': 'برنامج الاستشارات', 'value': '45+ Consultation Programs', 'valueAr': 'أكثر من 45 برنامج استشارات'},
+                {'label': 'Community Members', 'labelAr': 'أعضاء المجتمع', 'value': '50,000+ Members Served', 'valueAr': 'أكثر من 50,000 عضو تم خدمتهم'},
+            ],
+            'why_choose': 'Why Choose Alia', 'why_choose_ar': 'لماذا تختار عالية',
+            'why_choose_text': 'Built with care, backed by trust, designed for every family.',
+            'why_choose_text_ar': 'صُمّمت بعناية، مدعومة بالثقة، مصممة لكل أسرة.',
+            'why_values': ['Trusted Information', 'Verified Organizations', 'Guided Experience', 'Easy Navigation'],
+            'core_values': 'Our Core Values', 'core_values_ar': 'قيمنا الجوهرية',
+            'core_values_text': 'The principles that guide everything we do.',
+            'core_values_text_ar': 'المبادئ التي توجه كل ما نفعله.',
+            'core_value_list': ['Trust', 'Convenience', 'Accessibility', 'Innovation', 'Community'],
+            'published': True,
+        }
+        AboutContent.objects.update_or_create(
+            pk=AboutContent.objects.first().pk if AboutContent.objects.exists() else None,
+            defaults=about_data,
+        )
+
+        # ---------------------------------------------------------------- contact content
+        contact_data = {
+            'title': 'Get in Touch — We Are Here to Support You',
+            'title_ar': 'تواصل معنا — نحن هنا لدعمك',
+            'description': 'Have questions about marriage support programs, consultation services, or community initiatives?',
+            'description_ar': 'هل لديك أسئلة حول برامج دعم الزواج أو خدمات الاستشارات أو المبادرات المجتمعية؟',
+            'browse_session': 'Browse Session', 'browse_session_ar': 'تصفح الجلسة',
+            'contact_support': 'Contact Support', 'contact_support_ar': 'تواصل مع الدعم',
+            'send_message': 'Send us a message', 'send_message_ar': 'أرسل لنا رسالة',
+            'send_message_sub': 'Tell us how can we assist you today?', 'send_message_sub_ar': 'أخبرنا كيف يمكننا مساعدتك اليوم؟',
+            'full_name': 'Full Name', 'full_name_ar': 'الاسم الكامل',
+            'full_name_placeholder': 'Enter your full name', 'full_name_placeholder_ar': 'أدخل اسمك الكامل',
+            'email_label': 'Email', 'email_label_ar': 'البريد الإلكتروني',
+            'email_placeholder': 'Enter your email', 'email_placeholder_ar': 'أدخل بريدك الإلكتروني',
+            'user_type': 'User Type', 'user_type_ar': 'نوع المستخدم',
+            'select_user_type': 'Select user type', 'select_user_type_ar': 'اختر نوع المستخدم',
+            'individual': 'Individual', 'individual_ar': 'فرد',
+            'couple': 'Couple', 'couple_ar': 'زوجان',
+            'organization': 'Organization', 'organization_ar': 'منظمة',
+            'subject_label': 'Subject', 'subject_label_ar': 'الموضوع',
+            'subject_placeholder': 'Enter subject', 'subject_placeholder_ar': 'أدخل الموضوع',
+            'phone_label': 'Phone Number', 'phone_label_ar': 'رقم الهاتف',
+            'phone_placeholder': 'Enter your phone number', 'phone_placeholder_ar': 'أدخل رقم هاتفك',
+            'message_label': 'Your Message', 'message_label_ar': 'رسالتك',
+            'message_placeholder': 'Write your message here...', 'message_placeholder_ar': 'اكتب رسالتك هنا...',
+            'send_button': 'Send Message', 'send_button_ar': 'إرسال الرسالة',
+            'success_message': "Your message has been sent successfully. We'll get back to you soon.",
+            'success_message_ar': 'تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.',
+            'sending': 'Sending...', 'sending_ar': 'جاري الإرسال...',
+            'contact_info': 'Contact Information', 'contact_info_ar': 'معلومات الاتصال',
+            'office_address': 'Office Address', 'office_address_ar': 'عنوان المكتب',
+            'working_hours': 'Working Hours', 'working_hours_ar': 'ساعات العمل',
+            'general_inquiries': 'General Inquiries', 'general_inquiries_ar': 'استفسارات عامة',
+            'support_heading': 'Support', 'support_heading_ar': 'الدعم',
+            'address_lines': ['Dubai, United Arab Emirates', 'info@marage.ae', '+971 50 123 4567'],
+            'address_lines_ar': ['دبي، الإمارات العربية المتحدة', 'info@marage.ae', '+971 50 123 4567'],
+            'hours_lines': ['Mon – Fri: 9:00 AM – 6:00 PM', 'Saturday: 10:00 AM – 2:00 PM', 'Sunday: Closed'],
+            'hours_lines_ar': ['الإثنين – الجمعة: 9:00 صباحاً – 6:00 مساءً', 'السبت: 10:00 صباحاً – 2:00 ظهراً', 'الأحد: مغلق'],
+            'inquiries_lines': ['Email: info@marage.ae', 'Phone: +971 50 123 4567'],
+            'inquiries_lines_ar': ['البريد الإلكتروني: info@marage.ae', 'الهاتف: +971 50 123 4567'],
+            'support_lines': ['Email: support@marage.ae', 'Phone: +971 50 987 6543'],
+            'support_lines_ar': ['البريد الإلكتروني: support@marage.ae', 'الهاتف: +971 50 987 6543'],
+            'our_location': 'Our Location', 'our_location_ar': 'موقعنا',
+            'our_location_text': 'Visit us at our main office in Dubai, UAE.',
+            'our_location_text_ar': 'زورنا في مكتبنا الرئيسي في دبي، الإمارات.',
+            'map_title': 'Alia Office Location', 'map_title_ar': 'موقع مكتب عالية',
+            'map_embed_url': '', 'latitude': '25.2048', 'longitude': '55.2708',
+            'published': True,
+        }
+        ContactContent.objects.update_or_create(
+            pk=ContactContent.objects.first().pk if ContactContent.objects.exists() else None,
+            defaults=contact_data,
+        )
 
         self.stdout.write(self.style.SUCCESS('Production seed complete.'))

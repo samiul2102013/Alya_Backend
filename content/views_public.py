@@ -5,16 +5,19 @@ from django.utils import timezone
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 
-from .models import Category, Consultation, Emirate, HomepageContent, Initiative, NewsArticle, PagePresentation, Short
+from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 from .public_serializers import (
+    AboutContentSerializer,
     CategorySerializer,
     ConsultationDetailSerializer,
     ConsultationListSerializer,
+    ContactContentSerializer,
     EmirateDetailSerializer,
     EmirateListSerializer,
     HomepageContentSerializer,
     InitiativeDetailSerializer,
     InitiativeListSerializer,
+    MediaItemListSerializer,
     NewsDetailSerializer,
     NewsListSerializer,
     PagePresentationSerializer,
@@ -324,3 +327,46 @@ class HomepageContentPublicView(generics.RetrieveAPIView):
             from rest_framework.exceptions import NotFound
             raise NotFound('Homepage content not configured yet.')
         return obj
+
+
+class AboutContentPublicView(generics.RetrieveAPIView):
+    """GET /api/about — returns the singleton about content."""
+
+    permission_classes = [AllowAny]
+    serializer_class = AboutContentSerializer
+
+    def get_object(self):
+        obj = AboutContent.objects.first()
+        if not obj:
+            from rest_framework.exceptions import NotFound
+            raise NotFound('About content not configured yet.')
+        return obj
+
+
+class ContactContentPublicView(generics.RetrieveAPIView):
+    """GET /api/contact — returns the singleton contact content."""
+
+    permission_classes = [AllowAny]
+    serializer_class = ContactContentSerializer
+
+    def get_object(self):
+        obj = ContactContent.objects.first()
+        if not obj:
+            from rest_framework.exceptions import NotFound
+            raise NotFound('Contact content not configured yet.')
+        return obj
+
+
+class MediaItemPublicList(generics.ListAPIView):
+    """GET /api/media — published media items."""
+
+    permission_classes = [AllowAny]
+    serializer_class = MediaItemListSerializer
+
+    def get_queryset(self):
+        params = self.request.query_params
+        qs = MediaItem.objects.filter(status='Published')
+        category = params.get('category', '').strip()
+        if category:
+            qs = qs.filter(category__iexact=category)
+        return qs.order_by('-created_at')

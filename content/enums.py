@@ -105,3 +105,9 @@ class UserType(models.TextChoices):
     INDIVIDUAL = 'individual', 'Individual'
     COUPLE = 'couple', 'Couple'
     ORGANIZATION = 'organization', 'Organization'
+
+
+class MediaCategory(models.TextChoices):
+    IMAGE = 'image', 'Image'
+    VIDEO = 'video', 'Video'
+    DOCUMENT = 'document', 'Document'

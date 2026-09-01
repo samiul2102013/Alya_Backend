@@ -7,6 +7,7 @@ from .enums import (
     Emirates,
     Language,
     MaritalStage,
+    MediaCategory,
     NewsCategory,
     ResourceType,
     SessionType,
@@ -457,4 +458,228 @@ class HomepageContent(TimeStampedModel):
         if not self.pk and HomepageContent.objects.exists():
             existing = HomepageContent.objects.first()
             self.pk = existing.pk
+        super().save(*args, **kwargs)
+
+
+class AboutContent(TimeStampedModel):
+    """Singleton model for About Us page content."""
+
+    # --- Hero Section ---
+    title = models.CharField('Title', max_length=500, blank=True)
+    title_ar = models.CharField('Title (Arabic)', max_length=500, blank=True)
+    description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
+    browse_session = models.CharField('Browse Session Label', max_length=200, blank=True)
+    browse_session_ar = models.CharField('Browse Session Label (Arabic)', max_length=200, blank=True)
+    contact_support = models.CharField('Contact Support Label', max_length=200, blank=True)
+    contact_support_ar = models.CharField('Contact Support Label (Arabic)', max_length=200, blank=True)
+
+    # --- Our Story ---
+    our_story = models.CharField('Our Story Heading', max_length=300, blank=True)
+    our_story_ar = models.CharField('Our Story Heading (Arabic)', max_length=300, blank=True)
+    our_story_text = models.TextField('Our Story Text', blank=True)
+    our_story_text_ar = models.TextField('Our Story Text (Arabic)', blank=True)
+
+    # --- Our Mission ---
+    our_mission = models.CharField('Our Mission Heading', max_length=300, blank=True)
+    our_mission_ar = models.CharField('Our Mission Heading (Arabic)', max_length=300, blank=True)
+    our_mission_text = models.TextField('Our Mission Text', blank=True)
+    our_mission_text_ar = models.TextField('Our Mission Text (Arabic)', blank=True)
+
+    # --- Our Vision ---
+    our_vision = models.CharField('Our Vision Heading', max_length=300, blank=True)
+    our_vision_ar = models.CharField('Our Vision Heading (Arabic)', max_length=300, blank=True)
+    our_vision_text = models.TextField('Our Vision Text', blank=True)
+    our_vision_text_ar = models.TextField('Our Vision Text (Arabic)', blank=True)
+
+    # --- Our Objective ---
+    our_objective = models.CharField('Our Objective Heading', max_length=300, blank=True)
+    our_objective_ar = models.CharField('Our Objective Heading (Arabic)', max_length=300, blank=True)
+    our_objective_text = models.TextField('Our Objective Text', blank=True)
+    our_objective_text_ar = models.TextField('Our Objective Text (Arabic)', blank=True)
+    objectives = models.JSONField('Objectives', default=list, blank=True,
+        help_text='Array of 6 objective labels')
+
+    # --- What We Offer ---
+    what_we_offer = models.CharField('What We Offer Heading', max_length=300, blank=True)
+    what_we_offer_ar = models.CharField('What We Offer Heading (Arabic)', max_length=300, blank=True)
+    what_we_offer_text = models.TextField('What We Offer Text', blank=True)
+    what_we_offer_text_ar = models.TextField('What We Offer Text (Arabic)', blank=True)
+    offerings = models.JSONField('Offerings', default=list, blank=True,
+        help_text='Array of 6 objects: {title, titleAr, desc, descAr}')
+
+    # --- Our Impact ---
+    our_impact = models.CharField('Our Impact Heading', max_length=300, blank=True)
+    our_impact_ar = models.CharField('Our Impact Heading (Arabic)', max_length=300, blank=True)
+    our_impact_text = models.TextField('Our Impact Text', blank=True)
+    our_impact_text_ar = models.TextField('Our Impact Text (Arabic)', blank=True)
+    impact = models.JSONField('Impact', default=list, blank=True,
+        help_text='Array of 4 objects: {label, labelAr, value, valueAr}')
+
+    # --- Why Choose Alia ---
+    why_choose = models.CharField('Why Choose Heading', max_length=300, blank=True)
+    why_choose_ar = models.CharField('Why Choose Heading (Arabic)', max_length=300, blank=True)
+    why_choose_text = models.TextField('Why Choose Text', blank=True)
+    why_choose_text_ar = models.TextField('Why Choose Text (Arabic)', blank=True)
+    why_values = models.JSONField('Why Values', default=list, blank=True,
+        help_text='Array of 4 value labels')
+
+    # --- Core Values ---
+    core_values = models.CharField('Core Values Heading', max_length=300, blank=True)
+    core_values_ar = models.CharField('Core Values Heading (Arabic)', max_length=300, blank=True)
+    core_values_text = models.TextField('Core Values Text', blank=True)
+    core_values_text_ar = models.TextField('Core Values Text (Arabic)', blank=True)
+    core_value_list = models.JSONField('Core Value List', default=list, blank=True,
+        help_text='Array of 5 core value labels')
+
+    published = models.BooleanField('Published', default=True)
+
+    class Meta:
+        verbose_name = 'About Content'
+        verbose_name_plural = 'About Content'
+
+    def __str__(self):
+        return 'About Content'
+
+    def save(self, *args, **kwargs):
+        if not self.pk and AboutContent.objects.exists():
+            existing = AboutContent.objects.first()
+            self.pk = existing.pk
+        super().save(*args, **kwargs)
+
+
+class ContactContent(TimeStampedModel):
+    """Singleton model for Contact Us page content."""
+
+    # --- Hero Section ---
+    title = models.CharField('Title', max_length=500, blank=True)
+    title_ar = models.CharField('Title (Arabic)', max_length=500, blank=True)
+    description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
+    browse_session = models.CharField('Browse Session Label', max_length=200, blank=True)
+    browse_session_ar = models.CharField('Browse Session Label (Arabic)', max_length=200, blank=True)
+    contact_support = models.CharField('Contact Support Label', max_length=200, blank=True)
+    contact_support_ar = models.CharField('Contact Support Label (Arabic)', max_length=200, blank=True)
+
+    # --- Send Message Form ---
+    send_message = models.CharField('Send Message Heading', max_length=300, blank=True)
+    send_message_ar = models.CharField('Send Message Heading (Arabic)', max_length=300, blank=True)
+    send_message_sub = models.CharField('Send Message Subheading', max_length=300, blank=True)
+    send_message_sub_ar = models.CharField('Send Message Subheading (Arabic)', max_length=300, blank=True)
+    full_name = models.CharField('Full Name Label', max_length=200, blank=True)
+    full_name_ar = models.CharField('Full Name Label (Arabic)', max_length=200, blank=True)
+    full_name_placeholder = models.CharField('Full Name Placeholder', max_length=200, blank=True)
+    full_name_placeholder_ar = models.CharField('Full Name Placeholder (Arabic)', max_length=200, blank=True)
+    email_label = models.CharField('Email Label', max_length=200, blank=True)
+    email_label_ar = models.CharField('Email Label (Arabic)', max_length=200, blank=True)
+    email_placeholder = models.CharField('Email Placeholder', max_length=200, blank=True)
+    email_placeholder_ar = models.CharField('Email Placeholder (Arabic)', max_length=200, blank=True)
+    user_type = models.CharField('User Type Label', max_length=200, blank=True)
+    user_type_ar = models.CharField('User Type Label (Arabic)', max_length=200, blank=True)
+    select_user_type = models.CharField('Select User Type', max_length=200, blank=True)
+    select_user_type_ar = models.CharField('Select User Type (Arabic)', max_length=200, blank=True)
+    individual = models.CharField('Individual Option', max_length=100, blank=True)
+    individual_ar = models.CharField('Individual Option (Arabic)', max_length=100, blank=True)
+    couple = models.CharField('Couple Option', max_length=100, blank=True)
+    couple_ar = models.CharField('Couple Option (Arabic)', max_length=100, blank=True)
+    organization = models.CharField('Organization Option', max_length=100, blank=True)
+    organization_ar = models.CharField('Organization Option (Arabic)', max_length=100, blank=True)
+    subject_label = models.CharField('Subject Label', max_length=200, blank=True)
+    subject_label_ar = models.CharField('Subject Label (Arabic)', max_length=200, blank=True)
+    subject_placeholder = models.CharField('Subject Placeholder', max_length=200, blank=True)
+    subject_placeholder_ar = models.CharField('Subject Placeholder (Arabic)', max_length=200, blank=True)
+    phone_label = models.CharField('Phone Label', max_length=200, blank=True)
+    phone_label_ar = models.CharField('Phone Label (Arabic)', max_length=200, blank=True)
+    phone_placeholder = models.CharField('Phone Placeholder', max_length=200, blank=True)
+    phone_placeholder_ar = models.CharField('Phone Placeholder (Arabic)', max_length=200, blank=True)
+    message_label = models.CharField('Message Label', max_length=200, blank=True)
+    message_label_ar = models.CharField('Message Label (Arabic)', max_length=200, blank=True)
+    message_placeholder = models.CharField('Message Placeholder', max_length=200, blank=True)
+    message_placeholder_ar = models.CharField('Message Placeholder (Arabic)', max_length=200, blank=True)
+    send_button = models.CharField('Send Button', max_length=100, blank=True)
+    send_button_ar = models.CharField('Send Button (Arabic)', max_length=100, blank=True)
+    success_message = models.CharField('Success Message', max_length=500, blank=True)
+    success_message_ar = models.CharField('Success Message (Arabic)', max_length=500, blank=True)
+    sending = models.CharField('Sending Label', max_length=100, blank=True)
+    sending_ar = models.CharField('Sending Label (Arabic)', max_length=100, blank=True)
+
+    # --- Contact Info Sidebar ---
+    contact_info = models.CharField('Contact Info Heading', max_length=200, blank=True)
+    contact_info_ar = models.CharField('Contact Info Heading (Arabic)', max_length=200, blank=True)
+    office_address = models.CharField('Office Address Heading', max_length=200, blank=True)
+    office_address_ar = models.CharField('Office Address Heading (Arabic)', max_length=200, blank=True)
+    working_hours = models.CharField('Working Hours Heading', max_length=200, blank=True)
+    working_hours_ar = models.CharField('Working Hours Heading (Arabic)', max_length=200, blank=True)
+    general_inquiries = models.CharField('General Inquiries Heading', max_length=200, blank=True)
+    general_inquiries_ar = models.CharField('General Inquiries Heading (Arabic)', max_length=200, blank=True)
+    support_heading = models.CharField('Support Heading', max_length=200, blank=True)
+    support_heading_ar = models.CharField('Support Heading (Arabic)', max_length=200, blank=True)
+    address_lines = models.JSONField('Address Lines', default=list, blank=True,
+        help_text='Array of 3 strings: address, email, phone')
+    address_lines_ar = models.JSONField('Address Lines (Arabic)', default=list, blank=True)
+    hours_lines = models.JSONField('Hours Lines', default=list, blank=True,
+        help_text='Array of 3 strings: Mon-Fri, Sat, Sun')
+    hours_lines_ar = models.JSONField('Hours Lines (Arabic)', default=list, blank=True)
+    inquiries_lines = models.JSONField('Inquiries Lines', default=list, blank=True,
+        help_text='Array of 2 strings: email, phone')
+    inquiries_lines_ar = models.JSONField('Inquiries Lines (Arabic)', default=list, blank=True)
+    support_lines = models.JSONField('Support Lines', default=list, blank=True,
+        help_text='Array of 2 strings: email, phone')
+    support_lines_ar = models.JSONField('Support Lines (Arabic)', default=list, blank=True)
+
+    # --- Location / Map ---
+    our_location = models.CharField('Our Location Heading', max_length=300, blank=True)
+    our_location_ar = models.CharField('Our Location Heading (Arabic)', max_length=300, blank=True)
+    our_location_text = models.TextField('Our Location Text', blank=True)
+    our_location_text_ar = models.TextField('Our Location Text (Arabic)', blank=True)
+    map_title = models.CharField('Map Title', max_length=300, blank=True)
+    map_title_ar = models.CharField('Map Title (Arabic)', max_length=300, blank=True)
+    map_embed_url = models.CharField('Map Embed URL', max_length=1000, blank=True)
+    latitude = models.CharField('Latitude', max_length=50, blank=True)
+    longitude = models.CharField('Longitude', max_length=50, blank=True)
+
+    published = models.BooleanField('Published', default=True)
+
+    class Meta:
+        verbose_name = 'Contact Content'
+        verbose_name_plural = 'Contact Content'
+
+    def __str__(self):
+        return 'Contact Content'
+
+    def save(self, *args, **kwargs):
+        if not self.pk and ContactContent.objects.exists():
+            existing = ContactContent.objects.first()
+            self.pk = existing.pk
+        super().save(*args, **kwargs)
+
+
+class MediaItem(TimeStampedModel):
+    """Collection model for media library (images, videos, documents)."""
+
+    slug = models.SlugField('Slug', max_length=320, unique=True)
+    file_url = models.URLField('File URL', max_length=1000)
+    filename = models.CharField('Filename', max_length=500)
+    alt = models.CharField('Alt Text', max_length=300, blank=True)
+    alt_ar = models.CharField('Alt Text (Arabic)', max_length=300, blank=True)
+    caption = models.CharField('Caption', max_length=500, blank=True)
+    caption_ar = models.CharField('Caption (Arabic)', max_length=500, blank=True)
+    category = models.CharField('Category', max_length=20, choices=MediaCategory.choices, default=MediaCategory.IMAGE)
+    file_size = models.PositiveIntegerField('File Size (bytes)', default=0)
+    width = models.PositiveIntegerField('Width (px)', default=0)
+    height = models.PositiveIntegerField('Height (px)', default=0)
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED)
+
+    class Meta:
+        verbose_name = 'Media Item'
+        verbose_name_plural = 'Media Items'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.filename
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from .utils import unique_slug
+            self.slug = unique_slug(MediaItem, self.filename or 'media', self.pk)
         super().save(*args, **kwargs)
