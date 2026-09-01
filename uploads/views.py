@@ -42,7 +42,7 @@ class FileUploadView(APIView):
         dest = os.path.join(upload_root, filename)
 
         with open(dest, 'wb') as f:
-            for chunk in file_obj.chunks():
+            for chunk in file_obj.chunks(chunk_size=1024 * 1024 * 10):
                 f.write(chunk)
 
         media_url = f'{settings.MEDIA_URL}{subdir}/{filename}'
