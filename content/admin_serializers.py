@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .enums import ShortCategory
-from .models import Category, Consultation, Emirate, Initiative, NewsArticle, PagePresentation, Short
+from .models import Category, Consultation, Emirate, HomepageContent, Initiative, NewsArticle, PagePresentation, Short
 from .utils import unique_slug
 
 
@@ -202,3 +202,122 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
                   'heroImage', 'published']
         read_only_fields = ['id', 'key']
+
+
+class HomepageContentAdminSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+
+    # Hero
+    heroEyebrow = serializers.CharField(source='hero_eyebrow', required=False, allow_blank=True)
+    heroEyebrowAr = serializers.CharField(source='hero_eyebrow_ar', required=False, allow_blank=True)
+    heroTitle = serializers.CharField(source='hero_title', required=False, allow_blank=True)
+    heroTitleAr = serializers.CharField(source='hero_title_ar', required=False, allow_blank=True)
+    heroSubtitle = serializers.CharField(source='hero_subtitle', required=False, allow_blank=True)
+    heroSubtitleAr = serializers.CharField(source='hero_subtitle_ar', required=False, allow_blank=True)
+    heroSearchPlaceholder = serializers.CharField(source='hero_search_placeholder', required=False, allow_blank=True)
+    heroSearchPlaceholderAr = serializers.CharField(source='hero_search_placeholder_ar', required=False, allow_blank=True)
+    heroSearchButton = serializers.CharField(source='hero_search_button', required=False, allow_blank=True)
+    heroSearchButtonAr = serializers.CharField(source='hero_search_button_ar', required=False, allow_blank=True)
+    heroPrimaryCtaLabel = serializers.CharField(source='hero_primary_cta_label', required=False, allow_blank=True)
+    heroPrimaryCtaLabelAr = serializers.CharField(source='hero_primary_cta_label_ar', required=False, allow_blank=True)
+    heroPrimaryCtaLink = serializers.CharField(source='hero_primary_cta_link', required=False, allow_blank=True)
+    heroSecondaryCtaLabel = serializers.CharField(source='hero_secondary_cta_label', required=False, allow_blank=True)
+    heroSecondaryCtaLabelAr = serializers.CharField(source='hero_secondary_cta_label_ar', required=False, allow_blank=True)
+    heroSecondaryCtaLink = serializers.CharField(source='hero_secondary_cta_link', required=False, allow_blank=True)
+    heroImage = serializers.CharField(source='hero_image', required=False, allow_blank=True)
+    heroImageAlt = serializers.CharField(source='hero_image_alt', required=False, allow_blank=True)
+    heroFloatingCards = serializers.JSONField(source='hero_floating_cards', required=False)
+
+    # Stats
+    stats = serializers.JSONField(required=False)
+
+    # Shorts
+    shortsTitle = serializers.CharField(source='shorts_title', required=False, allow_blank=True)
+    shortsTitleAr = serializers.CharField(source='shorts_title_ar', required=False, allow_blank=True)
+    shortsSubtitle = serializers.CharField(source='shorts_subtitle', required=False, allow_blank=True)
+    shortsSubtitleAr = serializers.CharField(source='shorts_subtitle_ar', required=False, allow_blank=True)
+    shortsCtaLabel = serializers.CharField(source='shorts_cta_label', required=False, allow_blank=True)
+    shortsCtaLabelAr = serializers.CharField(source='shorts_cta_label_ar', required=False, allow_blank=True)
+    shortsEmptyText = serializers.CharField(source='shorts_empty_text', required=False, allow_blank=True)
+    shortsEmptyTextAr = serializers.CharField(source='shorts_empty_text_ar', required=False, allow_blank=True)
+
+    # News
+    newsTitle = serializers.CharField(source='news_title', required=False, allow_blank=True)
+    newsTitleAr = serializers.CharField(source='news_title_ar', required=False, allow_blank=True)
+    newsSubtitle = serializers.CharField(source='news_subtitle', required=False, allow_blank=True)
+    newsSubtitleAr = serializers.CharField(source='news_subtitle_ar', required=False, allow_blank=True)
+    newsCtaLabel = serializers.CharField(source='news_cta_label', required=False, allow_blank=True)
+    newsCtaLabelAr = serializers.CharField(source='news_cta_label_ar', required=False, allow_blank=True)
+
+    # Initiatives
+    initiativesTitle = serializers.CharField(source='initiatives_title', required=False, allow_blank=True)
+    initiativesTitleAr = serializers.CharField(source='initiatives_title_ar', required=False, allow_blank=True)
+    initiativesSubtitle = serializers.CharField(source='initiatives_subtitle', required=False, allow_blank=True)
+    initiativesSubtitleAr = serializers.CharField(source='initiatives_subtitle_ar', required=False, allow_blank=True)
+    initiativesCtaLabel = serializers.CharField(source='initiatives_cta_label', required=False, allow_blank=True)
+    initiativesCtaLabelAr = serializers.CharField(source='initiatives_cta_label_ar', required=False, allow_blank=True)
+
+    # Consultations
+    consultationsTitle = serializers.CharField(source='consultations_title', required=False, allow_blank=True)
+    consultationsTitleAr = serializers.CharField(source='consultations_title_ar', required=False, allow_blank=True)
+    consultationsSubtitle = serializers.CharField(source='consultations_subtitle', required=False, allow_blank=True)
+    consultationsSubtitleAr = serializers.CharField(source='consultations_subtitle_ar', required=False, allow_blank=True)
+    consultationsCtaLabel = serializers.CharField(source='consultations_cta_label', required=False, allow_blank=True)
+    consultationsCtaLabelAr = serializers.CharField(source='consultations_cta_label_ar', required=False, allow_blank=True)
+    consultationsFreeTab = serializers.CharField(source='consultations_free_tab', required=False, allow_blank=True)
+    consultationsFreeTabAr = serializers.CharField(source='consultations_free_tab_ar', required=False, allow_blank=True)
+    consultationsPaidTab = serializers.CharField(source='consultations_paid_tab', required=False, allow_blank=True)
+    consultationsPaidTabAr = serializers.CharField(source='consultations_paid_tab_ar', required=False, allow_blank=True)
+
+    # Emirates
+    emiratesTitle = serializers.CharField(source='emirates_title', required=False, allow_blank=True)
+    emiratesTitleAr = serializers.CharField(source='emirates_title_ar', required=False, allow_blank=True)
+    emiratesSubtitle = serializers.CharField(source='emirates_subtitle', required=False, allow_blank=True)
+    emiratesSubtitleAr = serializers.CharField(source='emirates_subtitle_ar', required=False, allow_blank=True)
+    emiratesCapitalLabel = serializers.CharField(source='emirates_capital_label', required=False, allow_blank=True)
+    emiratesCapitalLabelAr = serializers.CharField(source='emirates_capital_label_ar', required=False, allow_blank=True)
+    emiratesHeadquartersLabel = serializers.CharField(source='emirates_headquarters_label', required=False, allow_blank=True)
+    emiratesHeadquartersLabelAr = serializers.CharField(source='emirates_headquarters_label_ar', required=False, allow_blank=True)
+    emiratesCtaLabel = serializers.CharField(source='emirates_cta_label', required=False, allow_blank=True)
+    emiratesCtaLabelAr = serializers.CharField(source='emirates_cta_label_ar', required=False, allow_blank=True)
+
+    # CTA
+    ctaTitle = serializers.CharField(source='cta_title', required=False, allow_blank=True)
+    ctaTitleAr = serializers.CharField(source='cta_title_ar', required=False, allow_blank=True)
+    ctaSubtitle = serializers.CharField(source='cta_subtitle', required=False, allow_blank=True)
+    ctaSubtitleAr = serializers.CharField(source='cta_subtitle_ar', required=False, allow_blank=True)
+    ctaPrimaryLabel = serializers.CharField(source='cta_primary_label', required=False, allow_blank=True)
+    ctaPrimaryLabelAr = serializers.CharField(source='cta_primary_label_ar', required=False, allow_blank=True)
+    ctaPrimaryLink = serializers.CharField(source='cta_primary_link', required=False, allow_blank=True)
+    ctaSecondaryLabel = serializers.CharField(source='cta_secondary_label', required=False, allow_blank=True)
+    ctaSecondaryLabelAr = serializers.CharField(source='cta_secondary_label_ar', required=False, allow_blank=True)
+    ctaSecondaryLink = serializers.CharField(source='cta_secondary_link', required=False, allow_blank=True)
+
+    class Meta:
+        model = HomepageContent
+        fields = ['id',
+                  'heroEyebrow', 'heroEyebrowAr', 'heroTitle', 'heroTitleAr',
+                  'heroSubtitle', 'heroSubtitleAr', 'heroSearchPlaceholder', 'heroSearchPlaceholderAr',
+                  'heroSearchButton', 'heroSearchButtonAr',
+                  'heroPrimaryCtaLabel', 'heroPrimaryCtaLabelAr', 'heroPrimaryCtaLink',
+                  'heroSecondaryCtaLabel', 'heroSecondaryCtaLabelAr', 'heroSecondaryCtaLink',
+                  'heroImage', 'heroImageAlt', 'heroFloatingCards',
+                  'stats',
+                  'shortsTitle', 'shortsTitleAr', 'shortsSubtitle', 'shortsSubtitleAr',
+                  'shortsCtaLabel', 'shortsCtaLabelAr', 'shortsEmptyText', 'shortsEmptyTextAr',
+                  'newsTitle', 'newsTitleAr', 'newsSubtitle', 'newsSubtitleAr',
+                  'newsCtaLabel', 'newsCtaLabelAr',
+                  'initiativesTitle', 'initiativesTitleAr', 'initiativesSubtitle', 'initiativesSubtitleAr',
+                  'initiativesCtaLabel', 'initiativesCtaLabelAr',
+                  'consultationsTitle', 'consultationsTitleAr', 'consultationsSubtitle', 'consultationsSubtitleAr',
+                  'consultationsCtaLabel', 'consultationsCtaLabelAr',
+                  'consultationsFreeTab', 'consultationsFreeTabAr', 'consultationsPaidTab', 'consultationsPaidTabAr',
+                  'emiratesTitle', 'emiratesTitleAr', 'emiratesSubtitle', 'emiratesSubtitleAr',
+                  'emiratesCapitalLabel', 'emiratesCapitalLabelAr',
+                  'emiratesHeadquartersLabel', 'emiratesHeadquartersLabelAr',
+                  'emiratesCtaLabel', 'emiratesCtaLabelAr',
+                  'ctaTitle', 'ctaTitleAr', 'ctaSubtitle', 'ctaSubtitleAr',
+                  'ctaPrimaryLabel', 'ctaPrimaryLabelAr', 'ctaPrimaryLink',
+                  'ctaSecondaryLabel', 'ctaSecondaryLabelAr', 'ctaSecondaryLink',
+                  'published']
+        read_only_fields = ['id']

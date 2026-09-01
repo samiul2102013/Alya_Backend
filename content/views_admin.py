@@ -3,11 +3,13 @@ from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 
 from .admin_serializers import (
     CategoryAdminSerializer,
     ConsultationAdminSerializer,
     EmirateAdminSerializer,
+    HomepageContentAdminSerializer,
     InitiativeAdminSerializer,
     NewsAdminSerializer,
     PagePresentationAdminSerializer,
@@ -17,6 +19,7 @@ from .models import (
     Category,
     Consultation,
     Emirate,
+    HomepageContent,
     Initiative,
     NewsArticle,
     PagePresentation,
@@ -139,3 +142,22 @@ class PagePresentationAdminViewSet(ModelViewSet):
     queryset = PagePresentation.objects.all().order_by('key')
     serializer_class = PagePresentationAdminSerializer
     lookup_field = 'pk'
+
+
+class HomepageContentAdminView(APIView):
+    """/api/admin/homepage — upsert singleton homepage content."""
+
+    def get(self, request):
+        obj, _ = HomepageContent.objects.get_or_create(pk=HomepageContent.objects.first().pk if HomepageContent.objects.exists() else None)
+        serializer = HomepageContentAdminSerializer(obj)
+        return Response(serializer.data)
+
+    def post(self, request):
+        obj = HomepageContent.objects.first()
+        if obj:
+            serializer = HomepageContentAdminSerializer(obj, data=request.data, partial=True)
+        else:
+            serializer = HomepageContentAdminSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)

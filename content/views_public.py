@@ -5,13 +5,14 @@ from django.utils import timezone
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 
-from .models import Category, Consultation, Emirate, Initiative, NewsArticle, PagePresentation, Short
+from .models import Category, Consultation, Emirate, HomepageContent, Initiative, NewsArticle, PagePresentation, Short
 from .public_serializers import (
     CategorySerializer,
     ConsultationDetailSerializer,
     ConsultationListSerializer,
     EmirateDetailSerializer,
     EmirateListSerializer,
+    HomepageContentSerializer,
     InitiativeDetailSerializer,
     InitiativeListSerializer,
     NewsDetailSerializer,
@@ -309,3 +310,17 @@ class PagePresentationPublicDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return PagePresentation.objects.filter(published=True)
+
+
+class HomepageContentPublicView(generics.RetrieveAPIView):
+    """GET /api/homepage — returns the singleton homepage content."""
+
+    permission_classes = [AllowAny]
+    serializer_class = HomepageContentSerializer
+
+    def get_object(self):
+        obj = HomepageContent.objects.first()
+        if not obj:
+            from rest_framework.exceptions import NotFound
+            raise NotFound('Homepage content not configured yet.')
+        return obj

@@ -345,3 +345,116 @@ class PagePresentation(TimeStampedModel):
 
     def __str__(self):
         return dict(self.SECTION_CHOICES).get(self.key, self.key)
+
+
+class HomepageContent(TimeStampedModel):
+    """Singleton model storing all editable homepage content.
+
+    Only one record should ever exist. Admin saves via upsert (POST).
+    The public API serves this single record to the user homepage.
+    """
+
+    # --- Hero Section ---
+    hero_eyebrow = models.CharField('Hero Eyebrow', max_length=300, blank=True)
+    hero_eyebrow_ar = models.CharField('Hero Eyebrow (Arabic)', max_length=300, blank=True)
+    hero_title = models.CharField('Hero Title', max_length=500, blank=True)
+    hero_title_ar = models.CharField('Hero Title (Arabic)', max_length=500, blank=True)
+    hero_subtitle = models.TextField('Hero Subtitle', blank=True)
+    hero_subtitle_ar = models.TextField('Hero Subtitle (Arabic)', blank=True)
+    hero_search_placeholder = models.CharField('Hero Search Placeholder', max_length=300, blank=True)
+    hero_search_placeholder_ar = models.CharField('Hero Search Placeholder (Arabic)', max_length=300, blank=True)
+    hero_search_button = models.CharField('Hero Search Button', max_length=100, blank=True)
+    hero_search_button_ar = models.CharField('Hero Search Button (Arabic)', max_length=100, blank=True)
+    hero_primary_cta_label = models.CharField('Hero Primary CTA Label', max_length=150, blank=True)
+    hero_primary_cta_label_ar = models.CharField('Hero Primary CTA Label (Arabic)', max_length=150, blank=True)
+    hero_primary_cta_link = models.CharField('Hero Primary CTA Link', max_length=500, blank=True, default='/initiatives')
+    hero_secondary_cta_label = models.CharField('Hero Secondary CTA Label', max_length=150, blank=True)
+    hero_secondary_cta_label_ar = models.CharField('Hero Secondary CTA Label (Arabic)', max_length=150, blank=True)
+    hero_secondary_cta_link = models.CharField('Hero Secondary CTA Link', max_length=500, blank=True, default='/news')
+    hero_image = models.CharField('Hero Image', max_length=500, blank=True)
+    hero_image_alt = models.CharField('Hero Image Alt', max_length=300, blank=True)
+    hero_floating_cards = models.JSONField('Hero Floating Cards', default=list, blank=True,
+        help_text='Array of 4 objects: {label, labelAr, sublabel, sublabelAr}')
+
+    # --- Stats Section (FeatureGrid) ---
+    stats = models.JSONField('Stats', default=list, blank=True,
+        help_text='Array of 4 objects: {value, title, titleAr, subtitle, subtitleAr}')
+
+    # --- Shorts Section Header ---
+    shorts_title = models.CharField('Shorts Title', max_length=300, blank=True)
+    shorts_title_ar = models.CharField('Shorts Title (Arabic)', max_length=300, blank=True)
+    shorts_subtitle = models.TextField('Shorts Subtitle', blank=True)
+    shorts_subtitle_ar = models.TextField('Shorts Subtitle (Arabic)', blank=True)
+    shorts_cta_label = models.CharField('Shorts CTA Label', max_length=150, blank=True)
+    shorts_cta_label_ar = models.CharField('Shorts CTA Label (Arabic)', max_length=150, blank=True)
+    shorts_empty_text = models.CharField('Shorts Empty Text', max_length=300, blank=True)
+    shorts_empty_text_ar = models.CharField('Shorts Empty Text (Arabic)', max_length=300, blank=True)
+
+    # --- News Section Header ---
+    news_title = models.CharField('News Title', max_length=300, blank=True)
+    news_title_ar = models.CharField('News Title (Arabic)', max_length=300, blank=True)
+    news_subtitle = models.TextField('News Subtitle', blank=True)
+    news_subtitle_ar = models.TextField('News Subtitle (Arabic)', blank=True)
+    news_cta_label = models.CharField('News CTA Label', max_length=150, blank=True)
+    news_cta_label_ar = models.CharField('News CTA Label (Arabic)', max_length=150, blank=True)
+
+    # --- Initiatives Section Header ---
+    initiatives_title = models.CharField('Initiatives Title', max_length=300, blank=True)
+    initiatives_title_ar = models.CharField('Initiatives Title (Arabic)', max_length=300, blank=True)
+    initiatives_subtitle = models.TextField('Initiatives Subtitle', blank=True)
+    initiatives_subtitle_ar = models.TextField('Initiatives Subtitle (Arabic)', blank=True)
+    initiatives_cta_label = models.CharField('Initiatives CTA Label', max_length=150, blank=True)
+    initiatives_cta_label_ar = models.CharField('Initiatives CTA Label (Arabic)', max_length=150, blank=True)
+
+    # --- Consultations Section Header ---
+    consultations_title = models.CharField('Consultations Title', max_length=300, blank=True)
+    consultations_title_ar = models.CharField('Consultations Title (Arabic)', max_length=300, blank=True)
+    consultations_subtitle = models.TextField('Consultations Subtitle', blank=True)
+    consultations_subtitle_ar = models.TextField('Consultations Subtitle (Arabic)', blank=True)
+    consultations_cta_label = models.CharField('Consultations CTA Label', max_length=150, blank=True)
+    consultations_cta_label_ar = models.CharField('Consultations CTA Label (Arabic)', max_length=150, blank=True)
+    consultations_free_tab = models.CharField('Free Session Tab', max_length=100, blank=True)
+    consultations_free_tab_ar = models.CharField('Free Session Tab (Arabic)', max_length=100, blank=True)
+    consultations_paid_tab = models.CharField('Paid Session Tab', max_length=100, blank=True)
+    consultations_paid_tab_ar = models.CharField('Paid Session Tab (Arabic)', max_length=100, blank=True)
+
+    # --- Emirates Section Header ---
+    emirates_title = models.CharField('Emirates Title', max_length=300, blank=True)
+    emirates_title_ar = models.CharField('Emirates Title (Arabic)', max_length=300, blank=True)
+    emirates_subtitle = models.TextField('Emirates Subtitle', blank=True)
+    emirates_subtitle_ar = models.TextField('Emirates Subtitle (Arabic)', blank=True)
+    emirates_capital_label = models.CharField('Capital Region Label', max_length=100, blank=True)
+    emirates_capital_label_ar = models.CharField('Capital Region Label (Arabic)', max_length=100, blank=True)
+    emirates_headquarters_label = models.CharField('Main Headquarters Label', max_length=100, blank=True)
+    emirates_headquarters_label_ar = models.CharField('Main Headquarters Label (Arabic)', max_length=100, blank=True)
+    emirates_cta_label = models.CharField('Emirates CTA Label', max_length=150, blank=True)
+    emirates_cta_label_ar = models.CharField('Emirates CTA Label (Arabic)', max_length=150, blank=True)
+
+    # --- CTA Section ---
+    cta_title = models.CharField('CTA Title', max_length=300, blank=True)
+    cta_title_ar = models.CharField('CTA Title (Arabic)', max_length=300, blank=True)
+    cta_subtitle = models.TextField('CTA Subtitle', blank=True)
+    cta_subtitle_ar = models.TextField('CTA Subtitle (Arabic)', blank=True)
+    cta_primary_label = models.CharField('CTA Primary Label', max_length=150, blank=True)
+    cta_primary_label_ar = models.CharField('CTA Primary Label (Arabic)', max_length=150, blank=True)
+    cta_primary_link = models.CharField('CTA Primary Link', max_length=500, blank=True, default='/initiatives')
+    cta_secondary_label = models.CharField('CTA Secondary Label', max_length=150, blank=True)
+    cta_secondary_label_ar = models.CharField('CTA Secondary Label (Arabic)', max_length=150, blank=True)
+    cta_secondary_link = models.CharField('CTA Secondary Link', max_length=500, blank=True, default='/consultation')
+
+    # --- Visibility ---
+    published = models.BooleanField('Published', default=True)
+
+    class Meta:
+        verbose_name = 'Homepage Content'
+        verbose_name_plural = 'Homepage Content'
+
+    def __str__(self):
+        return 'Homepage Content'
+
+    def save(self, *args, **kwargs):
+        # Enforce singleton: only one record allowed
+        if not self.pk and HomepageContent.objects.exists():
+            existing = HomepageContent.objects.first()
+            self.pk = existing.pk
+        super().save(*args, **kwargs)

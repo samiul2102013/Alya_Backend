@@ -14,6 +14,7 @@ from .views_public import (
     ConsultationPublicList,
     EmiratePublicDetailView,
     EmiratePublicList,
+    HomepageContentPublicView,
     InitiativeFeaturedPublicView,
     InitiativePublicDetailView,
     InitiativePublicList,
@@ -28,6 +29,7 @@ from .views_admin import (
     CategoryAdminViewSet,
     ConsultationAdminViewSet,
     EmirateAdminViewSet,
+    HomepageContentAdminView,
     InitiativeAdminViewSet,
     NewsAdminViewSet,
     PagePresentationAdminViewSet,
@@ -49,6 +51,7 @@ urlpatterns = router.urls + [
     path('admin/dashboard/analytics', DashboardAnalyticsView.as_view(), name='admin-dashboard-analytics'),
     path('admin/dashboard/latest-content', DashboardLatestContentView.as_view(), name='admin-dashboard-latest'),
     path('admin/meta', MetaView.as_view(), name='admin-meta'),
+    path('admin/homepage', HomepageContentAdminView.as_view(), name='admin-homepage'),
     # Public
     path('shorts', ShortPublicView.as_view(), name='shorts-list'),
     path('shorts/<str:slug>', ShortPublicDetail.as_view(), name='shorts-detail'),
@@ -64,4 +67,5 @@ urlpatterns = router.urls + [
     path('categories', CategoryPublicList.as_view(), name='categories-list'),
     path('presentations', PagePresentationPublicListView.as_view(), name='presentations-list'),
     path('presentations/<str:key>', PagePresentationPublicDetailView.as_view(), name='presentations-detail'),
+    path('homepage', HomepageContentPublicView.as_view(), name='homepage-content'),
 ]
