@@ -4,6 +4,8 @@ from django.db.models import Q
 from django.utils import timezone
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 from .public_serializers import (
@@ -137,7 +139,7 @@ class NewsPublicDetailView(generics.RetrieveAPIView):
 class InitiativePublicList(generics.ListAPIView):
     """GET /api/initiatives/
 
-    Optional query params: emirate, featured (1/0).
+    Optional query params: emirate, featured (1/0), listed (1/0), category, search.
     """
 
     permission_classes = [AllowAny]
@@ -145,15 +147,35 @@ class InitiativePublicList(generics.ListAPIView):
 
     def get_queryset(self):
         qs = Initiative.objects.filter(status='Published')
-        emirate = self.request.query_params.get('emirate')
-        featured = self.request.query_params.get('featured')
+        params = self.request.query_params
+        emirate = params.get('emirate')
+        featured = params.get('featured')
+        listed = params.get('listed')
+        category = params.get('category', '').strip()
+        search = params.get('search', '').strip()
+
         if emirate:
             qs = qs.filter(emirates__iexact=emirate)
         if featured == '1':
             qs = qs.filter(is_featured=True)
         elif featured == '0':
             qs = qs.filter(is_featured=False)
-        return qs
+        if listed == '1':
+            qs = qs.filter(is_listed=True)
+        elif listed == '0':
+            qs = qs.filter(is_listed=False)
+        if category:
+            qs = qs.filter(category__iexact=category)
+        if search:
+            qs = qs.filter(
+                Q(title__icontains=search)
+                | Q(title_ar__icontains=search)
+                | Q(subtitle__icontains=search)
+                | Q(subtitle_ar__icontains=search)
+                | Q(description__icontains=search)
+                | Q(purpose__icontains=search)
+            )
+        return qs.order_by('-is_featured', '-start_date', '-created_at')
 
 
 class InitiativeFeaturedPublicView(generics.RetrieveAPIView):
@@ -370,3 +392,71 @@ class MediaItemPublicList(generics.ListAPIView):
         if category:
             qs = qs.filter(category__iexact=category)
         return qs.order_by('-created_at')
+
+
+class GlobalSearchView(APIView):
+    """GET /api/search?q=...
+
+    Returns grouped hits across shorts, news, consultations, initiatives, and
+    emirates — each limited to a handful of items so the search results page
+    stays snappy. All sources are restricted to status='Published'.
+    """
+
+    permission_classes = [AllowAny]
+
+    MAX_PER_GROUP = 4
+
+    def get(self, request):
+        q = (request.query_params.get('q') or '').strip()
+        if not q:
+            return Response({
+                'q': '',
+                'shorts': [],
+                'news': [],
+                'consultations': [],
+                'initiatives': [],
+                'emirates': [],
+            })
+
+        shorts = Short.objects.filter(status='Published').filter(
+            Q(video_title__icontains=q)
+            | Q(video_title_ar__icontains=q)
+            | Q(description__icontains=q)
+            | Q(organization__icontains=q)
+        ).order_by('-published_at', '-created_at')[:self.MAX_PER_GROUP]
+
+        news = NewsArticle.objects.filter(status='Published').filter(
+            Q(article_title__icontains=q)
+            | Q(article_title_ar__icontains=q)
+            | Q(content__icontains=q)
+            | Q(organization__icontains=q)
+        ).order_by('-published_date', '-created_at')[:self.MAX_PER_GROUP]
+
+        consultations = Consultation.objects.filter(status='Published').filter(
+            Q(session_title__icontains=q)
+            | Q(session_title_ar__icontains=q)
+            | Q(counselor__icontains=q)
+        ).order_by('-date', '-created_at')[:self.MAX_PER_GROUP]
+
+        initiatives = Initiative.objects.filter(status='Published').filter(
+            Q(title__icontains=q)
+            | Q(title_ar__icontains=q)
+            | Q(subtitle__icontains=q)
+            | Q(description__icontains=q)
+            | Q(purpose__icontains=q)
+        ).order_by('-start_date', '-created_at')[:self.MAX_PER_GROUP]
+
+        emirates = Emirate.objects.filter(status='Published').filter(
+            Q(emirates_name__icontains=q)
+            | Q(title__icontains=q)
+            | Q(description__icontains=q)
+        ).order_by('emirates_name')[:self.MAX_PER_GROUP]
+
+        return Response({
+            'q': q,
+            'shorts': ShortListSerializer(shorts, many=True).data,
+            'news': NewsListSerializer(news, many=True).data,
+            'consultations': ConsultationListSerializer(consultations, many=True).data,
+            'initiatives': InitiativeListSerializer(initiatives, many=True).data,
+            'emirates': EmirateListSerializer(emirates, many=True).data,
+        })

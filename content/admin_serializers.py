@@ -82,6 +82,7 @@ class InitiativeAdminSerializer(serializers.ModelSerializer):
     supportOffered = serializers.JSONField(source='support_offered', required=False)
     basicInformation = serializers.JSONField(source='basic_information', required=False)
     isFeatured = serializers.BooleanField(source='is_featured', required=False)
+    isListed = serializers.BooleanField(source='is_listed', required=False)
     showAbout = serializers.BooleanField(source='show_about', required=False)
     showSupportOffered = serializers.BooleanField(source='show_support_offered', required=False)
     showBenefits = serializers.BooleanField(source='show_benefits', required=False)
@@ -92,7 +93,8 @@ class InitiativeAdminSerializer(serializers.ModelSerializer):
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
                   'description', 'purpose', 'objectives', 'basicInformation', 'supportOffered',
                   'benefits', 'startDate', 'endDate', 'coverImage', 'badge', 'contact',
-                  'officialWebsiteUrl', 'shareUrl', 'isFeatured', 'showAbout', 'showSupportOffered',
+                  'officialWebsiteUrl', 'shareUrl', 'isFeatured', 'isListed',
+                  'showAbout', 'showSupportOffered',
                   'showBenefits', 'showApplicationForm', 'status']
         read_only_fields = ['id', 'slug']
 
@@ -196,11 +198,14 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
     titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
     descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
     heroImage = serializers.CharField(source='hero_image', required=False, allow_blank=True)
+    topics = serializers.JSONField(source='shorts_topics', required=False)
+    contributors = serializers.JSONField(source='shorts_contributors', required=False)
+    faqs = serializers.JSONField(source='shorts_faqs', required=False)
 
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published']
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs']
         read_only_fields = ['id', 'key']
 
 
@@ -293,6 +298,8 @@ class HomepageContentAdminSerializer(serializers.ModelSerializer):
     ctaSecondaryLabelAr = serializers.CharField(source='cta_secondary_label_ar', required=False, allow_blank=True)
     ctaSecondaryLink = serializers.CharField(source='cta_secondary_link', required=False, allow_blank=True)
 
+    sectionVisibility = serializers.JSONField(source='section_visibility', required=False)
+
     class Meta:
         model = HomepageContent
         fields = ['id',
@@ -319,6 +326,7 @@ class HomepageContentAdminSerializer(serializers.ModelSerializer):
                   'ctaTitle', 'ctaTitleAr', 'ctaSubtitle', 'ctaSubtitleAr',
                   'ctaPrimaryLabel', 'ctaPrimaryLabelAr', 'ctaPrimaryLink',
                   'ctaSecondaryLabel', 'ctaSecondaryLabelAr', 'ctaSecondaryLink',
+                  'sectionVisibility',
                   'published']
         read_only_fields = ['id']
 
@@ -332,6 +340,8 @@ class AboutContentAdminSerializer(serializers.ModelSerializer):
     browseSessionAr = serializers.CharField(source='browse_session_ar', required=False, allow_blank=True)
     contactSupport = serializers.CharField(source='contact_support', required=False, allow_blank=True)
     contactSupportAr = serializers.CharField(source='contact_support_ar', required=False, allow_blank=True)
+    heroImage = serializers.CharField(source='hero_image', required=False, allow_blank=True)
+    heroImageAlt = serializers.CharField(source='hero_image_alt', required=False, allow_blank=True)
 
     ourStory = serializers.CharField(source='our_story', required=False, allow_blank=True)
     ourStoryAr = serializers.CharField(source='our_story_ar', required=False, allow_blank=True)
@@ -383,6 +393,7 @@ class AboutContentAdminSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'title', 'titleAr', 'description', 'descriptionAr',
                   'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
+                  'heroImage', 'heroImageAlt',
                   'ourStory', 'ourStoryAr', 'ourStoryText', 'ourStoryTextAr',
                   'ourMission', 'ourMissionAr', 'ourMissionText', 'ourMissionTextAr',
                   'ourVision', 'ourVisionAr', 'ourVisionText', 'ourVisionTextAr',

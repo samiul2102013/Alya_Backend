@@ -7,6 +7,7 @@ from .dashboard import (
     DashboardStatsView,
     MetaView,
 )
+from .views_public import GlobalSearchView
 from .views_public import (
     AboutContentPublicView,
     CategoryPublicList,
@@ -80,4 +81,5 @@ urlpatterns = router.urls + [
     path('about', AboutContentPublicView.as_view(), name='about-content'),
     path('contact', ContactContentPublicView.as_view(), name='contact-content'),
     path('media', MediaItemPublicList.as_view(), name='media-list'),
+    path('search', GlobalSearchView.as_view(), name='global-search'),
 ]

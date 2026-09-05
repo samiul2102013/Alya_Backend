@@ -147,6 +147,7 @@ class Initiative(TimeStampedModel):
     contact = models.JSONField('Contact', default=list, blank=True)
 
     is_featured = models.BooleanField('Featured on Home Page', default=False, help_text='If checked, this initiative is shown on the user panel (single featured).')
+    is_listed = models.BooleanField('Show on Initiatives Listing', default=True, help_text='Show this initiative in the public /initiatives list. Featured initiatives are always listed.')
 
     show_about = models.BooleanField('Show About', default=True)
     show_support_offered = models.BooleanField('Show Support Offered', default=True)
@@ -339,6 +340,27 @@ class PagePresentation(TimeStampedModel):
     hero_image = models.CharField('Hero Image', max_length=500, blank=True)
     published = models.BooleanField('Published', default=True)
 
+    # Shorts page extras (topics / contributors / FAQs). Kept on the shared
+    # presentation model so they can be managed from the admin dashboard.
+    shorts_topics = models.JSONField(
+        'Shorts Topics',
+        default=list,
+        blank=True,
+        help_text='List of { "title", "videos", "icon" } items shown on the Shorts page.',
+    )
+    shorts_contributors = models.JSONField(
+        'Shorts Contributors',
+        default=list,
+        blank=True,
+        help_text='List of contributor names shown on the Shorts page.',
+    )
+    shorts_faqs = models.JSONField(
+        'Shorts FAQs',
+        default=list,
+        blank=True,
+        help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Shorts page.',
+    )
+
     class Meta:
         verbose_name = 'Page Presentation'
         verbose_name_plural = 'Page Presentations'
@@ -346,6 +368,22 @@ class PagePresentation(TimeStampedModel):
 
     def __str__(self):
         return dict(self.SECTION_CHOICES).get(self.key, self.key)
+
+
+HOME_SECTION_KEYS = [
+    'hero',
+    'stats',
+    'shorts',
+    'news',
+    'initiatives',
+    'consultations',
+    'emirates',
+    'cta',
+]
+
+
+def _default_section_visibility():
+    return {key: True for key in HOME_SECTION_KEYS}
 
 
 class HomepageContent(TimeStampedModel):
@@ -446,6 +484,13 @@ class HomepageContent(TimeStampedModel):
     # --- Visibility ---
     published = models.BooleanField('Published', default=True)
 
+    section_visibility = models.JSONField(
+        'Section Visibility',
+        default=_default_section_visibility,
+        blank=True,
+        help_text='Toggle which homepage sections render on the user panel. Keys: hero, stats, shorts, news, initiatives, consultations, emirates, cta. Missing keys default to true.',
+    )
+
     class Meta:
         verbose_name = 'Homepage Content'
         verbose_name_plural = 'Homepage Content'
@@ -458,6 +503,12 @@ class HomepageContent(TimeStampedModel):
         if not self.pk and HomepageContent.objects.exists():
             existing = HomepageContent.objects.first()
             self.pk = existing.pk
+        # Merge defaults so newly-added section keys always render.
+        defaults = _default_section_visibility()
+        current = dict(self.section_visibility or {})
+        for key, value in defaults.items():
+            current.setdefault(key, value)
+        self.section_visibility = current
         super().save(*args, **kwargs)
 
 
@@ -473,6 +524,9 @@ class AboutContent(TimeStampedModel):
     browse_session_ar = models.CharField('Browse Session Label (Arabic)', max_length=200, blank=True)
     contact_support = models.CharField('Contact Support Label', max_length=200, blank=True)
     contact_support_ar = models.CharField('Contact Support Label (Arabic)', max_length=200, blank=True)
+    hero_image = models.CharField('Hero Image URL', max_length=500, blank=True,
+        help_text='Recommended 1280x600 px')
+    hero_image_alt = models.CharField('Hero Image Alt Text', max_length=300, blank=True)
 
     # --- Our Story ---
     our_story = models.CharField('Our Story Heading', max_length=300, blank=True)

@@ -118,13 +118,14 @@ class InitiativeListSerializer(serializers.ModelSerializer):
     officialWebsiteUrl = serializers.CharField(source='official_website_url', read_only=True)
     shareUrl = serializers.CharField(source='share_url', read_only=True)
     isFeatured = serializers.BooleanField(source='is_featured', read_only=True)
+    isListed = serializers.BooleanField(source='is_listed', read_only=True)
     status = serializers.CharField(read_only=True)
 
     class Meta:
         model = Initiative
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
                   'startDate', 'endDate', 'coverImage', 'badge', 'officialWebsiteUrl', 'shareUrl',
-                  'isFeatured', 'status']
+                  'isFeatured', 'isListed', 'status']
 
 
 class InitiativeDetailSerializer(InitiativeListSerializer):
@@ -273,10 +274,14 @@ class PagePresentationSerializer(serializers.ModelSerializer):
     titleAr = serializers.CharField(source='title_ar', read_only=True)
     descriptionAr = serializers.CharField(source='description_ar', read_only=True)
     heroImage = serializers.CharField(source='hero_image', read_only=True)
+    topics = serializers.JSONField(source='shorts_topics', read_only=True)
+    contributors = serializers.JSONField(source='shorts_contributors', read_only=True)
+    faqs = serializers.JSONField(source='shorts_faqs', read_only=True)
 
     class Meta:
         model = PagePresentation
-        fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge', 'heroImage']
+        fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
+                  'heroImage', 'topics', 'contributors', 'faqs']
 
 
 class HomepageContentSerializer(serializers.ModelSerializer):
@@ -368,6 +373,8 @@ class HomepageContentSerializer(serializers.ModelSerializer):
     ctaSecondaryLabelAr = serializers.CharField(source='cta_secondary_label_ar', read_only=True)
     ctaSecondaryLink = serializers.CharField(source='cta_secondary_link', read_only=True)
 
+    sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
+
     class Meta:
         model = HomepageContent
         fields = ['id',
@@ -393,7 +400,8 @@ class HomepageContentSerializer(serializers.ModelSerializer):
                   'emiratesCtaLabel', 'emiratesCtaLabelAr',
                   'ctaTitle', 'ctaTitleAr', 'ctaSubtitle', 'ctaSubtitleAr',
                   'ctaPrimaryLabel', 'ctaPrimaryLabelAr', 'ctaPrimaryLink',
-                  'ctaSecondaryLabel', 'ctaSecondaryLabelAr', 'ctaSecondaryLink']
+                  'ctaSecondaryLabel', 'ctaSecondaryLabelAr', 'ctaSecondaryLink',
+                  'sectionVisibility']
 
 
 class AboutContentSerializer(serializers.ModelSerializer):
@@ -441,12 +449,15 @@ class AboutContentSerializer(serializers.ModelSerializer):
     coreValuesText = serializers.CharField(source='core_values_text', read_only=True)
     coreValuesTextAr = serializers.CharField(source='core_values_text_ar', read_only=True)
     coreValueList = serializers.JSONField(source='core_value_list', read_only=True)
+    heroImage = serializers.CharField(source='hero_image', read_only=True)
+    heroImageAlt = serializers.CharField(source='hero_image_alt', read_only=True)
 
     class Meta:
         model = AboutContent
         fields = ['id',
                   'title', 'titleAr', 'description', 'descriptionAr',
                   'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
+                  'heroImage', 'heroImageAlt',
                   'ourStory', 'ourStoryAr', 'ourStoryText', 'ourStoryTextAr',
                   'ourMission', 'ourMissionAr', 'ourMissionText', 'ourMissionTextAr',
                   'ourVision', 'ourVisionAr', 'ourVisionText', 'ourVisionTextAr',

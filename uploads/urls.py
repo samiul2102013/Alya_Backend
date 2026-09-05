@@ -1,7 +1,10 @@
 from django.urls import path
 
-from .views import FileUploadView
+from .views import ChunkedUploadView, ChunkedUploadCompleteView, ChunkedUploadAbortView
 
 urlpatterns = [
-    path('uploads', FileUploadView.as_view(), name='file-upload'),
+    # Legacy single-shot endpoint + new chunked endpoint (same URL).
+    path('uploads', ChunkedUploadView.as_view(), name='file-upload'),
+    path('uploads/complete', ChunkedUploadCompleteView.as_view(), name='file-upload-complete'),
+    path('uploads/abort', ChunkedUploadAbortView.as_view(), name='file-upload-abort'),
 ]

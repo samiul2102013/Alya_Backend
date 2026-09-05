@@ -25,4 +25,4 @@ COPY --from=builder /install /usr/local
 COPY . .
 RUN mkdir -p logs staticfiles media && chmod +x docker/entrypoint.sh
 ENTRYPOINT ["docker/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "600"]

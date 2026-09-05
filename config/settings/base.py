@@ -124,6 +124,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Allow up to 5 GB uploads via the chunked upload pipeline. These only bound
+# a single HTTP body — chunked uploads send one chunk per request, so the
+# practical ceiling is the much larger MAX_UPLOAD_SIZE_BYTES below.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024          # 50 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024          # 50 MB
+
+# Chunked upload knobs (used by backend/uploads/).
+MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024 * 1024          # 5 GB final file cap
+UPLOAD_CHUNK_TMP_SUBDIR = 'uploads/tmp'                 # under MEDIA_ROOT
+UPLOAD_FINAL_SUBDIR = 'uploads'                         # under MEDIA_ROOT
+UPLOAD_SESSION_TTL_SECONDS = 24 * 60 * 60               # GC incomplete uploads after 24h
+
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = env.list(
     'CORS_ALLOWED_ORIGINS',
