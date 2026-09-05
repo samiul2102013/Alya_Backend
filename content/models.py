@@ -360,6 +360,15 @@ class PagePresentation(TimeStampedModel):
         blank=True,
         help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Shorts page.',
     )
+    shorts_section_visibility = models.JSONField(
+        'Shorts Section Visibility',
+        default=dict,
+        blank=True,
+        help_text=(
+            'Controls which sections render on the Shorts user-panel page. '
+            'Keys: hero, topics, contributors, faqs. Missing keys default to true.'
+        ),
+    )
 
     class Meta:
         verbose_name = 'Page Presentation'

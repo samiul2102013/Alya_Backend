@@ -201,11 +201,12 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
     topics = serializers.JSONField(source='shorts_topics', required=False)
     contributors = serializers.JSONField(source='shorts_contributors', required=False)
     faqs = serializers.JSONField(source='shorts_faqs', required=False)
+    sectionVisibility = serializers.JSONField(source='shorts_section_visibility', required=False)
 
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published', 'topics', 'contributors', 'faqs']
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility']
         read_only_fields = ['id', 'key']
 
 

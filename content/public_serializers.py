@@ -277,11 +277,13 @@ class PagePresentationSerializer(serializers.ModelSerializer):
     topics = serializers.JSONField(source='shorts_topics', read_only=True)
     contributors = serializers.JSONField(source='shorts_contributors', read_only=True)
     faqs = serializers.JSONField(source='shorts_faqs', read_only=True)
+    sectionVisibility = serializers.JSONField(source='shorts_section_visibility', read_only=True)
+    published = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'topics', 'contributors', 'faqs']
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility']
 
 
 class HomepageContentSerializer(serializers.ModelSerializer):
