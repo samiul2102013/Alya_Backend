@@ -187,6 +187,8 @@ class InitiativeFeaturedPublicView(generics.RetrieveAPIView):
     def get_object(self):
         obj = Initiative.objects.filter(status='Published', is_featured=True).first()
         if not obj:
+            obj = Initiative.objects.filter(status='Published').first()
+        if not obj:
             from rest_framework.exceptions import NotFound
             raise NotFound('No featured initiative found.')
         return obj
