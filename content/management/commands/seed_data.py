@@ -120,6 +120,46 @@ class Command(BaseCommand):
                 'description_ar': 'إرشادات موجزة وعملية من خبراء معتمدين في جميع أنحاء الإمارات. شاهد وتعلم وانمو معًا - فيديو قصير في كل مرة.',
                 'badge': 'Quick, Practical Guidance',
                 'hero_image': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=900&auto=format&fit=crop',
+                'shorts_topics': [
+                    {'title': 'Marriage Preparation', 'videos': '24 Videos'},
+                    {'title': 'Relationship Advice', 'videos': '25 Videos'},
+                    {'title': 'Financial Planning', 'videos': '18 Videos'},
+                    {'title': 'Family Well-being', 'videos': '32 Videos'},
+                    {'title': 'Counseling', 'videos': '15 Videos'},
+                    {'title': 'Parenting', 'videos': '28 Videos'},
+                ],
+                'shorts_contributors': [
+                    'Government Programs',
+                    'Family Court Experts',
+                    'Certified Counselors',
+                    'NGO Partners',
+                ],
+                'shorts_faqs': [
+                    {
+                        'question': 'Are the videos free to watch?',
+                        'questionAr': 'هل مشاهدة مقاطع الفيديو مجانية؟',
+                        'answer': 'Yes — all our educational shorts and full-length videos are completely free to access. Simply browse the topic that interests you and start watching.',
+                        'answerAr': 'نعم — جميع مقاطع الفيديو التعليمية القصيرة والكاملة متاحة مجانًا. ما عليك سوى تصفح الموضوع الذي يثير اهتمامك والبدء في المشاهدة.',
+                    },
+                    {
+                        'question': 'Can I share these videos with others?',
+                        'questionAr': 'هل يمكنني مشاركة هذه الفيديوهات مع الآخرين؟',
+                        'answer': 'Absolutely. You can share any video directly from the platform with family, friends, or community groups to help spread awareness.',
+                        'answerAr': 'بالتأكيد. يمكنك مشاركة أي فيديو مباشرةً من المنصة مع أفراد الأسرة والأصدقاء أو مجموعات المجتمع للمساعدة في نشر الوعي.',
+                    },
+                    {
+                        'question': 'How often are new videos added?',
+                        'questionAr': 'كم مرة تُضاف مقاطع فيديو جديدة؟',
+                        'answer': 'We add new content weekly. Our library is continuously updated by trusted contributors and certified counselors to ensure fresh, relevant material.',
+                        'answerAr': 'نضيف محتوى جديدًا أسبوعيًا. يتم تحديث مكتبتنا باستمرار من قِبل مساهمين موثوقين ومستشارين معتمدين لضمان تقديم مواد جديدة وذات صلة.',
+                    },
+                    {
+                        'question': 'Are subtitles or translations available?',
+                        'questionAr': 'هل تتوفر ترجمات أو ترجمات نصية؟',
+                        'answer': 'Yes — most videos include Arabic and English subtitles. Additional language support is being rolled out gradually.',
+                        'answerAr': 'نعم — تتضمن معظم مقاطع الفيديو ترجمات نصية باللغتين العربية والإنجليزية. ويجري طرح دعم لغات إضافية تدريجيًا.',
+                    },
+                ],
             },
             {
                 'key': 'consultation',
