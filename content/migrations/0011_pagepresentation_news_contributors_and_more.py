@@ -3,6 +3,29 @@
 from django.db import migrations, models
 
 
+def add_columns_if_not_exists(apps, schema_editor):
+    table = 'content_pagepresentation'
+    columns = [
+        ('news_contributors', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('news_faqs', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('news_section_visibility', 'jsonb', "DEFAULT '{}'::jsonb"),
+        ('news_topics', 'jsonb', "DEFAULT '[]'::jsonb"),
+    ]
+    with schema_editor.connection.cursor() as cursor:
+        if schema_editor.connection.vendor == 'postgresql':
+            for col, col_type, default in columns:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {col_type} {default};")
+        else:
+            existing = [row[1] for row in cursor.execute(f"PRAGMA table_info({table});").fetchall()]
+            for col, _, _ in columns:
+                if col not in existing:
+                    cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} json DEFAULT '[]';")
+
+
+def noop_reverse(apps, schema_editor):
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,24 +33,31 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='news_contributors',
-            field=models.JSONField(blank=True, default=list, help_text='List of contributor names shown on the News page.', verbose_name='News Contributors'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='news_faqs',
-            field=models.JSONField(blank=True, default=list, help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the News page.', verbose_name='News FAQs'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='news_section_visibility',
-            field=models.JSONField(blank=True, default=dict, help_text='Controls which sections render on the News user-panel page. Keys: hero, topics, contributors, faqs, cta, categories, orgs. Missing keys default to true.', verbose_name='News Section Visibility'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='news_topics',
-            field=models.JSONField(blank=True, default=list, help_text='List of { "title", "videos" } items shown on the News page.', verbose_name='News Topics'),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='news_contributors',
+                    field=models.JSONField(blank=True, default=list, help_text='List of contributor names shown on the News page.', verbose_name='News Contributors'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='news_faqs',
+                    field=models.JSONField(blank=True, default=list, help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the News page.', verbose_name='News FAQs'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='news_section_visibility',
+                    field=models.JSONField(blank=True, default=dict, help_text='Controls which sections render on the News user-panel page. Keys: hero, topics, contributors, faqs, cta, categories, orgs. Missing keys default to true.', verbose_name='News Section Visibility'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='news_topics',
+                    field=models.JSONField(blank=True, default=list, help_text='List of { "title", "videos" } items shown on the News page.', verbose_name='News Topics'),
+                ),
+            ],
+            database_operations=[
+                migrations.RunPython(add_columns_if_not_exists, noop_reverse),
+            ],
         ),
     ]

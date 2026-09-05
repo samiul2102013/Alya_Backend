@@ -3,6 +3,33 @@
 from django.db import migrations, models
 
 
+def add_columns_if_not_exists(apps, schema_editor):
+    table = 'content_pagepresentation'
+    columns = [
+        ('consultation_contributors', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('consultation_faqs', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('consultation_section_visibility', 'jsonb', "DEFAULT '{}'::jsonb"),
+        ('consultation_topics', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('emirates_contributors', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('emirates_faqs', 'jsonb', "DEFAULT '[]'::jsonb"),
+        ('emirates_section_visibility', 'jsonb', "DEFAULT '{}'::jsonb"),
+        ('emirates_topics', 'jsonb', "DEFAULT '[]'::jsonb"),
+    ]
+    with schema_editor.connection.cursor() as cursor:
+        if schema_editor.connection.vendor == 'postgresql':
+            for col, col_type, default in columns:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {col_type} {default};")
+        else:
+            existing = [row[1] for row in cursor.execute(f"PRAGMA table_info({table});").fetchall()]
+            for col, _, _ in columns:
+                if col not in existing:
+                    cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} json DEFAULT '[]';")
+
+
+def noop_reverse(apps, schema_editor):
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,44 +37,51 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='consultation_contributors',
-            field=models.JSONField(blank=True, default=list, help_text='List of contributor names shown on the Consultation page.', verbose_name='Consultation Contributors'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='consultation_faqs',
-            field=models.JSONField(blank=True, default=list, help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Consultation page.', verbose_name='Consultation FAQs'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='consultation_section_visibility',
-            field=models.JSONField(blank=True, default=dict, help_text='Controls which sections render on the Consultation user-panel page. Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.', verbose_name='Consultation Section Visibility'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='consultation_topics',
-            field=models.JSONField(blank=True, default=list, help_text='List of { "title", "titleAr", "videos" } items shown on the Consultation page.', verbose_name='Consultation Topics'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='emirates_contributors',
-            field=models.JSONField(blank=True, default=list, help_text='List of contributor names shown on the Emirates page.', verbose_name='Emirates Contributors'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='emirates_faqs',
-            field=models.JSONField(blank=True, default=list, help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Emirates page.', verbose_name='Emirates FAQs'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='emirates_section_visibility',
-            field=models.JSONField(blank=True, default=dict, help_text='Controls which sections render on the Emirates user-panel page. Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.', verbose_name='Emirates Section Visibility'),
-        ),
-        migrations.AddField(
-            model_name='pagepresentation',
-            name='emirates_topics',
-            field=models.JSONField(blank=True, default=list, help_text='List of { "title", "titleAr", "videos" } items shown on the Emirates page.', verbose_name='Emirates Topics'),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='consultation_contributors',
+                    field=models.JSONField(blank=True, default=list, help_text='List of contributor names shown on the Consultation page.', verbose_name='Consultation Contributors'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='consultation_faqs',
+                    field=models.JSONField(blank=True, default=list, help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Consultation page.', verbose_name='Consultation FAQs'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='consultation_section_visibility',
+                    field=models.JSONField(blank=True, default=dict, help_text='Controls which sections render on the Consultation user-panel page. Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.', verbose_name='Consultation Section Visibility'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='consultation_topics',
+                    field=models.JSONField(blank=True, default=list, help_text='List of { "title", "titleAr", "videos" } items shown on the Consultation page.', verbose_name='Consultation Topics'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='emirates_contributors',
+                    field=models.JSONField(blank=True, default=list, help_text='List of contributor names shown on the Emirates page.', verbose_name='Emirates Contributors'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='emirates_faqs',
+                    field=models.JSONField(blank=True, default=list, help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Emirates page.', verbose_name='Emirates FAQs'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='emirates_section_visibility',
+                    field=models.JSONField(blank=True, default=dict, help_text='Controls which sections render on the Emirates user-panel page. Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.', verbose_name='Emirates Section Visibility'),
+                ),
+                migrations.AddField(
+                    model_name='pagepresentation',
+                    name='emirates_topics',
+                    field=models.JSONField(blank=True, default=list, help_text='List of { "title", "titleAr", "videos" } items shown on the Emirates page.', verbose_name='Emirates Topics'),
+                ),
+            ],
+            database_operations=[
+                migrations.RunPython(add_columns_if_not_exists, noop_reverse),
+            ],
         ),
     ]
