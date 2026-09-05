@@ -59,7 +59,7 @@ services:
       BOOKING_PENDING_TTL_SECONDS: ${BOOKING_PENDING_TTL_SECONDS:-1200}
       SENTRY_DSN: ${SENTRY_DSN:-}
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8000/api/health/"]
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8000/api/health/ || curl -sf http://localhost:8000/api/health/"]
       interval: 15s
       timeout: 5s
       retries: 5

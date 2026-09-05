@@ -26,7 +26,10 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "Seeding admin..."
-python manage.py seed_admin
+python manage.py seed_admin || true
+
+echo "Seeding presentations..."
+python manage.py seed_presentations || true
 
 echo "Starting server..."
 exec "$@"
