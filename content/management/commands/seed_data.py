@@ -191,6 +191,8 @@ class Command(BaseCommand):
         ]
         for p in presentations:
             PagePresentation.objects.update_or_create(key=p['key'], defaults=p)
+        from django.core.management import call_command
+        call_command('seed_presentations')
         self.stdout.write(self.style.SUCCESS('Page presentations seeded.'))
 
         self.stdout.write(self.style.SUCCESS('Sample content seeded.'))
