@@ -266,13 +266,38 @@ class ConsultationPublicDetailView(generics.RetrieveAPIView):
 
 
 class EmiratePublicList(generics.ListAPIView):
-    """GET /api/emirates/"""
+    """GET /api/emirates/ — published emirates only.
+
+    Optional query params: search, date (week|month|year).
+    """
 
     permission_classes = [AllowAny]
     serializer_class = EmirateListSerializer
 
     def get_queryset(self):
-        return Emirate.objects.filter(status='Published')
+        params = self.request.query_params
+        qs = Emirate.objects.filter(status='Published')
+
+        search = params.get('search', '').strip()
+        if search:
+            qs = qs.filter(
+                Q(emirates_name__icontains=search)
+                | Q(emirates_name_ar__icontains=search)
+                | Q(title__icontains=search)
+                | Q(description__icontains=search)
+            )
+
+        date = params.get('date', '').strip()
+        if date in ('week', 'month', 'year'):
+            now = timezone.now()
+            if date == 'week':
+                qs = qs.filter(date_time__gte=now - timedelta(weeks=1))
+            elif date == 'month':
+                qs = qs.filter(date_time__gte=now - timedelta(days=30))
+            else:
+                qs = qs.filter(date_time__gte=now - timedelta(days=365))
+
+        return qs.order_by('-date_time', 'emirates_name')
 
 
 class EmiratePublicDetailView(generics.RetrieveAPIView):

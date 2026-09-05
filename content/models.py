@@ -370,6 +370,126 @@ class PagePresentation(TimeStampedModel):
         ),
     )
 
+    # Initiatives page extras (topics / contributors / FAQs). Kept on the shared
+    # presentation model so they can be managed from the admin dashboard.
+    initiatives_topics = models.JSONField(
+        'Initiatives Topics',
+        default=list,
+        blank=True,
+        help_text='List of { "title", "videos" } items shown on the Initiatives page.',
+    )
+    initiatives_contributors = models.JSONField(
+        'Initiatives Contributors',
+        default=list,
+        blank=True,
+        help_text='List of contributor names shown on the Initiatives page.',
+    )
+    initiatives_faqs = models.JSONField(
+        'Initiatives FAQs',
+        default=list,
+        blank=True,
+        help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Initiatives page.',
+    )
+    initiatives_section_visibility = models.JSONField(
+        'Initiatives Section Visibility',
+        default=dict,
+        blank=True,
+        help_text=(
+            'Controls which sections render on the Initiatives user-panel page. '
+            'Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.'
+        ),
+    )
+
+    # Consultation page extras (topics / contributors / FAQs). Kept on the shared
+    # presentation model so they can be managed from the admin dashboard.
+    consultation_topics = models.JSONField(
+        'Consultation Topics',
+        default=list,
+        blank=True,
+        help_text='List of { "title", "titleAr", "videos" } items shown on the Consultation page.',
+    )
+    consultation_contributors = models.JSONField(
+        'Consultation Contributors',
+        default=list,
+        blank=True,
+        help_text='List of contributor names shown on the Consultation page.',
+    )
+    consultation_faqs = models.JSONField(
+        'Consultation FAQs',
+        default=list,
+        blank=True,
+        help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Consultation page.',
+    )
+    consultation_section_visibility = models.JSONField(
+        'Consultation Section Visibility',
+        default=dict,
+        blank=True,
+        help_text=(
+            'Controls which sections render on the Consultation user-panel page. '
+            'Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.'
+        ),
+    )
+
+    # Emirates page extras (topics / contributors / FAQs). Kept on the shared
+    # presentation model so they can be managed from the admin dashboard.
+    emirates_topics = models.JSONField(
+        'Emirates Topics',
+        default=list,
+        blank=True,
+        help_text='List of { "title", "titleAr", "videos" } items shown on the Emirates page.',
+    )
+    emirates_contributors = models.JSONField(
+        'Emirates Contributors',
+        default=list,
+        blank=True,
+        help_text='List of contributor names shown on the Emirates page.',
+    )
+    emirates_faqs = models.JSONField(
+        'Emirates FAQs',
+        default=list,
+        blank=True,
+        help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Emirates page.',
+    )
+    emirates_section_visibility = models.JSONField(
+        'Emirates Section Visibility',
+        default=dict,
+        blank=True,
+        help_text=(
+            'Controls which sections render on the Emirates user-panel page. '
+            'Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.'
+        ),
+    )
+
+    # News page extras (topics / contributors / FAQs). Kept on the shared
+    # presentation model so they can be managed from the admin dashboard.
+    news_topics = models.JSONField(
+        'News Topics',
+        default=list,
+        blank=True,
+        help_text='List of { "title", "videos" } items shown on the News page.',
+    )
+    news_contributors = models.JSONField(
+        'News Contributors',
+        default=list,
+        blank=True,
+        help_text='List of contributor names shown on the News page.',
+    )
+    news_faqs = models.JSONField(
+        'News FAQs',
+        default=list,
+        blank=True,
+        help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the News page.',
+    )
+    news_section_visibility = models.JSONField(
+        'News Section Visibility',
+        default=dict,
+        blank=True,
+        help_text=(
+            'Controls which sections render on the News user-panel page. '
+            'Keys: hero, topics, contributors, faqs, cta, categories, orgs. Missing keys default to true.'
+        ),
+    )
+
     class Meta:
         verbose_name = 'Page Presentation'
         verbose_name_plural = 'Page Presentations'

@@ -202,11 +202,35 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
     contributors = serializers.JSONField(source='shorts_contributors', required=False)
     faqs = serializers.JSONField(source='shorts_faqs', required=False)
     sectionVisibility = serializers.JSONField(source='shorts_section_visibility', required=False)
+    initiativesTopics = serializers.JSONField(source='initiatives_topics', required=False)
+    initiativesContributors = serializers.JSONField(source='initiatives_contributors', required=False)
+    initiativesFaqs = serializers.JSONField(source='initiatives_faqs', required=False)
+    initiativesSectionVisibility = serializers.JSONField(source='initiatives_section_visibility', required=False)
+    consultationTopics = serializers.JSONField(source='consultation_topics', required=False)
+    consultationContributors = serializers.JSONField(source='consultation_contributors', required=False)
+    consultationFaqs = serializers.JSONField(source='consultation_faqs', required=False)
+    consultationSectionVisibility = serializers.JSONField(source='consultation_section_visibility', required=False)
+    emiratesTopics = serializers.JSONField(source='emirates_topics', required=False)
+    emiratesContributors = serializers.JSONField(source='emirates_contributors', required=False)
+    emiratesFaqs = serializers.JSONField(source='emirates_faqs', required=False)
+    emiratesSectionVisibility = serializers.JSONField(source='emirates_section_visibility', required=False)
+    newsTopics = serializers.JSONField(source='news_topics', required=False)
+    newsContributors = serializers.JSONField(source='news_contributors', required=False)
+    newsFaqs = serializers.JSONField(source='news_faqs', required=False)
+    newsSectionVisibility = serializers.JSONField(source='news_section_visibility', required=False)
 
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility']
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility',
+                  'initiativesTopics', 'initiativesContributors', 'initiativesFaqs',
+                  'initiativesSectionVisibility',
+                  'consultationTopics', 'consultationContributors', 'consultationFaqs',
+                  'consultationSectionVisibility',
+                  'emiratesTopics', 'emiratesContributors', 'emiratesFaqs',
+                  'emiratesSectionVisibility',
+                  'newsTopics', 'newsContributors', 'newsFaqs',
+                  'newsSectionVisibility']
         read_only_fields = ['id', 'key']
 
 

@@ -278,12 +278,36 @@ class PagePresentationSerializer(serializers.ModelSerializer):
     contributors = serializers.JSONField(source='shorts_contributors', read_only=True)
     faqs = serializers.JSONField(source='shorts_faqs', read_only=True)
     sectionVisibility = serializers.JSONField(source='shorts_section_visibility', read_only=True)
+    initiativesTopics = serializers.JSONField(source='initiatives_topics', read_only=True)
+    initiativesContributors = serializers.JSONField(source='initiatives_contributors', read_only=True)
+    initiativesFaqs = serializers.JSONField(source='initiatives_faqs', read_only=True)
+    initiativesSectionVisibility = serializers.JSONField(source='initiatives_section_visibility', read_only=True)
+    consultationTopics = serializers.JSONField(source='consultation_topics', read_only=True)
+    consultationContributors = serializers.JSONField(source='consultation_contributors', read_only=True)
+    consultationFaqs = serializers.JSONField(source='consultation_faqs', read_only=True)
+    consultationSectionVisibility = serializers.JSONField(source='consultation_section_visibility', read_only=True)
+    emiratesTopics = serializers.JSONField(source='emirates_topics', read_only=True)
+    emiratesContributors = serializers.JSONField(source='emirates_contributors', read_only=True)
+    emiratesFaqs = serializers.JSONField(source='emirates_faqs', read_only=True)
+    emiratesSectionVisibility = serializers.JSONField(source='emirates_section_visibility', read_only=True)
+    newsTopics = serializers.JSONField(source='news_topics', read_only=True)
+    newsContributors = serializers.JSONField(source='news_contributors', read_only=True)
+    newsFaqs = serializers.JSONField(source='news_faqs', read_only=True)
+    newsSectionVisibility = serializers.JSONField(source='news_section_visibility', read_only=True)
     published = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility']
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility',
+                  'initiativesTopics', 'initiativesContributors', 'initiativesFaqs',
+                  'initiativesSectionVisibility',
+                  'consultationTopics', 'consultationContributors', 'consultationFaqs',
+                  'consultationSectionVisibility',
+                  'emiratesTopics', 'emiratesContributors', 'emiratesFaqs',
+                  'emiratesSectionVisibility',
+                  'newsTopics', 'newsContributors', 'newsFaqs',
+                  'newsSectionVisibility']
 
 
 class HomepageContentSerializer(serializers.ModelSerializer):
