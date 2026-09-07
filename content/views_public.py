@@ -299,7 +299,10 @@ class EmiratePublicList(generics.ListAPIView):
             else:
                 qs = qs.filter(date_time__gte=now - timedelta(days=365))
 
-        return qs.order_by('-date_time', 'emirates_name')
+        # Stable, deterministic order: emirates with a date first (newest first),
+        # then the rest alphabetically. Keeps the user-panel grid consistent
+        # across searches and resets.
+        return qs.order_by('emirates_name')
 
 
 class EmiratePublicDetailView(generics.RetrieveAPIView):
@@ -343,25 +346,30 @@ class ConsultationPublicDetailByNameView(generics.RetrieveAPIView):
 
 
 class PagePresentationPublicListView(generics.ListAPIView):
-    """GET /api/presentations — all published page presentations."""
+    """GET /api/presentations — all page presentations.
+
+    Returns every presentation (including unpublished ones) so the user panel
+    can hide navbar links for pages whose `published` flag is False. Sections
+    on each page individually honour their own *_section_visibility flags.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = PagePresentationSerializer
     pagination_class = None
 
     def get_queryset(self):
-        return PagePresentation.objects.filter(published=True)
+        return PagePresentation.objects.all()
 
 
 class PagePresentationPublicDetailView(generics.RetrieveAPIView):
-    """GET /api/presentations/:key/ — a single published page presentation."""
+    """GET /api/presentations/:key/ — a single page presentation."""
 
     permission_classes = [AllowAny]
     serializer_class = PagePresentationSerializer
     lookup_field = 'key'
 
     def get_queryset(self):
-        return PagePresentation.objects.filter(published=True)
+        return PagePresentation.objects.all()
 
 
 class HomepageContentPublicView(generics.RetrieveAPIView):

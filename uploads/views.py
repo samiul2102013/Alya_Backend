@@ -211,7 +211,7 @@ class ChunkedUploadView(APIView):
         media_url += f'/{datetime.now(timezone.utc).year:04d}/{datetime.now(timezone.utc).month:02d}/{final_name}'
 
         item = MediaItem.objects.create(
-            file_url=request.build_absolute_uri(media_url),
+            file_url=self.request.build_absolute_uri(media_url),
             filename=file_obj.name,
             file_size=file_obj.size,
             width=0,

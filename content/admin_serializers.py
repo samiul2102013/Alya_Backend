@@ -32,11 +32,15 @@ class ShortAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug']
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
-        if not instance.slug:
-            instance.slug = unique_slug(Short, instance.video_title or 'short', instance.pk)
-            instance.save(update_fields=['slug'])
-        return instance
+        # Resolve the slug BEFORE the INSERT. Inserting with an empty slug and
+        # updating it afterwards leaves a slug='' row behind if the request dies
+        # in between — which then collides on the unique constraint and turns
+        # every future create into a 500.
+        if not validated_data.get('slug'):
+            validated_data['slug'] = unique_slug(
+                Short, validated_data.get('video_title') or 'short'
+            )
+        return super().create(validated_data)
 
 
 class NewsAdminSerializer(serializers.ModelSerializer):
@@ -63,11 +67,27 @@ class NewsAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug']
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
-        if not instance.slug:
-            instance.slug = unique_slug(NewsArticle, instance.article_title or 'news', instance.pk)
-            instance.save(update_fields=['slug'])
-        return instance
+        # Resolve the slug BEFORE the INSERT (see ShortAdminSerializer.create).
+        if not validated_data.get('slug'):
+            validated_data['slug'] = unique_slug(
+                NewsArticle, validated_data.get('article_title') or 'news'
+            )
+        return super().create(validated_data)
+
+    def validate(self, attrs):
+        # Dates are backend-managed, not admin-editable:
+        # - published_date is stamped the first time an article is saved as
+        #   Published (and left alone afterwards);
+        # - updated_date is stamped on every save.
+        from django.utils import timezone
+
+        status_value = attrs.get('status')
+        if status_value and status_value.lower() == 'published':
+            attrs.setdefault('published_date', None)  # ensure key exists for create
+            if not (self.instance and self.instance.published_date):
+                attrs['published_date'] = attrs.get('published_date') or timezone.now().date()
+        attrs['updated_date'] = timezone.now().date()
+        return attrs
 
 
 class InitiativeAdminSerializer(serializers.ModelSerializer):
@@ -99,11 +119,12 @@ class InitiativeAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug']
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
-        if not instance.slug:
-            instance.slug = unique_slug(Initiative, instance.title or 'initiative', instance.pk)
-            instance.save(update_fields=['slug'])
-        return instance
+        # Resolve the slug BEFORE the INSERT (see ShortAdminSerializer.create).
+        if not validated_data.get('slug'):
+            validated_data['slug'] = unique_slug(
+                Initiative, validated_data.get('title') or 'initiative'
+            )
+        return super().create(validated_data)
 
 
 class ConsultationAdminSerializer(serializers.ModelSerializer):
@@ -150,11 +171,12 @@ class ConsultationAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug']
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
-        if not instance.slug:
-            instance.slug = unique_slug(Consultation, instance.session_title or 'consultation', instance.pk)
-            instance.save(update_fields=['slug'])
-        return instance
+        # Resolve the slug BEFORE the INSERT (see ShortAdminSerializer.create).
+        if not validated_data.get('slug'):
+            validated_data['slug'] = unique_slug(
+                Consultation, validated_data.get('session_title') or 'consultation'
+            )
+        return super().create(validated_data)
 
 
 class EmirateAdminSerializer(serializers.ModelSerializer):
@@ -176,11 +198,12 @@ class EmirateAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug']
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
-        if not instance.slug:
-            instance.slug = unique_slug(Emirate, instance.emirates_name or 'emirate', instance.pk)
-            instance.save(update_fields=['slug'])
-        return instance
+        # Resolve the slug BEFORE the INSERT (see ShortAdminSerializer.create).
+        if not validated_data.get('slug'):
+            validated_data['slug'] = unique_slug(
+                Emirate, validated_data.get('emirates_name') or 'emirate'
+            )
+        return super().create(validated_data)
 
 
 class CategoryAdminSerializer(serializers.ModelSerializer):
@@ -552,8 +575,9 @@ class MediaItemAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug']
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
-        if not instance.slug:
-            instance.slug = unique_slug(MediaItem, instance.filename or 'media', instance.pk)
-            instance.save(update_fields=['slug'])
-        return instance
+        # Resolve the slug BEFORE the INSERT (see ShortAdminSerializer.create).
+        if not validated_data.get('slug'):
+            validated_data['slug'] = unique_slug(
+                MediaItem, validated_data.get('filename') or 'media'
+            )
+        return super().create(validated_data)
