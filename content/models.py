@@ -727,6 +727,13 @@ class AboutContent(TimeStampedModel):
 
     published = models.BooleanField('Published', default=True)
 
+    section_visibility = models.JSONField(
+        'Section Visibility',
+        default=dict,
+        blank=True,
+        help_text='Keys: hero, ourStory, ourMission, ourVision, ourObjective, whatWeOffer, ourImpact, whyChoose, coreValues',
+    )
+
     class Meta:
         verbose_name = 'About Content'
         verbose_name_plural = 'About Content'
@@ -832,6 +839,13 @@ class ContactContent(TimeStampedModel):
     longitude = models.CharField('Longitude', max_length=50, blank=True)
 
     published = models.BooleanField('Published', default=True)
+
+    section_visibility = models.JSONField(
+        'Section Visibility',
+        default=dict,
+        blank=True,
+        help_text='Keys: hero, formLabels, contactInfo, locationMap',
+    )
 
     class Meta:
         verbose_name = 'Contact Content'

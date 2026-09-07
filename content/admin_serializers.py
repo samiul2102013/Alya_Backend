@@ -436,9 +436,9 @@ class AboutContentAdminSerializer(serializers.ModelSerializer):
     coreValuesText = serializers.CharField(source='core_values_text', required=False, allow_blank=True)
     coreValuesTextAr = serializers.CharField(source='core_values_text_ar', required=False, allow_blank=True)
     coreValueList = serializers.JSONField(source='core_value_list', required=False)
+    sectionVisibility = serializers.JSONField(source='section_visibility', required=False)
 
     class Meta:
-        model = AboutContent
         fields = ['id',
                   'title', 'titleAr', 'description', 'descriptionAr',
                   'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
@@ -451,7 +451,7 @@ class AboutContentAdminSerializer(serializers.ModelSerializer):
                   'ourImpact', 'ourImpactAr', 'ourImpactText', 'ourImpactTextAr', 'impact',
                   'whyChoose', 'whyChooseAr', 'whyChooseText', 'whyChooseTextAr', 'whyValues',
                   'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList',
-                  'published']
+                  'published', 'sectionVisibility']
         read_only_fields = ['id']
 
 
@@ -534,6 +534,7 @@ class ContactContentAdminSerializer(serializers.ModelSerializer):
     mapEmbedUrl = serializers.CharField(source='map_embed_url', required=False, allow_blank=True)
     latitude = serializers.CharField(required=False, allow_blank=True)
     longitude = serializers.CharField(required=False, allow_blank=True)
+    sectionVisibility = serializers.JSONField(source='section_visibility', required=False)
 
     class Meta:
         model = ContactContent
@@ -558,7 +559,7 @@ class ContactContentAdminSerializer(serializers.ModelSerializer):
                   'inquiriesLines', 'inquiriesLinesAr', 'supportLines', 'supportLinesAr',
                   'ourLocation', 'ourLocationAr', 'ourLocationText', 'ourLocationTextAr',
                   'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude',
-                  'published']
+                  'published', 'sectionVisibility']
         read_only_fields = ['id']
 
 

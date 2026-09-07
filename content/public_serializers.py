@@ -492,9 +492,9 @@ class AboutContentSerializer(serializers.ModelSerializer):
     coreValueList = serializers.JSONField(source='core_value_list', read_only=True)
     heroImage = serializers.CharField(source='hero_image', read_only=True)
     heroImageAlt = serializers.CharField(source='hero_image_alt', read_only=True)
+    sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
 
     class Meta:
-        model = AboutContent
         fields = ['id',
                   'title', 'titleAr', 'description', 'descriptionAr',
                   'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
@@ -506,7 +506,8 @@ class AboutContentSerializer(serializers.ModelSerializer):
                   'whatWeOffer', 'whatWeOfferAr', 'whatWeOfferText', 'whatWeOfferTextAr', 'offerings',
                   'ourImpact', 'ourImpactAr', 'ourImpactText', 'ourImpactTextAr', 'impact',
                   'whyChoose', 'whyChooseAr', 'whyChooseText', 'whyChooseTextAr', 'whyValues',
-                  'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList']
+                  'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList',
+                  'sectionVisibility']
 
 
 class ContactContentSerializer(serializers.ModelSerializer):
@@ -584,6 +585,7 @@ class ContactContentSerializer(serializers.ModelSerializer):
     mapEmbedUrl = serializers.CharField(source='map_embed_url', read_only=True)
     latitude = serializers.CharField(read_only=True)
     longitude = serializers.CharField(read_only=True)
+    sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
 
     class Meta:
         model = ContactContent
@@ -607,7 +609,8 @@ class ContactContentSerializer(serializers.ModelSerializer):
                   'addressLines', 'addressLinesAr', 'hoursLines', 'hoursLinesAr',
                   'inquiriesLines', 'inquiriesLinesAr', 'supportLines', 'supportLinesAr',
                   'ourLocation', 'ourLocationAr', 'ourLocationText', 'ourLocationTextAr',
-                  'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude']
+                  'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude',
+                  'sectionVisibility']
 
 
 class MediaItemListSerializer(serializers.ModelSerializer):
