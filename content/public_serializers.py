@@ -5,6 +5,19 @@ from rest_framework import serializers
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 
 
+class ShortsCtaSerializer(serializers.Serializer):
+    """Text content of the 'Explore More Marriage Support' banner (Shorts page)."""
+
+    title = serializers.CharField(read_only=True, allow_blank=True)
+    titleAr = serializers.CharField(read_only=True, allow_blank=True)
+    text = serializers.CharField(read_only=True, allow_blank=True)
+    textAr = serializers.CharField(read_only=True, allow_blank=True)
+    browseLabel = serializers.CharField(read_only=True, allow_blank=True)
+    browseLabelAr = serializers.CharField(read_only=True, allow_blank=True)
+    exploreLabel = serializers.CharField(read_only=True, allow_blank=True)
+    exploreLabelAr = serializers.CharField(read_only=True, allow_blank=True)
+
+
 class ShortListSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     videoTitle = serializers.CharField(source='video_title', read_only=True)
@@ -277,6 +290,7 @@ class PagePresentationSerializer(serializers.ModelSerializer):
     topics = serializers.JSONField(source='shorts_topics', read_only=True)
     contributors = serializers.JSONField(source='shorts_contributors', read_only=True)
     faqs = serializers.JSONField(source='shorts_faqs', read_only=True)
+    shortsCta = ShortsCtaSerializer(source='shorts_cta', read_only=True)
     sectionVisibility = serializers.JSONField(source='shorts_section_visibility', read_only=True)
     initiativesTopics = serializers.JSONField(source='initiatives_topics', read_only=True)
     initiativesContributors = serializers.JSONField(source='initiatives_contributors', read_only=True)
@@ -299,7 +313,7 @@ class PagePresentationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility',
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'shortsCta', 'sectionVisibility',
                   'initiativesTopics', 'initiativesContributors', 'initiativesFaqs',
                   'initiativesSectionVisibility',
                   'consultationTopics', 'consultationContributors', 'consultationFaqs',

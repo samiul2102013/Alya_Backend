@@ -224,6 +224,7 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
     topics = serializers.JSONField(source='shorts_topics', required=False)
     contributors = serializers.JSONField(source='shorts_contributors', required=False)
     faqs = serializers.JSONField(source='shorts_faqs', required=False)
+    shortsCta = serializers.JSONField(source='shorts_cta', required=False)
     sectionVisibility = serializers.JSONField(source='shorts_section_visibility', required=False)
     initiativesTopics = serializers.JSONField(source='initiatives_topics', required=False)
     initiativesContributors = serializers.JSONField(source='initiatives_contributors', required=False)
@@ -245,7 +246,7 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'sectionVisibility',
+                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'shortsCta', 'sectionVisibility',
                   'initiativesTopics', 'initiativesContributors', 'initiativesFaqs',
                   'initiativesSectionVisibility',
                   'consultationTopics', 'consultationContributors', 'consultationFaqs',

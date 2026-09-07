@@ -360,6 +360,16 @@ class PagePresentation(TimeStampedModel):
         blank=True,
         help_text='List of { "question", "questionAr", "answer", "answerAr" } items shown on the Shorts page.',
     )
+    shorts_cta = models.JSONField(
+        'Shorts CTA Banner',
+        default=dict,
+        blank=True,
+        help_text=(
+            'Text for the "Explore More Marriage Support" banner at the bottom of the '
+            'Shorts page. Keys: title, titleAr, text, textAr, browseLabel, browseLabelAr, '
+            'exploreLabel, exploreLabelAr.'
+        ),
+    )
     shorts_section_visibility = models.JSONField(
         'Shorts Section Visibility',
         default=dict,
