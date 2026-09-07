@@ -21,5 +21,9 @@ urlpatterns = [
     path('.well-known/apple-developer-merchantid-domain-association', apple_pay_domain_association, name='apple-pay-domain-association'),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded media in ALL environments. Previously this was DEBUG-only, so
+# production (DEBUG=False) returned 404 for every /media/... URL — uploads
+# "succeeded" but the assembled files were unreachable. If nginx fronts this
+# app and serves /media/ straight from the volume, that config simply takes
+# precedence and this view is never hit.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

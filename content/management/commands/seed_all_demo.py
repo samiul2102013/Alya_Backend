@@ -1146,7 +1146,7 @@ class Command(BaseCommand):
             'published': True,
         }
         if HomepageContent.objects.exists():
-            HomepageContent.objects.update(defaults=homepage_defaults)
+            HomepageContent.objects.update(**homepage_defaults)
         else:
             HomepageContent.objects.create(**homepage_defaults)
         self.stdout.write(self.style.SUCCESS('HomepageContent: seeded'))

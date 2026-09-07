@@ -102,15 +102,34 @@ class ChunkedUploadView(APIView):
                 status=drf_status.HTTP_400_BAD_REQUEST,
             )
 
+        # The session MUST be keyed by the CLIENT's file_id: the client re-sends
+        # the same file_id on every chunk and on /uploads/complete. Creating the
+        # session without it (letting the model default generate a new UUID)
+        # made every complete call look up a session that never existed -> 404.
         try:
-            session = UploadSession.objects.get(file_id=file_id)
-        except (UploadSession.DoesNotExist, ValueError):
-            session = UploadSession.objects.create(
-                filename=filename,
-                mime_type=request.data.get('mime_type') or (chunk.content_type if chunk else ''),
-                total_chunks=total_chunks,
-                uploaded_by=str(getattr(request.user, 'email', '')) if getattr(request, 'user', None) and request.user.is_authenticated else '',
+            file_id_uuid = uuid.UUID(str(file_id))
+        except ValueError:
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': 'FILE_ID_INVALID',
+                        'message': '`file_id` must be a valid UUID.',
+                        'details': {},
+                    },
+                },
+                status=drf_status.HTTP_400_BAD_REQUEST,
             )
+
+        session, _created = UploadSession.objects.get_or_create(
+            file_id=file_id_uuid,
+            defaults={
+                'filename': filename,
+                'mime_type': request.data.get('mime_type') or (chunk.content_type if chunk else ''),
+                'total_chunks': total_chunks,
+                'uploaded_by': str(getattr(request.user, 'email', '')) if getattr(request, 'user', None) and request.user.is_authenticated else '',
+            },
+        )
 
         if session.status != 'pending':
             return Response(
