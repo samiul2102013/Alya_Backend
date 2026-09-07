@@ -7,12 +7,14 @@ from .views import (
     BookingCreateView,
     BookingLookupView,
     ContactCreateView,
+    ContactMessageAdminViewSet,
     InitiativeApplicationCreateView,
 )
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r'admin/bookings', BookingAdminViewSet, basename='admin-bookings')
 router.register(r'admin/applications', ApplicationAdminViewSet, basename='admin-applications')
+router.register(r'admin/contact-messages', ContactMessageAdminViewSet, basename='admin-contact-messages')
 
 urlpatterns = [
     path('consultations/book', BookingCreateView.as_view(), name='consultations-book'),

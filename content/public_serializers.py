@@ -268,6 +268,7 @@ class EmirateDetailSerializer(serializers.ModelSerializer):
         qs = Initiative.objects.filter(
             Q(emirates=obj.emirates_name) | Q(emirates=obj.slug),
             status='Published',
+            is_listed=True,
         )
         return InitiativeLightSerializer(qs, many=True).data
 

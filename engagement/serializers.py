@@ -63,3 +63,12 @@ class ContactSerializer(serializers.ModelSerializer):
         model = ContactMessage
         fields = ['id', 'name', 'email', 'phone', 'subject', 'message', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+
+class ContactMessageAdminSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'phone', 'subject', 'message', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'name', 'email', 'phone', 'subject', 'message', 'created_at', 'updated_at']

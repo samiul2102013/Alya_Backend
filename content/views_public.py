@@ -112,6 +112,10 @@ class NewsPublicList(generics.ListAPIView):
         if source:
             qs = qs.filter(source__iexact=source)
 
+        emirate = params.get('emirate', '').strip()
+        if emirate:
+            qs = qs.filter(emirates__iexact=emirate)
+
         date = params.get('date', '').strip()
         if date in ('week', 'month', 'year'):
             today = timezone.now().date()
@@ -146,7 +150,7 @@ class InitiativePublicList(generics.ListAPIView):
     serializer_class = InitiativeListSerializer
 
     def get_queryset(self):
-        qs = Initiative.objects.filter(status='Published')
+        qs = Initiative.objects.filter(status='Published', is_listed=True)
         params = self.request.query_params
         emirate = params.get('emirate')
         featured = params.get('featured')
@@ -242,6 +246,14 @@ class ConsultationPublicList(generics.ListAPIView):
         emirate = params.get('emirate', '').strip()
         if emirate:
             qs = qs.filter(emirates__iexact=emirate)
+
+        session_type = params.get('session_type', '').strip()
+        if session_type:
+            qs = qs.filter(session_type__iexact=session_type)
+
+        category = params.get('category', '').strip()
+        if category:
+            qs = qs.filter(category__iexact=category)
 
         date = params.get('date', '').strip()
         if date in ('week', 'month', 'year'):

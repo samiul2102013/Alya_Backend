@@ -7,14 +7,18 @@ from .enums import (
     ApplicationStatus,
     BookingStatus,
     Emirates,
-Language,
+    Language,
     MaritalStage,
+    MediaCategory,
+    NewsCategory,
+    PaymentMethod,
     ResourceType,
     SessionType,
     ShortCategory,
     Source,
     Status,
     SupportProgram,
+    UserType,
 )
 from .models import Category, Consultation, Emirate, Initiative, NewsArticle, Short
 
@@ -94,7 +98,7 @@ class MetaView(APIView):
     def get(self, request):
         return Response({
             'emirates': [{'value': choice.value, 'label': choice.label} for choice in Emirates],
-            'categories': [name for name in ShortCategory.values],
+            'categories': list(ShortCategory.values) + [v for v in NewsCategory.values if v not in ShortCategory.values],
             'languages': [{'value': choice.value, 'label': choice.label} for choice in Language],
             'emblems': [{'value': choice.value, 'label': choice.label} for choice in Emirates],
             'sessionTypes': [{'value': choice.value, 'label': choice.label} for choice in SessionType],
@@ -105,4 +109,7 @@ class MetaView(APIView):
             'bookingStatuses': [{'value': choice.value, 'label': choice.label} for choice in BookingStatus],
             'applicationStatuses': [{'value': choice.value, 'label': choice.label} for choice in ApplicationStatus],
             'statuses': [{'value': choice.value, 'label': choice.label} for choice in Status],
+            'userTypes': [{'value': choice.value, 'label': choice.label} for choice in UserType],
+            'paymentMethods': [{'value': choice.value, 'label': choice.label} for choice in PaymentMethod],
+            'mediaCategories': [{'value': choice.value, 'label': choice.label} for choice in MediaCategory],
         })

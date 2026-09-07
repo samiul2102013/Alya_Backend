@@ -15,6 +15,7 @@ from .models import Booking, ContactMessage, InitiativeApplication
 from .serializers import (
     BookingAdminSerializer,
     BookingSerializer,
+    ContactMessageAdminSerializer,
     ContactSerializer,
     InitiativeApplicationSerializer,
 )
@@ -182,3 +183,36 @@ class ApplicationAdminViewSet(ModelViewSet):
     queryset = InitiativeApplication.objects.all().order_by('-created_at')
     serializer_class = InitiativeApplicationSerializer
     lookup_field = 'pk'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        search = self.request.query_params.get('search')
+        status_filter = self.request.query_params.get('status')
+        if search:
+            qs = qs.filter(
+                Q(full_name__icontains=search)
+                | Q(email__icontains=search)
+            )
+        if status_filter:
+            qs = qs.filter(status__iexact=status_filter)
+        return qs
+
+
+class ContactMessageAdminViewSet(ModelViewSet):
+    """GET /api/admin/contact-messages — list, retrieve contact messages (read-only)."""
+
+    http_method_names = ['get', 'head', 'options']
+    queryset = ContactMessage.objects.all().order_by('-created_at')
+    serializer_class = ContactMessageAdminSerializer
+    lookup_field = 'pk'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        search = self.request.query_params.get('search')
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search)
+                | Q(email__icontains=search)
+                | Q(subject__icontains=search)
+            )
+        return qs
