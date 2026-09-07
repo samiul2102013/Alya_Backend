@@ -439,6 +439,7 @@ class AboutContentAdminSerializer(serializers.ModelSerializer):
     sectionVisibility = serializers.JSONField(source='section_visibility', required=False)
 
     class Meta:
+        model = AboutContent
         fields = ['id',
                   'title', 'titleAr', 'description', 'descriptionAr',
                   'browseSession', 'browseSessionAr', 'contactSupport', 'contactSupportAr',
