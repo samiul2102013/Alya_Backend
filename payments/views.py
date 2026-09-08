@@ -17,6 +17,22 @@ from . import services
 logger = logging.getLogger(__name__)
 
 
+class StripeConfigView(APIView):
+    """GET /api/payments/config — public Stripe configuration for the frontend.
+
+    Exposes only the publishable key (public by design). The frontend fetches
+    this at runtime so the Payment Element can be enabled without rebuilding the
+    Docker image when credentials change.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({
+            'publishableKey': settings.STRIPE_PUBLISHABLE_KEY,
+        })
+
+
 class CreatePaymentIntentView(APIView):
     """POST /api/payments/create-intent
 
