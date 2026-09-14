@@ -285,8 +285,13 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
     counselorAr = serializers.SerializerMethodField()
     learnMore = serializers.JSONField(source='learn_more', read_only=True)
     whatYouWillLearn = serializers.JSONField(source='what_you_will_learn', read_only=True)
+    whatYouWillLearnAr = serializers.SerializerMethodField()
     whoShouldAttend = serializers.JSONField(source='who_should_attend', read_only=True)
+    whoShouldAttendAr = serializers.SerializerMethodField()
+    objectives = serializers.JSONField(source='objectives', read_only=True)
+    objectivesAr = serializers.SerializerMethodField()
     bookingNotice = serializers.CharField(source='booking_notice', read_only=True)
+    bookingNoticeAr = serializers.SerializerMethodField()
     descriptionAr = serializers.SerializerMethodField()
 
     def get_counselorTitleAr(self, obj):
@@ -301,6 +306,28 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
     def get_descriptionAr(self, obj):
         return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
 
+    def _translate_list(self, lst):
+        if not lst: return []
+        return [translate_text(str(x), 'en', 'ar') if x and not any('\u0600' <= c <= '\u06FF' for c in str(x)) else x for x in lst]
+
+    def get_objectivesAr(self, obj):
+        ar = getattr(obj, 'objectives_ar', None)
+        if ar: return ar
+        return self._translate_list(obj.objectives)
+
+    def get_whatYouWillLearnAr(self, obj):
+        ar = getattr(obj, 'what_you_will_learn_ar', None)
+        if ar: return ar
+        return self._translate_list(obj.what_you_will_learn)
+
+    def get_whoShouldAttendAr(self, obj):
+        ar = getattr(obj, 'who_should_attend_ar', None)
+        if ar: return ar
+        return self._translate_list(obj.who_should_attend)
+
+    def get_bookingNoticeAr(self, obj):
+        return get_translated(getattr(obj, 'booking_notice_ar', ''), obj.booking_notice, 'ar')
+
     showDoctor = serializers.BooleanField(source='show_doctor', read_only=True)
     showLearnMore = serializers.BooleanField(source='show_learn_more', read_only=True)
     showGallery = serializers.BooleanField(source='show_gallery', read_only=True)
@@ -313,8 +340,8 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
         fields = ConsultationListSerializer.Meta.fields + [
             'publishedDate', 'timeZone', 'meetingFormat', 'sessionLink',
             'maxParticipants', 'processingFee', 'discount', 'counselor', 'counselorAr', 'counselorPhoto',
-            'counselorTitle', 'counselorTitleAr', 'counselorBio', 'counselorBioAr', 'learnMore', 'gallery', 'description', 'descriptionAr', 'objectives',
-            'whatYouWillLearn', 'whoShouldAttend', 'schedule', 'bookingNotice', 'showDoctor',
+            'counselorTitle', 'counselorTitleAr', 'counselorBio', 'counselorBioAr', 'learnMore', 'gallery', 'description', 'descriptionAr', 'objectives', 'objectivesAr',
+            'whatYouWillLearn', 'whatYouWillLearnAr', 'whoShouldAttend', 'whoShouldAttendAr', 'schedule', 'bookingNotice', 'bookingNoticeAr', 'showDoctor',
             'showLearnMore', 'showGallery', 'showSchedule', 'showBooking', 'isBookable',
         ]
 
@@ -409,43 +436,104 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class PagePresentationSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
-    titleAr = serializers.CharField(source='title_ar', read_only=True)
-    descriptionAr = serializers.CharField(source='description_ar', read_only=True)
+    titleAr = serializers.SerializerMethodField()
+    descriptionAr = serializers.SerializerMethodField()
     heroImage = serializers.CharField(source='hero_image', read_only=True)
-    topics = serializers.JSONField(source='shorts_topics', read_only=True)
-    contributors = serializers.JSONField(source='shorts_contributors', read_only=True)
-    faqs = serializers.JSONField(source='shorts_faqs', read_only=True)
+    topics = serializers.SerializerMethodField()
+    contributors = serializers.SerializerMethodField()
+    faqs = serializers.SerializerMethodField()
     shortsCta = ShortsCtaSerializer(source='shorts_cta', read_only=True)
     sectionVisibility = serializers.JSONField(source='shorts_section_visibility', read_only=True)
-    initiativesTopics = serializers.JSONField(source='initiatives_topics', read_only=True)
-    initiativesContributors = serializers.JSONField(source='initiatives_contributors', read_only=True)
-    initiativesFaqs = serializers.JSONField(source='initiatives_faqs', read_only=True)
+    initiativesTopics = serializers.SerializerMethodField()
+    initiativesContributors = serializers.SerializerMethodField()
+    initiativesFaqs = serializers.SerializerMethodField()
     initiativesSectionVisibility = serializers.JSONField(source='initiatives_section_visibility', read_only=True)
-    consultationTopics = serializers.JSONField(source='consultation_topics', read_only=True)
-    consultationContributors = serializers.JSONField(source='consultation_contributors', read_only=True)
-    consultationFaqs = serializers.JSONField(source='consultation_faqs', read_only=True)
+    consultationTopics = serializers.SerializerMethodField()
+    consultationContributors = serializers.SerializerMethodField()
+    consultationFaqs = serializers.SerializerMethodField()
     consultationSectionVisibility = serializers.JSONField(source='consultation_section_visibility', read_only=True)
-    emiratesTopics = serializers.JSONField(source='emirates_topics', read_only=True)
-    emiratesContributors = serializers.JSONField(source='emirates_contributors', read_only=True)
-    emiratesFaqs = serializers.JSONField(source='emirates_faqs', read_only=True)
+    emiratesTopics = serializers.SerializerMethodField()
+    emiratesContributors = serializers.SerializerMethodField()
+    emiratesFaqs = serializers.SerializerMethodField()
     emiratesSectionVisibility = serializers.JSONField(source='emirates_section_visibility', read_only=True)
-    newsTopics = serializers.JSONField(source='news_topics', read_only=True)
-    newsContributors = serializers.JSONField(source='news_contributors', read_only=True)
-    newsFaqs = serializers.JSONField(source='news_faqs', read_only=True)
+    newsTopics = serializers.SerializerMethodField()
+    newsContributors = serializers.SerializerMethodField()
+    newsFaqs = serializers.SerializerMethodField()
     newsSectionVisibility = serializers.JSONField(source='news_section_visibility', read_only=True)
     published = serializers.BooleanField(read_only=True)
+    # Auto-translated contributorsAr for Arabic mode (frontend picks when isArabic)
+    contributorsAr = serializers.SerializerMethodField()
+    initiativesContributorsAr = serializers.SerializerMethodField()
+    consultationContributorsAr = serializers.SerializerMethodField()
+    emiratesContributorsAr = serializers.SerializerMethodField()
+    newsContributorsAr = serializers.SerializerMethodField()
+
+    def get_titleAr(self, obj): return get_translated(obj.title_ar, obj.title, 'ar')
+    def get_descriptionAr(self, obj): return get_translated(obj.description_ar, obj.description, 'ar')
+
+    def _translate_topics(self, lst):
+        out=[]
+        for t in (lst or []):
+            if not isinstance(t, dict): out.append(t); continue
+            title=t.get('title',''); titleAr=t.get('titleAr') or t.get('title_ar') or ''
+            if not titleAr and title: titleAr=translate_text(title,'en','ar')
+            out.append({**t, 'titleAr': titleAr, 'title': title})
+        return out
+    def _translate_contributors(self, lst):
+        # Return original English list (for English locale)
+        return list(lst or [])
+
+    def _translate_contributors_ar(self, lst):
+        out=[]
+        for c in (lst or []):
+            if not isinstance(c, str): out.append(c); continue
+            if c and not any('\u0600' <= ch <= '\u06FF' for ch in c):
+                out.append(translate_text(c, 'en', 'ar'))
+            else:
+                out.append(c)
+        return out
+    def _translate_faqs(self, lst):
+        out=[]
+        for f in (lst or []):
+            if not isinstance(f, dict): out.append(f); continue
+            q=f.get('question',''); qAr=f.get('questionAr') or f.get('question_ar') or ''
+            a=f.get('answer',''); aAr=f.get('answerAr') or f.get('answer_ar') or ''
+            if not qAr and q: qAr=translate_text(q,'en','ar')
+            if not aAr and a: aAr=translate_text(a,'en','ar')
+            out.append({**f, 'questionAr': qAr, 'answerAr': aAr})
+        return out
+
+    def get_topics(self, obj): return self._translate_topics(obj.shorts_topics)
+    def get_contributors(self, obj): return self._translate_contributors(obj.shorts_contributors)
+    def get_contributorsAr(self, obj): return self._translate_contributors_ar(obj.shorts_contributors)
+    def get_faqs(self, obj): return self._translate_faqs(obj.shorts_faqs)
+    def get_initiativesTopics(self, obj): return self._translate_topics(obj.initiatives_topics)
+    def get_initiativesContributors(self, obj): return self._translate_contributors(obj.initiatives_contributors)
+    def get_initiativesContributorsAr(self, obj): return self._translate_contributors_ar(obj.initiatives_contributors)
+    def get_initiativesFaqs(self, obj): return self._translate_faqs(obj.initiatives_faqs)
+    def get_consultationTopics(self, obj): return self._translate_topics(obj.consultation_topics)
+    def get_consultationContributors(self, obj): return self._translate_contributors(obj.consultation_contributors)
+    def get_consultationContributorsAr(self, obj): return self._translate_contributors_ar(obj.consultation_contributors)
+    def get_consultationFaqs(self, obj): return self._translate_faqs(obj.consultation_faqs)
+    def get_emiratesTopics(self, obj): return self._translate_topics(obj.emirates_topics)
+    def get_emiratesContributors(self, obj): return self._translate_contributors(obj.emirates_contributors)
+    def get_emiratesContributorsAr(self, obj): return self._translate_contributors_ar(obj.emirates_contributors)
+    def get_newsTopics(self, obj): return self._translate_topics(obj.news_topics)
+    def get_newsContributors(self, obj): return self._translate_contributors(obj.news_contributors)
+    def get_newsContributorsAr(self, obj): return self._translate_contributors_ar(obj.news_contributors)
+    def get_newsFaqs(self, obj): return self._translate_faqs(obj.news_faqs)
 
     class Meta:
         model = PagePresentation
         fields = ['id', 'key', 'title', 'titleAr', 'description', 'descriptionAr', 'badge',
-                  'heroImage', 'published', 'topics', 'contributors', 'faqs', 'shortsCta', 'sectionVisibility',
-                  'initiativesTopics', 'initiativesContributors', 'initiativesFaqs',
+                  'heroImage', 'published', 'topics', 'contributors', 'contributorsAr', 'faqs', 'shortsCta', 'sectionVisibility',
+                  'initiativesTopics', 'initiativesContributors', 'initiativesContributorsAr', 'initiativesFaqs',
                   'initiativesSectionVisibility',
-                  'consultationTopics', 'consultationContributors', 'consultationFaqs',
+                  'consultationTopics', 'consultationContributors', 'consultationContributorsAr', 'consultationFaqs',
                   'consultationSectionVisibility',
-                  'emiratesTopics', 'emiratesContributors', 'emiratesFaqs',
+                  'emiratesTopics', 'emiratesContributors', 'emiratesContributorsAr', 'emiratesFaqs',
                   'emiratesSectionVisibility',
-                  'newsTopics', 'newsContributors', 'newsFaqs',
+                  'newsTopics', 'newsContributors', 'newsContributorsAr', 'newsFaqs',
                   'newsSectionVisibility']
 
 
@@ -571,52 +659,114 @@ class HomepageContentSerializer(serializers.ModelSerializer):
 
 class AboutContentSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
-    titleAr = serializers.CharField(source='title_ar', read_only=True)
-    descriptionAr = serializers.CharField(source='description_ar', read_only=True)
+    titleAr = serializers.SerializerMethodField()
+    descriptionAr = serializers.SerializerMethodField()
     browseSession = serializers.CharField(source='browse_session', read_only=True)
     browseSessionAr = serializers.CharField(source='browse_session_ar', read_only=True)
     contactSupport = serializers.CharField(source='contact_support', read_only=True)
     contactSupportAr = serializers.CharField(source='contact_support_ar', read_only=True)
     ourStory = serializers.CharField(source='our_story', read_only=True)
-    ourStoryAr = serializers.CharField(source='our_story_ar', read_only=True)
+    ourStoryAr = serializers.SerializerMethodField()
     ourStoryText = serializers.CharField(source='our_story_text', read_only=True)
-    ourStoryTextAr = serializers.CharField(source='our_story_text_ar', read_only=True)
+    ourStoryTextAr = serializers.SerializerMethodField()
     ourMission = serializers.CharField(source='our_mission', read_only=True)
-    ourMissionAr = serializers.CharField(source='our_mission_ar', read_only=True)
+    ourMissionAr = serializers.SerializerMethodField()
     ourMissionText = serializers.CharField(source='our_mission_text', read_only=True)
-    ourMissionTextAr = serializers.CharField(source='our_mission_text_ar', read_only=True)
+    ourMissionTextAr = serializers.SerializerMethodField()
     ourVision = serializers.CharField(source='our_vision', read_only=True)
-    ourVisionAr = serializers.CharField(source='our_vision_ar', read_only=True)
+    ourVisionAr = serializers.SerializerMethodField()
     ourVisionText = serializers.CharField(source='our_vision_text', read_only=True)
-    ourVisionTextAr = serializers.CharField(source='our_vision_text_ar', read_only=True)
+    ourVisionTextAr = serializers.SerializerMethodField()
     ourObjective = serializers.CharField(source='our_objective', read_only=True)
-    ourObjectiveAr = serializers.CharField(source='our_objective_ar', read_only=True)
+    ourObjectiveAr = serializers.SerializerMethodField()
     ourObjectiveText = serializers.CharField(source='our_objective_text', read_only=True)
-    ourObjectiveTextAr = serializers.CharField(source='our_objective_text_ar', read_only=True)
+    ourObjectiveTextAr = serializers.SerializerMethodField()
     objectives = serializers.JSONField(read_only=True)
+    objectivesAr = serializers.SerializerMethodField()
     whatWeOffer = serializers.CharField(source='what_we_offer', read_only=True)
-    whatWeOfferAr = serializers.CharField(source='what_we_offer_ar', read_only=True)
+    whatWeOfferAr = serializers.SerializerMethodField()
     whatWeOfferText = serializers.CharField(source='what_we_offer_text', read_only=True)
-    whatWeOfferTextAr = serializers.CharField(source='what_we_offer_text_ar', read_only=True)
+    whatWeOfferTextAr = serializers.SerializerMethodField()
     offerings = serializers.JSONField(read_only=True)
+    offeringsAr = serializers.SerializerMethodField()
     ourImpact = serializers.CharField(source='our_impact', read_only=True)
-    ourImpactAr = serializers.CharField(source='our_impact_ar', read_only=True)
+    ourImpactAr = serializers.SerializerMethodField()
     ourImpactText = serializers.CharField(source='our_impact_text', read_only=True)
-    ourImpactTextAr = serializers.CharField(source='our_impact_text_ar', read_only=True)
+    ourImpactTextAr = serializers.SerializerMethodField()
     impact = serializers.JSONField(read_only=True)
+    impactAr = serializers.SerializerMethodField()
     whyChoose = serializers.CharField(source='why_choose', read_only=True)
-    whyChooseAr = serializers.CharField(source='why_choose_ar', read_only=True)
+    whyChooseAr = serializers.SerializerMethodField()
     whyChooseText = serializers.CharField(source='why_choose_text', read_only=True)
-    whyChooseTextAr = serializers.CharField(source='why_choose_text_ar', read_only=True)
-    whyValues = serializers.JSONField(source='why_values', read_only=True)
+    whyChooseTextAr = serializers.SerializerMethodField()
+    whyValues = serializers.JSONField(read_only=True)
+    whyValuesAr = serializers.SerializerMethodField()
     coreValues = serializers.CharField(source='core_values', read_only=True)
-    coreValuesAr = serializers.CharField(source='core_values_ar', read_only=True)
+    coreValuesAr = serializers.SerializerMethodField()
     coreValuesText = serializers.CharField(source='core_values_text', read_only=True)
-    coreValuesTextAr = serializers.CharField(source='core_values_text_ar', read_only=True)
-    coreValueList = serializers.JSONField(source='core_value_list', read_only=True)
+    coreValuesTextAr = serializers.SerializerMethodField()
+    coreValueList = serializers.JSONField(read_only=True)
+    coreValueListAr = serializers.SerializerMethodField()
     heroImage = serializers.CharField(source='hero_image', read_only=True)
     heroImageAlt = serializers.CharField(source='hero_image_alt', read_only=True)
     sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
+
+    def get_titleAr(self, obj): return get_translated(obj.title_ar, obj.title, 'ar')
+    def get_descriptionAr(self, obj): return get_translated(obj.description_ar, obj.description, 'ar')
+    def get_ourStoryAr(self, obj): return get_translated(obj.our_story_ar, obj.our_story, 'ar')
+    def get_ourStoryTextAr(self, obj): return get_translated(obj.our_story_text_ar, obj.our_story_text, 'ar')
+    def get_ourMissionAr(self, obj): return get_translated(obj.our_mission_ar, obj.our_mission, 'ar')
+    def get_ourMissionTextAr(self, obj): return get_translated(obj.our_mission_text_ar, obj.our_mission_text, 'ar')
+    def get_ourVisionAr(self, obj): return get_translated(obj.our_vision_ar, obj.our_vision, 'ar')
+    def get_ourVisionTextAr(self, obj): return get_translated(obj.our_vision_text_ar, obj.our_vision_text, 'ar')
+    def get_ourObjectiveAr(self, obj): return get_translated(obj.our_objective_ar, obj.our_objective, 'ar')
+    def get_ourObjectiveTextAr(self, obj): return get_translated(obj.our_objective_text_ar, obj.our_objective_text, 'ar')
+    def get_whatWeOfferAr(self, obj): return get_translated(obj.what_we_offer_ar, obj.what_we_offer, 'ar')
+    def get_whatWeOfferTextAr(self, obj): return get_translated(obj.what_we_offer_text_ar, obj.what_we_offer_text, 'ar')
+    def get_ourImpactAr(self, obj): return get_translated(obj.our_impact_ar, obj.our_impact, 'ar')
+    def get_ourImpactTextAr(self, obj): return get_translated(obj.our_impact_text_ar, obj.our_impact_text, 'ar')
+    def get_whyChooseAr(self, obj): return get_translated(obj.why_choose_ar, obj.why_choose, 'ar')
+    def get_whyChooseTextAr(self, obj): return get_translated(obj.why_choose_text_ar, obj.why_choose_text, 'ar')
+    def get_coreValuesAr(self, obj): return get_translated(obj.core_values_ar, obj.core_values, 'ar')
+    def get_coreValuesTextAr(self, obj): return get_translated(obj.core_values_text_ar, obj.core_values_text, 'ar')
+
+    def get_objectivesAr(self, obj):
+        vals = obj.objectives or []
+        return [translate_text(v, 'en', 'ar') if v and not any('\u0600' <= c <= '\u06FF' for c in v) else v for v in vals]
+
+    def get_whyValuesAr(self, obj):
+        vals = obj.why_values or []
+        return [translate_text(v, 'en', 'ar') if v and not any('\u0600' <= c <= '\u06FF' for c in v) else v for v in vals]
+
+    def get_coreValueListAr(self, obj):
+        vals = obj.core_value_list or []
+        return [translate_text(v, 'en', 'ar') if v and not any('\u0600' <= c <= '\u06FF' for c in v) else v for v in vals]
+
+    def get_offeringsAr(self, obj):
+        lst = obj.offerings or []
+        out = []
+        for o in lst:
+            if not isinstance(o, dict): out.append(o); continue
+            out.append({
+                'title': o.get('title', ''),
+                'titleAr': o.get('titleAr') or (translate_text(o.get('title',''), 'en','ar') if o.get('title') else ''),
+                'desc': o.get('desc',''),
+                'descAr': o.get('descAr') or (translate_text(o.get('desc',''), 'en','ar') if o.get('desc') else ''),
+            })
+        return out
+
+    def get_impactAr(self, obj):
+        lst = obj.impact or []
+        out = []
+        for o in lst:
+            if not isinstance(o, dict): out.append(o); continue
+            out.append({
+                'label': o.get('label',''),
+                'labelAr': o.get('labelAr') or (translate_text(o.get('label',''), 'en','ar') if o.get('label') else ''),
+                'value': o.get('value',''),
+                'valueAr': o.get('valueAr') or (translate_text(o.get('value',''), 'en','ar') if o.get('value') else ''),
+            })
+        return out
 
     class Meta:
         model = AboutContent
@@ -627,11 +777,11 @@ class AboutContentSerializer(serializers.ModelSerializer):
                   'ourStory', 'ourStoryAr', 'ourStoryText', 'ourStoryTextAr',
                   'ourMission', 'ourMissionAr', 'ourMissionText', 'ourMissionTextAr',
                   'ourVision', 'ourVisionAr', 'ourVisionText', 'ourVisionTextAr',
-                  'ourObjective', 'ourObjectiveAr', 'ourObjectiveText', 'ourObjectiveTextAr', 'objectives',
-                  'whatWeOffer', 'whatWeOfferAr', 'whatWeOfferText', 'whatWeOfferTextAr', 'offerings',
-                  'ourImpact', 'ourImpactAr', 'ourImpactText', 'ourImpactTextAr', 'impact',
-                  'whyChoose', 'whyChooseAr', 'whyChooseText', 'whyChooseTextAr', 'whyValues',
-                  'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList',
+                  'ourObjective', 'ourObjectiveAr', 'ourObjectiveText', 'ourObjectiveTextAr', 'objectives', 'objectivesAr',
+                  'whatWeOffer', 'whatWeOfferAr', 'whatWeOfferText', 'whatWeOfferTextAr', 'offerings', 'offeringsAr',
+                  'ourImpact', 'ourImpactAr', 'ourImpactText', 'ourImpactTextAr', 'impact', 'impactAr',
+                  'whyChoose', 'whyChooseAr', 'whyChooseText', 'whyChooseTextAr', 'whyValues', 'whyValuesAr',
+                  'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList', 'coreValueListAr',
                   'sectionVisibility']
 
 
