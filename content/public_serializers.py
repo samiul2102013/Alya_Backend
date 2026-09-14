@@ -624,10 +624,17 @@ class FooterLinkSerializer(serializers.Serializer):
 
 class FooterContentSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
+    logoUrl = serializers.CharField(source='logo_url', read_only=True)
     brandText = serializers.CharField(source='brand_text', read_only=True)
     brandTextAr = serializers.CharField(source='brand_text_ar', read_only=True)
     governmentLabel = serializers.CharField(source='government_label', read_only=True)
     governmentLabelAr = serializers.CharField(source='government_label_ar', read_only=True)
+    quickLinksHeading = serializers.CharField(source='quick_links_heading', read_only=True)
+    quickLinksHeadingAr = serializers.CharField(source='quick_links_heading_ar', read_only=True)
+    resourceLinksHeading = serializers.CharField(source='resource_links_heading', read_only=True)
+    resourceLinksHeadingAr = serializers.CharField(source='resource_links_heading_ar', read_only=True)
+    contactsHeading = serializers.CharField(source='contacts_heading', read_only=True)
+    contactsHeadingAr = serializers.CharField(source='contacts_heading_ar', read_only=True)
     quickLinks = FooterLinkSerializer(source='quick_links', many=True, read_only=True)
     resourceLinks = FooterLinkSerializer(source='resource_links', many=True, read_only=True)
     addressAr = serializers.CharField(source='address_ar', read_only=True)
@@ -640,7 +647,11 @@ class FooterContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = FooterContent
         fields = ['id',
+                  'logoUrl',
                   'brandText', 'brandTextAr', 'governmentLabel', 'governmentLabelAr',
+                  'quickLinksHeading', 'quickLinksHeadingAr',
+                  'resourceLinksHeading', 'resourceLinksHeadingAr',
+                  'contactsHeading', 'contactsHeadingAr',
                   'quickLinks', 'resourceLinks',
                   'phone', 'email', 'address', 'addressAr',
                   'copyrightText', 'copyrightTextAr', 'builtForText', 'builtForTextAr',

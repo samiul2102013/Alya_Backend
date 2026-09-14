@@ -871,6 +871,45 @@ def _default_footer_section_visibility():
     }
 
 
+DEFAULT_FOOTER_CONTENT = {
+    'logo_url': '',
+    'brand_text': 'Alia is the official platform dedicated to empowering Emirati families through comprehensive marriage guidance, financial grants, and lifelong community support.',
+    'brand_text_ar': 'عالية هي المنصة الرسمية المكرسة لتمكين الأسر الإماراتية من خلال إرشادات الزواج الشاملة والمنح المالية والدعم المجتمعي مدى الحياة.',
+    'government_label': 'United Arab Emirates Government Initiative',
+    'government_label_ar': 'مبادرة حكومة دولة الإمارات العربية المتحدة',
+    'quick_links_heading': 'Quick Links',
+    'quick_links_heading_ar': 'روابط سريعة',
+    'resource_links_heading': 'Resources',
+    'resource_links_heading_ar': 'الموارد',
+    'contacts_heading': 'Contacts',
+    'contacts_heading_ar': 'جهات الاتصال',
+    'quick_links': [
+        {'label': 'Home', 'labelAr': 'الرئيسية', 'href': '/'},
+        {'label': 'About Alia', 'labelAr': 'عن عالية', 'href': '/about'},
+        {'label': 'Contact Us', 'labelAr': 'اتصل بنا', 'href': '/contact'},
+        {'label': 'National Initiatives', 'labelAr': 'المبادرات الوطنية', 'href': '/initiatives'},
+        {'label': 'Emirates Centers', 'labelAr': 'مراكز الإمارات', 'href': '/emirates'},
+        {'label': 'Privacy Policy', 'labelAr': 'سياسة الخصوصية', 'href': '/privacy-policy'},
+        {'label': 'Terms & Conditions', 'labelAr': 'الشروط والأحكام', 'href': '/terms-and-conditions'},
+    ],
+    'resource_links': [
+        {'label': 'Wedding Grants FAQ', 'labelAr': 'الأسئلة الشائعة لمنح الزواج', 'href': '#'},
+        {'label': 'UAE Family Law Guide', 'labelAr': 'دليل قانون الأسرة في الإمارات', 'href': '#'},
+        {'label': 'Housing Subsidy Portal', 'labelAr': 'بوابة دعم السكن', 'href': '#'},
+        {'label': 'Media Center & News', 'labelAr': 'مركز الإعلام والأخبار', 'href': '/news'},
+    ],
+    'phone': '+971 800 2542',
+    'email': 'support@alia.gov.ae',
+    'address': 'Abu Dhabi, UAE',
+    'address_ar': 'أبوظبي، الإمارات العربية المتحدة',
+    'copyright_text': 'All rights reserved.',
+    'copyright_text_ar': 'جميع الحقوق محفوظة.',
+    'built_for_text': 'Built for Emirati Families',
+    'built_for_text_ar': 'صُمم من أجل الأسر الإماراتية',
+    'published': True,
+}
+
+
 class FooterContent(TimeStampedModel):
     """Singleton model for the user-panel footer content.
 
@@ -882,10 +921,20 @@ class FooterContent(TimeStampedModel):
     """
 
     # --- Brand column ---
+    logo_url = models.CharField('Logo URL', max_length=500, blank=True,
+        help_text='Footer logo image URL. Falls back to the bundled logo when empty.')
     brand_text = models.CharField('Brand Text', max_length=800, blank=True)
     brand_text_ar = models.CharField('Brand Text (Arabic)', max_length=800, blank=True)
     government_label = models.CharField('Government Label', max_length=300, blank=True)
     government_label_ar = models.CharField('Government Label (Arabic)', max_length=300, blank=True)
+
+    # --- Column headings ---
+    quick_links_heading = models.CharField('Quick Links Heading', max_length=200, blank=True)
+    quick_links_heading_ar = models.CharField('Quick Links Heading (Arabic)', max_length=200, blank=True)
+    resource_links_heading = models.CharField('Resources Heading', max_length=200, blank=True)
+    resource_links_heading_ar = models.CharField('Resources Heading (Arabic)', max_length=200, blank=True)
+    contacts_heading = models.CharField('Contacts Heading', max_length=200, blank=True)
+    contacts_heading_ar = models.CharField('Contacts Heading (Arabic)', max_length=200, blank=True)
 
     # --- Link columns (list of {label, labelAr, href}) ---
     quick_links = models.JSONField(
@@ -942,6 +991,20 @@ class FooterContent(TimeStampedModel):
             current.setdefault(key, value)
         self.section_visibility = current
         super().save(*args, **kwargs)
+
+    @classmethod
+    def get_or_load(cls):
+        """Return the singleton, creating it with full default content if missing.
+
+        Used by the admin GET endpoint so the admin panel always shows the
+        complete pre-filled footer (exactly what the user panel renders) even
+        before the first save.
+        """
+        obj = cls.objects.first()
+        if obj is None:
+            obj = cls(**{k: (v() if callable(v) else v) for k, v in DEFAULT_FOOTER_CONTENT.items()})
+            obj.save()
+        return obj
 
 
 class MediaItem(TimeStampedModel):

@@ -574,10 +574,17 @@ class FooterLinkAdminSerializer(serializers.Serializer):
 
 class FooterContentAdminSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
+    logoUrl = serializers.CharField(source='logo_url', required=False, allow_blank=True)
     brandText = serializers.CharField(source='brand_text', required=False, allow_blank=True)
     brandTextAr = serializers.CharField(source='brand_text_ar', required=False, allow_blank=True)
     governmentLabel = serializers.CharField(source='government_label', required=False, allow_blank=True)
     governmentLabelAr = serializers.CharField(source='government_label_ar', required=False, allow_blank=True)
+    quickLinksHeading = serializers.CharField(source='quick_links_heading', required=False, allow_blank=True)
+    quickLinksHeadingAr = serializers.CharField(source='quick_links_heading_ar', required=False, allow_blank=True)
+    resourceLinksHeading = serializers.CharField(source='resource_links_heading', required=False, allow_blank=True)
+    resourceLinksHeadingAr = serializers.CharField(source='resource_links_heading_ar', required=False, allow_blank=True)
+    contactsHeading = serializers.CharField(source='contacts_heading', required=False, allow_blank=True)
+    contactsHeadingAr = serializers.CharField(source='contacts_heading_ar', required=False, allow_blank=True)
     quickLinks = FooterLinkAdminSerializer(source='quick_links', many=True, required=False)
     resourceLinks = FooterLinkAdminSerializer(source='resource_links', many=True, required=False)
     addressAr = serializers.CharField(source='address_ar', required=False, allow_blank=True)
@@ -590,7 +597,11 @@ class FooterContentAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = FooterContent
         fields = ['id',
+                  'logoUrl',
                   'brandText', 'brandTextAr', 'governmentLabel', 'governmentLabelAr',
+                  'quickLinksHeading', 'quickLinksHeadingAr',
+                  'resourceLinksHeading', 'resourceLinksHeadingAr',
+                  'contactsHeading', 'contactsHeadingAr',
                   'quickLinks', 'resourceLinks',
                   'phone', 'email', 'address', 'addressAr',
                   'copyrightText', 'copyrightTextAr', 'builtForText', 'builtForTextAr',

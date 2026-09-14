@@ -213,7 +213,9 @@ class FooterContentAdminView(APIView):
     """/api/admin/footer — upsert singleton footer content."""
 
     def get(self, request):
-        obj, _ = FooterContent.objects.get_or_create(pk=FooterContent.objects.first().pk if FooterContent.objects.exists() else None)
+        # Always return the full pre-filled footer so the admin panel shows
+        # exactly what the user panel renders, even before the first save.
+        obj = FooterContent.get_or_load()
         serializer = FooterContentAdminSerializer(obj)
         return Response(serializer.data)
 
