@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Consultation, Emirate, Initiative, NewsArticle, Short
+from .models import Category, Consultation, Emirate, FooterContent, Initiative, NewsArticle, Short
 
 
 @admin.register(Short)
@@ -41,3 +41,15 @@ class EmirateAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'status')
     search_fields = ('name',)
+
+
+@admin.register(FooterContent)
+class FooterContentAdmin(admin.ModelAdmin):
+    list_display = ('brand_text', 'phone', 'email', 'published')
+
+    def has_add_permission(self, request):
+        # Singleton: allow add only while no record exists.
+        return not FooterContent.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

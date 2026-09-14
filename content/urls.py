@@ -17,6 +17,7 @@ from .views_public import (
     ContactContentPublicView,
     EmiratePublicDetailView,
     EmiratePublicList,
+    FooterContentPublicView,
     HomepageContentPublicView,
     InitiativeFeaturedPublicView,
     InitiativePublicDetailView,
@@ -35,6 +36,7 @@ from .views_admin import (
     ConsultationAdminViewSet,
     ContactContentAdminView,
     EmirateAdminViewSet,
+    FooterContentAdminView,
     HomepageContentAdminView,
     InitiativeAdminViewSet,
     MediaItemAdminViewSet,
@@ -62,6 +64,7 @@ urlpatterns = router.urls + [
     path('admin/homepage', HomepageContentAdminView.as_view(), name='admin-homepage'),
     path('admin/about', AboutContentAdminView.as_view(), name='admin-about'),
     path('admin/contact', ContactContentAdminView.as_view(), name='admin-contact'),
+    path('admin/footer', FooterContentAdminView.as_view(), name='admin-footer'),
     # Public
     path('shorts', ShortPublicView.as_view(), name='shorts-list'),
     path('shorts/<str:slug>', ShortPublicDetail.as_view(), name='shorts-detail'),
@@ -80,6 +83,7 @@ urlpatterns = router.urls + [
     path('homepage', HomepageContentPublicView.as_view(), name='homepage-content'),
     path('about', AboutContentPublicView.as_view(), name='about-content'),
     path('contact', ContactContentPublicView.as_view(), name='contact-content'),
+    path('footer', FooterContentPublicView.as_view(), name='footer-content'),
     path('media', MediaItemPublicList.as_view(), name='media-list'),
     path('search', GlobalSearchView.as_view(), name='global-search'),
 ]

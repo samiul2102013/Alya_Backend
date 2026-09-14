@@ -2,7 +2,7 @@ from django.db.models import Q
 
 from rest_framework import serializers
 
-from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 
 
 class ShortsCtaSerializer(serializers.Serializer):
@@ -612,6 +612,39 @@ class ContactContentSerializer(serializers.ModelSerializer):
                   'ourLocation', 'ourLocationAr', 'ourLocationText', 'ourLocationTextAr',
                   'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude',
                   'sectionVisibility']
+
+
+class FooterLinkSerializer(serializers.Serializer):
+    """A single footer link ({label, labelAr, href})."""
+
+    label = serializers.CharField(read_only=True, allow_blank=True)
+    labelAr = serializers.CharField(read_only=True, allow_blank=True)
+    href = serializers.CharField(read_only=True, allow_blank=True)
+
+
+class FooterContentSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+    brandText = serializers.CharField(source='brand_text', read_only=True)
+    brandTextAr = serializers.CharField(source='brand_text_ar', read_only=True)
+    governmentLabel = serializers.CharField(source='government_label', read_only=True)
+    governmentLabelAr = serializers.CharField(source='government_label_ar', read_only=True)
+    quickLinks = FooterLinkSerializer(source='quick_links', many=True, read_only=True)
+    resourceLinks = FooterLinkSerializer(source='resource_links', many=True, read_only=True)
+    addressAr = serializers.CharField(source='address_ar', read_only=True)
+    copyrightText = serializers.CharField(source='copyright_text', read_only=True)
+    copyrightTextAr = serializers.CharField(source='copyright_text_ar', read_only=True)
+    builtForText = serializers.CharField(source='built_for_text', read_only=True)
+    builtForTextAr = serializers.CharField(source='built_for_text_ar', read_only=True)
+    sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
+
+    class Meta:
+        model = FooterContent
+        fields = ['id',
+                  'brandText', 'brandTextAr', 'governmentLabel', 'governmentLabelAr',
+                  'quickLinks', 'resourceLinks',
+                  'phone', 'email', 'address', 'addressAr',
+                  'copyrightText', 'copyrightTextAr', 'builtForText', 'builtForTextAr',
+                  'published', 'sectionVisibility']
 
 
 class MediaItemListSerializer(serializers.ModelSerializer):

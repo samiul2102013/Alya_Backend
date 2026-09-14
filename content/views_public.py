@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 from .public_serializers import (
     AboutContentSerializer,
     CategorySerializer,
@@ -16,6 +16,7 @@ from .public_serializers import (
     ContactContentSerializer,
     EmirateDetailSerializer,
     EmirateListSerializer,
+    FooterContentSerializer,
     HomepageContentSerializer,
     InitiativeDetailSerializer,
     InitiativeListSerializer,
@@ -423,6 +424,20 @@ class ContactContentPublicView(generics.RetrieveAPIView):
         if not obj:
             from rest_framework.exceptions import NotFound
             raise NotFound('Contact content not configured yet.')
+        return obj
+
+
+class FooterContentPublicView(generics.RetrieveAPIView):
+    """GET /api/footer — returns the singleton footer content."""
+
+    permission_classes = [AllowAny]
+    serializer_class = FooterContentSerializer
+
+    def get_object(self):
+        obj = FooterContent.objects.first()
+        if not obj:
+            from rest_framework.exceptions import NotFound
+            raise NotFound('Footer content not configured yet.')
         return obj
 
 

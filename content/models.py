@@ -861,6 +861,89 @@ class ContactContent(TimeStampedModel):
         super().save(*args, **kwargs)
 
 
+def _default_footer_section_visibility():
+    return {
+        'brand': True,
+        'quickLinks': True,
+        'resources': True,
+        'contacts': True,
+        'bottomBar': True,
+    }
+
+
+class FooterContent(TimeStampedModel):
+    """Singleton model for the user-panel footer content.
+
+    Serves GET /api/footer to the website footer. Everything rendered in the
+    footer (brand text, quick links, resource links, contact details and the
+    bottom bar) is editable from the admin dashboard — nothing is hard-coded
+    in the frontend, which falls back to its translation defaults while this
+    record is empty.
+    """
+
+    # --- Brand column ---
+    brand_text = models.CharField('Brand Text', max_length=800, blank=True)
+    brand_text_ar = models.CharField('Brand Text (Arabic)', max_length=800, blank=True)
+    government_label = models.CharField('Government Label', max_length=300, blank=True)
+    government_label_ar = models.CharField('Government Label (Arabic)', max_length=300, blank=True)
+
+    # --- Link columns (list of {label, labelAr, href}) ---
+    quick_links = models.JSONField(
+        'Quick Links', default=list, blank=True,
+        help_text='Array of objects: {label, labelAr, href}',
+    )
+    resource_links = models.JSONField(
+        'Resource Links', default=list, blank=True,
+        help_text='Array of objects: {label, labelAr, href}',
+    )
+
+    # --- Contacts column ---
+    phone = models.CharField('Phone', max_length=100, blank=True)
+    email = models.CharField('Email', max_length=254, blank=True)
+    address = models.CharField('Address', max_length=500, blank=True)
+    address_ar = models.CharField('Address (Arabic)', max_length=500, blank=True)
+
+    # --- Bottom bar ---
+    copyright_text = models.CharField('Copyright Text', max_length=300, blank=True,
+        help_text='Shown after © {year}. e.g. "All rights reserved."')
+    copyright_text_ar = models.CharField('Copyright Text (Arabic)', max_length=300, blank=True)
+    built_for_text = models.CharField('Built For Text', max_length=300, blank=True,
+        help_text='Text next to the heart icon. e.g. "Built for Emirati Families"')
+    built_for_text_ar = models.CharField('Built For Text (Arabic)', max_length=300, blank=True)
+
+    published = models.BooleanField('Published', default=True)
+
+    section_visibility = models.JSONField(
+        'Section Visibility',
+        default=_default_footer_section_visibility,
+        blank=True,
+        help_text=(
+            'Controls which footer columns render on the user panel. '
+            'Keys: brand, quickLinks, resources, contacts, bottomBar. Missing keys default to true.'
+        ),
+    )
+
+    class Meta:
+        verbose_name = 'Footer Content'
+        verbose_name_plural = 'Footer Content'
+
+    def __str__(self):
+        return 'Footer Content'
+
+    def save(self, *args, **kwargs):
+        # Enforce singleton: only one record allowed
+        if not self.pk and FooterContent.objects.exists():
+            existing = FooterContent.objects.first()
+            self.pk = existing.pk
+        # Merge defaults so newly-added section keys always render.
+        defaults = _default_footer_section_visibility()
+        current = dict(self.section_visibility or {})
+        for key, value in defaults.items():
+            current.setdefault(key, value)
+        self.section_visibility = current
+        super().save(*args, **kwargs)
+
+
 class MediaItem(TimeStampedModel):
     """Collection model for media library (images, videos, documents)."""
 

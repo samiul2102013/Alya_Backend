@@ -11,6 +11,7 @@ from .admin_serializers import (
     ConsultationAdminSerializer,
     ContactContentAdminSerializer,
     EmirateAdminSerializer,
+    FooterContentAdminSerializer,
     HomepageContentAdminSerializer,
     InitiativeAdminSerializer,
     MediaItemAdminSerializer,
@@ -24,6 +25,7 @@ from .models import (
     Consultation,
     ContactContent,
     Emirate,
+    FooterContent,
     HomepageContent,
     Initiative,
     MediaItem,
@@ -202,6 +204,25 @@ class ContactContentAdminView(APIView):
             serializer = ContactContentAdminSerializer(obj, data=request.data, partial=True)
         else:
             serializer = ContactContentAdminSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class FooterContentAdminView(APIView):
+    """/api/admin/footer — upsert singleton footer content."""
+
+    def get(self, request):
+        obj, _ = FooterContent.objects.get_or_create(pk=FooterContent.objects.first().pk if FooterContent.objects.exists() else None)
+        serializer = FooterContentAdminSerializer(obj)
+        return Response(serializer.data)
+
+    def post(self, request):
+        obj = FooterContent.objects.first()
+        if obj:
+            serializer = FooterContentAdminSerializer(obj, data=request.data, partial=True)
+        else:
+            serializer = FooterContentAdminSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

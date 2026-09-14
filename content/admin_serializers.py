@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .enums import ShortCategory
-from .models import AboutContent, Category, Consultation, ContactContent, Emirate, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 from .utils import unique_slug
 
 
@@ -560,6 +560,40 @@ class ContactContentAdminSerializer(serializers.ModelSerializer):
                   'inquiriesLines', 'inquiriesLinesAr', 'supportLines', 'supportLinesAr',
                   'ourLocation', 'ourLocationAr', 'ourLocationText', 'ourLocationTextAr',
                   'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude',
+                  'published', 'sectionVisibility']
+        read_only_fields = ['id']
+
+
+class FooterLinkAdminSerializer(serializers.Serializer):
+    """Writable footer link: {label, labelAr, href}."""
+
+    label = serializers.CharField(required=False, allow_blank=True)
+    labelAr = serializers.CharField(required=False, allow_blank=True)
+    href = serializers.CharField(required=False, allow_blank=True)
+
+
+class FooterContentAdminSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='pk', read_only=True)
+    brandText = serializers.CharField(source='brand_text', required=False, allow_blank=True)
+    brandTextAr = serializers.CharField(source='brand_text_ar', required=False, allow_blank=True)
+    governmentLabel = serializers.CharField(source='government_label', required=False, allow_blank=True)
+    governmentLabelAr = serializers.CharField(source='government_label_ar', required=False, allow_blank=True)
+    quickLinks = FooterLinkAdminSerializer(source='quick_links', many=True, required=False)
+    resourceLinks = FooterLinkAdminSerializer(source='resource_links', many=True, required=False)
+    addressAr = serializers.CharField(source='address_ar', required=False, allow_blank=True)
+    copyrightText = serializers.CharField(source='copyright_text', required=False, allow_blank=True)
+    copyrightTextAr = serializers.CharField(source='copyright_text_ar', required=False, allow_blank=True)
+    builtForText = serializers.CharField(source='built_for_text', required=False, allow_blank=True)
+    builtForTextAr = serializers.CharField(source='built_for_text_ar', required=False, allow_blank=True)
+    sectionVisibility = serializers.JSONField(source='section_visibility', required=False)
+
+    class Meta:
+        model = FooterContent
+        fields = ['id',
+                  'brandText', 'brandTextAr', 'governmentLabel', 'governmentLabelAr',
+                  'quickLinks', 'resourceLinks',
+                  'phone', 'email', 'address', 'addressAr',
+                  'copyrightText', 'copyrightTextAr', 'builtForText', 'builtForTextAr',
                   'published', 'sectionVisibility']
         read_only_fields = ['id']
 
