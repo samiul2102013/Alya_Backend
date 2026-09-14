@@ -34,6 +34,7 @@ class Short(TimeStampedModel):
     video_title_ar = models.CharField('Video Title (Arabic)', max_length=300, blank=True)
     slug = models.SlugField('Slug', max_length=320, unique=True)
     description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
 
     category = models.CharField('Category', max_length=60, choices=ShortCategory.choices, blank=True)
     organization = models.CharField('Organization', max_length=200, blank=True)
@@ -48,6 +49,7 @@ class Short(TimeStampedModel):
     cover_image = models.CharField('Cover Image', max_length=500, blank=True)
     video_url = models.CharField('Video URL', max_length=1000, blank=True)
     speaker = models.CharField('Speaker', max_length=200, blank=True)
+    speaker_ar = models.CharField('Speaker (Arabic)', max_length=200, blank=True)
     views = models.PositiveIntegerField('Views', default=0)
 
     key_topics = models.JSONField('Key Topics', default=list, blank=True)
@@ -83,9 +85,11 @@ class NewsArticle(TimeStampedModel):
     language = models.CharField('Language', max_length=10, choices=Language.choices, default=Language.BOTH)
 
     content = models.TextField('Content', blank=True)
+    content_ar = models.TextField('Content (Arabic)', blank=True)
     cover_image = models.CharField('Cover Image', max_length=500, blank=True)
 
     author = models.CharField('Author', max_length=200, blank=True)
+    author_ar = models.CharField('Author (Arabic)', max_length=200, blank=True)
     editorial_team = models.CharField('Editorial Team', max_length=200, blank=True)
     organization = models.CharField('Organization', max_length=200, blank=True)
     moc = models.CharField('MOC / Issuing Body', max_length=200, blank=True)
@@ -132,10 +136,14 @@ class Initiative(TimeStampedModel):
     share_url = models.CharField('Share URL', max_length=1000, blank=True)
 
     description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
     purpose = models.TextField('Purpose', blank=True)
+    purpose_ar = models.TextField('Purpose (Arabic)', blank=True)
     objectives = models.JSONField('Objectives', default=list, blank=True)
+    objectives_ar = models.JSONField('Objectives (Arabic)', default=list, blank=True)
 
     basic_information = models.JSONField('Basic Information', default=list, blank=True)
+    badge_ar = models.CharField('Badge (Arabic)', max_length=100, blank=True)
 
     financial_support = models.BooleanField('Financial Support', default=False)
     housing_support = models.BooleanField('Housing Support', default=False)
@@ -144,6 +152,7 @@ class Initiative(TimeStampedModel):
     pre_marital_preparation = models.BooleanField('Pre-Marital Preparation', default=False)
 
     benefits = models.JSONField('Benefits', default=list, blank=True)
+    benefits_ar = models.JSONField('Benefits (Arabic)', default=list, blank=True)
     contact = models.JSONField('Contact', default=list, blank=True)
 
     is_featured = models.BooleanField('Featured on Home Page', default=False, help_text='If checked, this initiative is shown on the user panel (single featured).')
@@ -230,19 +239,27 @@ class Consultation(TimeStampedModel):
     )
 
     counselor = models.CharField('Counselor', max_length=200, blank=True)
+    counselor_ar = models.CharField('Counselor (Arabic)', max_length=200, blank=True)
     counselor_photo = models.CharField('Counselor Photo', max_length=500, blank=True)
     counselor_title = models.CharField('Counselor Title', max_length=200, blank=True)
+    counselor_title_ar = models.CharField('Counselor Title (Arabic)', max_length=200, blank=True)
     counselor_bio = models.TextField('Counselor Bio', blank=True)
+    counselor_bio_ar = models.TextField('Counselor Bio (Arabic)', blank=True)
     learn_more = models.JSONField('Learn More', default=dict, blank=True)
 
     gallery = models.JSONField('Gallery', default=list, blank=True)
     description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
     objectives = models.JSONField('Objectives', default=list, blank=True)
+    objectives_ar = models.JSONField('Objectives (Arabic)', default=list, blank=True)
     what_you_will_learn = models.JSONField('What You Will Learn', default=list, blank=True)
+    what_you_will_learn_ar = models.JSONField('What You Will Learn (Arabic)', default=list, blank=True)
     who_should_attend = models.JSONField('Who Should Attend', default=list, blank=True)
+    who_should_attend_ar = models.JSONField('Who Should Attend (Arabic)', default=list, blank=True)
+    booking_notice = models.CharField('Booking Notice', max_length=500, blank=True)
+    booking_notice_ar = models.CharField('Booking Notice (Arabic)', max_length=500, blank=True)
 
     schedule = models.JSONField('Schedule', default=dict, blank=True)
-    booking_notice = models.CharField('Booking Notice', max_length=500, blank=True)
 
     show_doctor = models.BooleanField('Show Doctor', default=True)
     show_learn_more = models.BooleanField('Show Learn More', default=True)
@@ -277,11 +294,14 @@ class Emirate(TimeStampedModel):
     emirates_name_ar = models.CharField('Emirates Name (Arabic)', max_length=100, blank=True)
     slug = models.SlugField('Slug', max_length=120, unique=True)
     title = models.CharField('Title', max_length=200, blank=True)
+    title_ar = models.CharField('Title (Arabic)', max_length=200, blank=True)
     description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
     date_time = models.DateTimeField('Date Time', blank=True, null=True)
     contact_phone = models.CharField('Contact Phone', max_length=50, blank=True)
     service_centers = models.PositiveIntegerField('Service Centers', default=0)
     center_count = models.CharField('Center Count', max_length=100, blank=True)
+    center_count_ar = models.CharField('Center Count (Arabic)', max_length=100, blank=True)
     image = models.CharField('Image', max_length=500, blank=True)
     website_url = models.CharField('Website URL', max_length=1000, blank=True)
 
@@ -301,7 +321,9 @@ class Category(TimeStampedModel):
     """Category entity (API spec 2.6)."""
 
     name = models.CharField('Category', max_length=100, unique=True)
+    name_ar = models.CharField('Category (Arabic)', max_length=100, blank=True)
     description = models.TextField('Description', blank=True)
+    description_ar = models.TextField('Description (Arabic)', blank=True)
     date = models.DateField('Date', null=True, blank=True)
     status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED)
 

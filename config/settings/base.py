@@ -143,6 +143,11 @@ CORS_ALLOWED_ORIGINS = env.list(
              'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
 )
 
+# --- Translation (auto AR fallback) ---
+TRANSLATION_ENABLED = env.bool('TRANSLATION_ENABLED', default=True)
+TRANSLATION_API_URL = env('TRANSLATION_API_URL', default='')  # e.g. https://libretranslate.example.com/translate
+TRANSLATION_CACHE_TTL = env.int('TRANSLATION_CACHE_TTL', default=60 * 60 * 24 * 30)
+
 CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = env('REDIS_URL', default='redis://localhost:6379/0')
 CELERY_TIMEZONE = TIME_ZONE

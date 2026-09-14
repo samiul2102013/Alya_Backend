@@ -21,12 +21,14 @@ class ShortAdminSerializer(serializers.ModelSerializer):
     showSpeaker = serializers.BooleanField(source='show_speaker', required=False)
     showViews = serializers.BooleanField(source='show_views', required=False)
     showRelated = serializers.BooleanField(source='show_related', required=False)
+    descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
+    speakerAr = serializers.CharField(source='speaker_ar', required=False, allow_blank=True)
 
     class Meta:
         model = Short
         fields = ['id', 'videoTitle', 'videoTitleAr', 'slug', 'category', 'organization', 'family',
                   'language', 'maritalStage', 'duration', 'publishedAt', 'coverImage', 'videoUrl',
-                  'speaker', 'views', 'description', 'keyTopics', 'resources', 'shareUrl',
+                  'speaker', 'speakerAr', 'views', 'description', 'descriptionAr', 'keyTopics', 'resources', 'shareUrl',
                   'showKeyTopics', 'showResources', 'showShare', 'showSpeaker', 'showViews',
                   'showRelated', 'status']
         read_only_fields = ['id', 'slug']
@@ -47,6 +49,8 @@ class NewsAdminSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', required=False, allow_blank=True)
     articleTitleAr = serializers.CharField(source='article_title_ar', required=False, allow_blank=True)
+    contentAr = serializers.CharField(source='content_ar', required=False, allow_blank=True)
+    authorAr = serializers.CharField(source='author_ar', required=False, allow_blank=True)
     editorialTeam = serializers.CharField(source='editorial_team', required=False, allow_blank=True)
     coverImage = serializers.CharField(source='cover_image', required=False, allow_blank=True)
     emirate = serializers.CharField(source='emirates', required=False, allow_blank=True)
@@ -61,7 +65,7 @@ class NewsAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsArticle
         fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'source', 'language',
-                  'content', 'coverImage', 'author', 'editorialTeam', 'organization', 'moc', 'city',
+                  'content', 'contentAr', 'coverImage', 'author', 'authorAr', 'editorialTeam', 'organization', 'moc', 'city',
                   'emirate', 'publishedDate', 'updatedDate', 'resources', 'shareUrl', 'showArticleInfo',
                   'showRelatedResources', 'showShare', 'showRelatedStories', 'status']
         read_only_fields = ['id', 'slug']
@@ -94,6 +98,11 @@ class InitiativeAdminSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
     subtitleAr = serializers.CharField(source='subtitle_ar', required=False, allow_blank=True)
+    descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
+    purposeAr = serializers.CharField(source='purpose_ar', required=False, allow_blank=True)
+    objectivesAr = serializers.JSONField(source='objectives_ar', required=False)
+    badgeAr = serializers.CharField(source='badge_ar', required=False, allow_blank=True)
+    benefitsAr = serializers.JSONField(source='benefits_ar', required=False)
     startDate = serializers.DateField(source='start_date', required=False, allow_null=True)
     endDate = serializers.DateField(source='end_date', required=False, allow_null=True)
     coverImage = serializers.CharField(source='cover_image', required=False, allow_blank=True)
@@ -111,8 +120,8 @@ class InitiativeAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Initiative
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
-                  'description', 'purpose', 'objectives', 'basicInformation', 'supportOffered',
-                  'benefits', 'startDate', 'endDate', 'coverImage', 'badge', 'contact',
+                  'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'supportOffered',
+                  'benefits', 'benefitsAr', 'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'contact',
                   'officialWebsiteUrl', 'shareUrl', 'isFeatured', 'isListed',
                   'showAbout', 'showSupportOffered',
                   'showBenefits', 'showApplicationForm', 'status']
@@ -144,9 +153,18 @@ class ConsultationAdminSerializer(serializers.ModelSerializer):
     sessionLink = serializers.CharField(source='session_link', required=False, allow_blank=True)
     maxParticipants = serializers.IntegerField(source='max_participants', required=False)
     processingFee = serializers.DecimalField(source='processing_fee', max_digits=10, decimal_places=2, required=False)
+    counselor = serializers.CharField(required=False, allow_blank=True)
+    counselorAr = serializers.CharField(source='counselor_ar', required=False, allow_blank=True)
     counselorPhoto = serializers.CharField(source='counselor_photo', required=False, allow_blank=True)
     counselorTitle = serializers.CharField(source='counselor_title', required=False, allow_blank=True)
+    counselorTitleAr = serializers.CharField(source='counselor_title_ar', required=False, allow_blank=True)
     counselorBio = serializers.CharField(source='counselor_bio', required=False, allow_blank=True)
+    counselorBioAr = serializers.CharField(source='counselor_bio_ar', required=False, allow_blank=True)
+    descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
+    objectivesAr = serializers.JSONField(source='objectives_ar', required=False)
+    whatYouWillLearnAr = serializers.JSONField(source='what_you_will_learn_ar', required=False)
+    whoShouldAttendAr = serializers.JSONField(source='who_should_attend_ar', required=False)
+    bookingNoticeAr = serializers.CharField(source='booking_notice_ar', required=False, allow_blank=True)
     learnMore = serializers.JSONField(source='learn_more', required=False)
     whatYouWillLearn = serializers.JSONField(source='what_you_will_learn', required=False)
     whoShouldAttend = serializers.JSONField(source='who_should_attend', required=False)
@@ -164,9 +182,9 @@ class ConsultationAdminSerializer(serializers.ModelSerializer):
                   'emirates', 'maritalStage', 'language', 'date', 'startTime', 'endTime', 'duration',
                   'isFree', 'fee', 'seatsLeft', 'coverImage', 'publishedDate', 'timeZone',
                   'meetingFormat', 'sessionLink', 'maxParticipants', 'processingFee', 'discount',
-                  'counselor', 'counselorPhoto', 'counselorTitle', 'counselorBio', 'learnMore',
-                  'gallery', 'description', 'objectives', 'whatYouWillLearn', 'whoShouldAttend',
-                  'schedule', 'bookingNotice', 'showDoctor', 'showLearnMore', 'showGallery',
+                  'counselor', 'counselorAr', 'counselorPhoto', 'counselorTitle', 'counselorTitleAr', 'counselorBio', 'counselorBioAr', 'learnMore',
+                  'gallery', 'description', 'descriptionAr', 'objectives', 'objectivesAr', 'whatYouWillLearn', 'whatYouWillLearnAr', 'whoShouldAttend', 'whoShouldAttendAr',
+                  'schedule', 'bookingNotice', 'bookingNoticeAr', 'showDoctor', 'showLearnMore', 'showGallery',
                   'showSchedule', 'showBooking', 'isBookable', 'status']
         read_only_fields = ['id', 'slug']
 
@@ -183,6 +201,9 @@ class EmirateAdminSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     emiratesName = serializers.CharField(source='emirates_name', required=False, allow_blank=True)
     emiratesNameAr = serializers.CharField(source='emirates_name_ar', required=False, allow_blank=True)
+    titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
+    descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
+    centerCountAr = serializers.CharField(source='center_count_ar', required=False, allow_blank=True)
     dateTime = serializers.DateTimeField(source='date_time', required=False, allow_null=True)
     contactPhone = serializers.CharField(source='contact_phone', required=False, allow_blank=True)
     serviceCenters = serializers.IntegerField(source='service_centers', required=False)
@@ -192,8 +213,8 @@ class EmirateAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Emirate
-        fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'description', 'dateTime',
-                  'contactPhone', 'serviceCenters', 'centerCount', 'image', 'websiteUrl', 'showStatus',
+        fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'titleAr', 'description', 'descriptionAr', 'dateTime',
+                  'contactPhone', 'serviceCenters', 'centerCount', 'centerCountAr', 'image', 'websiteUrl', 'showStatus',
                   'status']
         read_only_fields = ['id', 'slug']
 
@@ -209,10 +230,12 @@ class EmirateAdminSerializer(serializers.ModelSerializer):
 class CategoryAdminSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     category = serializers.CharField(source='name', required=False, allow_blank=True)
+    categoryAr = serializers.CharField(source='name_ar', required=False, allow_blank=True)
+    descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
 
     class Meta:
         model = Category
-        fields = ['id', 'category', 'description', 'date', 'status']
+        fields = ['id', 'category', 'categoryAr', 'description', 'descriptionAr', 'date', 'status']
         read_only_fields = ['id']
 
 

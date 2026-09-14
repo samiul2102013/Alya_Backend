@@ -3,6 +3,7 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .translation import get_translated, translate_text
 
 
 class ShortsCtaSerializer(serializers.Serializer):
@@ -21,11 +22,14 @@ class ShortsCtaSerializer(serializers.Serializer):
 class ShortListSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     videoTitle = serializers.CharField(source='video_title', read_only=True)
-    videoTitleAr = serializers.CharField(source='video_title_ar', read_only=True)
+    videoTitleAr = serializers.SerializerMethodField()
     maritalStage = serializers.CharField(source='marital_stage', read_only=True)
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     publishedAt = serializers.DateTimeField(source='published_at', read_only=True)
     status = serializers.CharField(read_only=True)
+
+    def get_videoTitleAr(self, obj):
+        return get_translated(obj.video_title_ar, obj.video_title, 'ar')
 
     class Meta:
         model = Short
@@ -36,7 +40,7 @@ class ShortListSerializer(serializers.ModelSerializer):
 class ShortDetailSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     videoTitle = serializers.CharField(source='video_title', read_only=True)
-    videoTitleAr = serializers.CharField(source='video_title_ar', read_only=True)
+    videoTitleAr = serializers.SerializerMethodField()
     maritalStage = serializers.CharField(source='marital_stage', read_only=True)
     publishedAt = serializers.DateTimeField(source='published_at', read_only=True)
     coverImage = serializers.CharField(source='cover_image', read_only=True)
@@ -51,12 +55,23 @@ class ShortDetailSerializer(serializers.ModelSerializer):
     showRelated = serializers.BooleanField(source='show_related', read_only=True)
     lastUpdated = serializers.DateTimeField(source='updated_at', read_only=True)
     relatedVideos = serializers.SerializerMethodField()
+    descriptionAr = serializers.SerializerMethodField()
+    speakerAr = serializers.SerializerMethodField()
+
+    def get_videoTitleAr(self, obj):
+        return get_translated(obj.video_title_ar, obj.video_title, 'ar')
+
+    def get_descriptionAr(self, obj):
+        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+
+    def get_speakerAr(self, obj):
+        return get_translated(getattr(obj, 'speaker_ar', ''), obj.speaker, 'ar')
 
     class Meta:
         model = Short
         fields = ['id', 'videoTitle', 'videoTitleAr', 'slug', 'category', 'organization', 'family',
                   'language', 'maritalStage', 'duration', 'publishedAt', 'coverImage', 'videoUrl',
-                  'speaker', 'views', 'description', 'keyTopics', 'resources', 'shareUrl',
+                  'speaker', 'speakerAr', 'views', 'description', 'descriptionAr', 'keyTopics', 'resources', 'shareUrl',
                   'showKeyTopics', 'showResources', 'showShare', 'showSpeaker', 'showViews',
                   'showRelated', 'status', 'lastUpdated', 'relatedVideos']
 
@@ -70,31 +85,39 @@ class ShortDetailSerializer(serializers.ModelSerializer):
 class NewsListSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', read_only=True)
+    articleTitleAr = serializers.SerializerMethodField()
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     publishedDate = serializers.DateField(source='published_date', read_only=True)
     status = serializers.CharField(read_only=True)
 
+    def get_articleTitleAr(self, obj):
+        return get_translated(obj.article_title_ar, obj.article_title, 'ar')
+
     class Meta:
         model = NewsArticle
-        fields = ['id', 'slug', 'articleTitle', 'category', 'source', 'coverImage',
+        fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'source', 'coverImage',
                   'publishedDate', 'status']
 
 
 class RelatedStorySerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', read_only=True)
+    articleTitleAr = serializers.SerializerMethodField()
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     publishedDate = serializers.DateField(source='published_date', read_only=True)
 
+    def get_articleTitleAr(self, obj):
+        return get_translated(obj.article_title_ar, obj.article_title, 'ar')
+
     class Meta:
         model = NewsArticle
-        fields = ['id', 'slug', 'articleTitle', 'category', 'coverImage', 'publishedDate']
+        fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'coverImage', 'publishedDate']
 
 
 class NewsDetailSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', read_only=True)
-    articleTitleAr = serializers.CharField(source='article_title_ar', read_only=True)
+    articleTitleAr = serializers.SerializerMethodField()
     editorialTeam = serializers.CharField(source='editorial_team', read_only=True)
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     emirate = serializers.CharField(source='emirates', read_only=True)
@@ -106,11 +129,22 @@ class NewsDetailSerializer(serializers.ModelSerializer):
     showShare = serializers.BooleanField(source='show_share', read_only=True)
     showRelatedStories = serializers.BooleanField(source='show_related_stories', read_only=True)
     relatedStories = serializers.SerializerMethodField()
+    contentAr = serializers.SerializerMethodField()
+    authorAr = serializers.SerializerMethodField()
+
+    def get_articleTitleAr(self, obj):
+        return get_translated(obj.article_title_ar, obj.article_title, 'ar')
+
+    def get_contentAr(self, obj):
+        return get_translated(getattr(obj, 'content_ar', ''), obj.content, 'ar')
+
+    def get_authorAr(self, obj):
+        return get_translated(getattr(obj, 'author_ar', ''), obj.author, 'ar')
 
     class Meta:
         model = NewsArticle
         fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'source', 'language',
-                  'content', 'coverImage', 'author', 'editorialTeam', 'organization', 'moc', 'city',
+                  'content', 'contentAr', 'coverImage', 'author', 'authorAr', 'editorialTeam', 'organization', 'moc', 'city',
                   'emirate', 'publishedDate', 'updatedDate', 'resources', 'shareUrl', 'showArticleInfo',
                   'showRelatedResources', 'showShare', 'showRelatedStories', 'status', 'relatedStories']
 
@@ -123,8 +157,9 @@ class NewsDetailSerializer(serializers.ModelSerializer):
 
 class InitiativeListSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
-    titleAr = serializers.CharField(source='title_ar', read_only=True)
-    subtitleAr = serializers.CharField(source='subtitle_ar', read_only=True)
+    titleAr = serializers.SerializerMethodField()
+    subtitleAr = serializers.SerializerMethodField()
+    badgeAr = serializers.SerializerMethodField()
     startDate = serializers.DateField(source='start_date', read_only=True)
     endDate = serializers.DateField(source='end_date', read_only=True)
     coverImage = serializers.CharField(source='cover_image', read_only=True)
@@ -134,10 +169,19 @@ class InitiativeListSerializer(serializers.ModelSerializer):
     isListed = serializers.BooleanField(source='is_listed', read_only=True)
     status = serializers.CharField(read_only=True)
 
+    def get_titleAr(self, obj):
+        return get_translated(obj.title_ar, obj.title, 'ar')
+
+    def get_subtitleAr(self, obj):
+        return get_translated(obj.subtitle_ar, obj.subtitle, 'ar')
+
+    def get_badgeAr(self, obj):
+        return get_translated(getattr(obj, 'badge_ar', ''), obj.badge, 'ar')
+
     class Meta:
         model = Initiative
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
-                  'startDate', 'endDate', 'coverImage', 'badge', 'officialWebsiteUrl', 'shareUrl',
+                  'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'officialWebsiteUrl', 'shareUrl',
                   'isFeatured', 'isListed', 'status']
 
 
@@ -148,13 +192,25 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
     showSupportOffered = serializers.BooleanField(source='show_support_offered', read_only=True)
     showBenefits = serializers.BooleanField(source='show_benefits', read_only=True)
     showApplicationForm = serializers.BooleanField(source='show_application_form', read_only=True)
+    descriptionAr = serializers.SerializerMethodField()
+    purposeAr = serializers.SerializerMethodField()
+    badgeAr = serializers.SerializerMethodField()
+
+    def get_descriptionAr(self, obj):
+        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+
+    def get_purposeAr(self, obj):
+        return get_translated(getattr(obj, 'purpose_ar', ''), obj.purpose, 'ar')
+
+    def get_badgeAr(self, obj):
+        return get_translated(getattr(obj, 'badge_ar', ''), obj.badge, 'ar')
 
     class Meta:
         model = Initiative
         fields = InitiativeListSerializer.Meta.fields + [
-            'description', 'purpose', 'objectives', 'basicInformation', 'supportOffered',
-            'benefits', 'contact', 'showAbout', 'showSupportOffered', 'showBenefits',
-            'showApplicationForm',
+            'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'supportOffered',
+            'benefits', 'benefitsAr', 'contact', 'showAbout', 'showSupportOffered', 'showBenefits',
+            'showApplicationForm', 'badgeAr',
         ]
 
     def get_supportOffered(self, obj):
@@ -165,19 +221,28 @@ class InitiativeLightSerializer(serializers.ModelSerializer):
     """Lightweight initiative used under an emirate."""
 
     id = serializers.UUIDField(source='pk', read_only=True)
+    titleAr = serializers.SerializerMethodField()
+    subtitleAr = serializers.SerializerMethodField()
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     officialWebsiteUrl = serializers.CharField(source='official_website_url', read_only=True)
     shareUrl = serializers.CharField(source='share_url', read_only=True)
 
+    def get_titleAr(self, obj):
+        return get_translated(obj.title_ar, obj.title, 'ar')
+
+    def get_subtitleAr(self, obj):
+        return get_translated(obj.subtitle_ar, obj.subtitle, 'ar')
+
     class Meta:
         model = Initiative
-        fields = ['id', 'slug', 'title', 'subtitle', 'badge', 'coverImage',
+        fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'badge', 'coverImage',
                   'officialWebsiteUrl', 'shareUrl']
 
 
 class ConsultationListSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     sessionTitle = serializers.CharField(source='session_title', read_only=True)
+    sessionTitleAr = serializers.SerializerMethodField()
     sessionType = serializers.CharField(source='session_type', read_only=True)
     maritalStage = serializers.CharField(source='marital_stage', read_only=True)
     startTime = serializers.CharField(source='start_time', read_only=True)
@@ -187,9 +252,12 @@ class ConsultationListSerializer(serializers.ModelSerializer):
     coverImage = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
 
+    def get_sessionTitleAr(self, obj):
+        return get_translated(obj.session_title_ar, obj.session_title, 'ar')
+
     class Meta:
         model = Consultation
-        fields = ['id', 'slug', 'sessionTitle', 'category', 'sessionType', 'emirates',
+        fields = ['id', 'slug', 'sessionTitle', 'sessionTitleAr', 'category', 'sessionType', 'emirates',
                   'maritalStage', 'language', 'date', 'startTime', 'endTime', 'duration', 'isFree',
                   'fee', 'seatsLeft', 'coverImage', 'status']
 
@@ -202,7 +270,7 @@ class ConsultationListSerializer(serializers.ModelSerializer):
 
 
 class ConsultationDetailSerializer(ConsultationListSerializer):
-    sessionTitleAr = serializers.CharField(source='session_title_ar', read_only=True)
+    # sessionTitleAr already provided by parent
     publishedDate = serializers.DateField(source='published_date', read_only=True)
     timeZone = serializers.CharField(source='time_zone', read_only=True)
     meetingFormat = serializers.CharField(source='meeting_format', read_only=True)
@@ -211,11 +279,28 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
     processingFee = serializers.DecimalField(source='processing_fee', max_digits=10, decimal_places=2, read_only=True)
     counselorPhoto = serializers.CharField(source='counselor_photo', read_only=True)
     counselorTitle = serializers.CharField(source='counselor_title', read_only=True)
+    counselorTitleAr = serializers.SerializerMethodField()
     counselorBio = serializers.CharField(source='counselor_bio', read_only=True)
+    counselorBioAr = serializers.SerializerMethodField()
+    counselorAr = serializers.SerializerMethodField()
     learnMore = serializers.JSONField(source='learn_more', read_only=True)
     whatYouWillLearn = serializers.JSONField(source='what_you_will_learn', read_only=True)
     whoShouldAttend = serializers.JSONField(source='who_should_attend', read_only=True)
     bookingNotice = serializers.CharField(source='booking_notice', read_only=True)
+    descriptionAr = serializers.SerializerMethodField()
+
+    def get_counselorTitleAr(self, obj):
+        return get_translated(getattr(obj, 'counselor_title_ar', ''), obj.counselor_title, 'ar')
+
+    def get_counselorBioAr(self, obj):
+        return get_translated(getattr(obj, 'counselor_bio_ar', ''), obj.counselor_bio, 'ar')
+
+    def get_counselorAr(self, obj):
+        return get_translated(getattr(obj, 'counselor_ar', ''), obj.counselor, 'ar')
+
+    def get_descriptionAr(self, obj):
+        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+
     showDoctor = serializers.BooleanField(source='show_doctor', read_only=True)
     showLearnMore = serializers.BooleanField(source='show_learn_more', read_only=True)
     showGallery = serializers.BooleanField(source='show_gallery', read_only=True)
@@ -226,9 +311,9 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
     class Meta:
         model = Consultation
         fields = ConsultationListSerializer.Meta.fields + [
-            'sessionTitleAr', 'publishedDate', 'timeZone', 'meetingFormat', 'sessionLink',
-            'maxParticipants', 'processingFee', 'discount', 'counselor', 'counselorPhoto',
-            'counselorTitle', 'counselorBio', 'learnMore', 'gallery', 'description', 'objectives',
+            'publishedDate', 'timeZone', 'meetingFormat', 'sessionLink',
+            'maxParticipants', 'processingFee', 'discount', 'counselor', 'counselorAr', 'counselorPhoto',
+            'counselorTitle', 'counselorTitleAr', 'counselorBio', 'counselorBioAr', 'learnMore', 'gallery', 'description', 'descriptionAr', 'objectives',
             'whatYouWillLearn', 'whoShouldAttend', 'schedule', 'bookingNotice', 'showDoctor',
             'showLearnMore', 'showGallery', 'showSchedule', 'showBooking', 'isBookable',
         ]
@@ -237,22 +322,53 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
 class EmirateListSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     emiratesName = serializers.CharField(source='emirates_name', read_only=True)
+    emiratesNameAr = serializers.SerializerMethodField()
+    titleAr = serializers.SerializerMethodField()
+    descriptionAr = serializers.SerializerMethodField()
+    centerCountAr = serializers.SerializerMethodField()
     centerCount = serializers.CharField(source='center_count', read_only=True)
     status = serializers.CharField(read_only=True)
 
+    def get_emiratesNameAr(self, obj):
+        return get_translated(obj.emirates_name_ar, obj.emirates_name, 'ar')
+
+    def get_titleAr(self, obj):
+        return get_translated(getattr(obj, 'title_ar', ''), obj.title, 'ar')
+
+    def get_descriptionAr(self, obj):
+        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+
+    def get_centerCountAr(self, obj):
+        return get_translated(getattr(obj, 'center_count_ar', ''), obj.center_count, 'ar')
+
     class Meta:
         model = Emirate
-        fields = ['id', 'slug', 'emiratesName', 'title', 'description', 'centerCount', 'image', 'status']
+        fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'titleAr', 'description', 'descriptionAr', 'centerCount', 'centerCountAr', 'image', 'status']
 
 
 class EmirateDetailSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     emiratesName = serializers.CharField(source='emirates_name', read_only=True)
-    emiratesNameAr = serializers.CharField(source='emirates_name_ar', read_only=True)
+    emiratesNameAr = serializers.SerializerMethodField()
+    titleAr = serializers.SerializerMethodField()
+    descriptionAr = serializers.SerializerMethodField()
+    centerCountAr = serializers.SerializerMethodField()
     dateTime = serializers.DateTimeField(source='date_time', read_only=True)
     contactPhone = serializers.CharField(source='contact_phone', read_only=True)
     serviceCenters = serializers.IntegerField(source='service_centers', read_only=True)
     centerCount = serializers.CharField(source='center_count', read_only=True)
+
+    def get_emiratesNameAr(self, obj):
+        return get_translated(obj.emirates_name_ar, obj.emirates_name, 'ar')
+
+    def get_titleAr(self, obj):
+        return get_translated(getattr(obj, 'title_ar', ''), obj.title, 'ar')
+
+    def get_descriptionAr(self, obj):
+        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+
+    def get_centerCountAr(self, obj):
+        return get_translated(getattr(obj, 'center_count_ar', ''), obj.center_count, 'ar')
     websiteUrl = serializers.CharField(source='website_url', read_only=True)
     showStatus = serializers.BooleanField(source='show_status', read_only=True)
     status = serializers.CharField(read_only=True)
@@ -260,8 +376,8 @@ class EmirateDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Emirate
-        fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'description', 'dateTime',
-                  'contactPhone', 'serviceCenters', 'centerCount', 'image', 'websiteUrl', 'showStatus',
+        fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'titleAr', 'description', 'descriptionAr', 'dateTime',
+                  'contactPhone', 'serviceCenters', 'centerCount', 'centerCountAr', 'image', 'websiteUrl', 'showStatus',
                   'status', 'initiatives']
 
     def get_initiatives(self, obj):
@@ -276,11 +392,19 @@ class EmirateDetailSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     category = serializers.CharField(source='name', read_only=True)
+    categoryAr = serializers.SerializerMethodField()
+    descriptionAr = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
+
+    def get_categoryAr(self, obj):
+        return get_translated(getattr(obj, 'name_ar', ''), obj.name, 'ar')
+
+    def get_descriptionAr(self, obj):
+        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
 
     class Meta:
         model = Category
-        fields = ['id', 'category', 'description', 'date', 'status']
+        fields = ['id', 'category', 'categoryAr', 'description', 'descriptionAr', 'date', 'status']
 
 
 class PagePresentationSerializer(serializers.ModelSerializer):
