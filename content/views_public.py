@@ -365,11 +365,11 @@ class ConsultationPublicDetailByNameView(generics.RetrieveAPIView):
 
 
 class PagePresentationPublicListView(generics.ListAPIView):
-    """GET /api/presentations — all page presentations.
+    """GET /api/presentations — published page presentations only.
 
-    Returns every presentation (including unpublished ones) so the user panel
-    can hide navbar links for pages whose `published` flag is False. Sections
-    on each page individually honour their own *_section_visibility flags.
+    Unpublished presentations are hidden entirely (both list and detail) —
+    `published=false` hides the complete public page, not just the navbar
+    link. Admin endpoint still returns all.
     """
 
     permission_classes = [AllowAny]
@@ -377,73 +377,90 @@ class PagePresentationPublicListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return PagePresentation.objects.all()
+        return PagePresentation.objects.filter(published=True)
 
 
 class PagePresentationPublicDetailView(generics.RetrieveAPIView):
-    """GET /api/presentations/:key/ — a single page presentation."""
+    """GET /api/presentations/:key/ — a single published page presentation.
+
+    Returns 404 when the page is unpublished, matching entity `status`
+    behaviour and preventing leakage of hidden page data.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = PagePresentationSerializer
     lookup_field = 'key'
 
     def get_queryset(self):
-        return PagePresentation.objects.all()
+        return PagePresentation.objects.filter(published=True)
 
 
 class HomepageContentPublicView(generics.RetrieveAPIView):
-    """GET /api/homepage — returns the singleton homepage content."""
+    """GET /api/homepage — returns the singleton homepage content.
+
+    Unpublished content returns 404 (same convention as entity `status=Published`
+    filtering). Admin endpoint (`/api/admin/homepage`) still returns the draft.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = HomepageContentSerializer
 
     def get_object(self):
+        from rest_framework.exceptions import NotFound
         obj = HomepageContent.objects.first()
-        if not obj:
-            from rest_framework.exceptions import NotFound
-            raise NotFound('Homepage content not configured yet.')
+        if not obj or not obj.published:
+            raise NotFound('Homepage content not available.')
         return obj
 
 
 class AboutContentPublicView(generics.RetrieveAPIView):
-    """GET /api/about — returns the singleton about content."""
+    """GET /api/about — returns the singleton about content.
+
+    Unpublished content returns 404.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = AboutContentSerializer
 
     def get_object(self):
+        from rest_framework.exceptions import NotFound
         obj = AboutContent.objects.first()
-        if not obj:
-            from rest_framework.exceptions import NotFound
-            raise NotFound('About content not configured yet.')
+        if not obj or not obj.published:
+            raise NotFound('About content not available.')
         return obj
 
 
 class ContactContentPublicView(generics.RetrieveAPIView):
-    """GET /api/contact — returns the singleton contact content."""
+    """GET /api/contact — returns the singleton contact content.
+
+    Unpublished content returns 404.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = ContactContentSerializer
 
     def get_object(self):
+        from rest_framework.exceptions import NotFound
         obj = ContactContent.objects.first()
-        if not obj:
-            from rest_framework.exceptions import NotFound
-            raise NotFound('Contact content not configured yet.')
+        if not obj or not obj.published:
+            raise NotFound('Contact content not available.')
         return obj
 
 
 class FooterContentPublicView(generics.RetrieveAPIView):
-    """GET /api/footer — returns the singleton footer content."""
+    """GET /api/footer — returns the singleton footer content.
+
+    Unpublished content returns 404.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = FooterContentSerializer
 
     def get_object(self):
+        from rest_framework.exceptions import NotFound
         obj = FooterContent.objects.first()
-        if not obj:
-            from rest_framework.exceptions import NotFound
-            raise NotFound('Footer content not configured yet.')
+        if not obj or not obj.published:
+            raise NotFound('Footer content not available.')
         return obj
 
 

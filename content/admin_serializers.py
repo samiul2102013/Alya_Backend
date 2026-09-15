@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from .enums import ShortCategory
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .models import ABOUT_SECTION_KEYS, CONTACT_SECTION_KEYS, FOOTER_SECTION_KEYS, HOME_SECTION_KEYS, SHORTS_SECTION_KEYS, NEWS_SECTION_KEYS, INITIATIVES_SECTION_KEYS, CONSULTATION_SECTION_KEYS, EMIRATES_SECTION_KEYS, _canonical_visibility
 from .translation import is_machine_generated
 from .utils import unique_slug
 
@@ -321,6 +322,21 @@ class PagePresentationAdminSerializer(AdminArMachineFlagMixin, serializers.Model
                   'newsSectionVisibility']
         read_only_fields = ['id', 'key']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Always return complete canonical maps so admin sees stable defaults even before next save
+        if data.get('sectionVisibility') is not None:
+            data['sectionVisibility'] = _canonical_visibility(instance.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        if data.get('initiativesSectionVisibility') is not None:
+            data['initiativesSectionVisibility'] = _canonical_visibility(instance.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        if data.get('consultationSectionVisibility') is not None:
+            data['consultationSectionVisibility'] = _canonical_visibility(instance.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        if data.get('emiratesSectionVisibility') is not None:
+            data['emiratesSectionVisibility'] = _canonical_visibility(instance.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        if data.get('newsSectionVisibility') is not None:
+            data['newsSectionVisibility'] = _canonical_visibility(instance.news_section_visibility, NEWS_SECTION_KEYS)
+        return data
+
 
 class HomepageContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
@@ -443,6 +459,12 @@ class HomepageContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelS
                   'published']
         read_only_fields = ['id']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('sectionVisibility') is not None:
+            data['sectionVisibility'] = _canonical_visibility(instance.section_visibility, HOME_SECTION_KEYS)
+        return data
+
 
 class AboutContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
@@ -518,6 +540,12 @@ class AboutContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSeri
                   'coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList',
                   'published', 'sectionVisibility']
         read_only_fields = ['id']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('sectionVisibility') is not None:
+            data['sectionVisibility'] = _canonical_visibility(instance.section_visibility, ABOUT_SECTION_KEYS)
+        return data
 
 
 class ContactContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
@@ -627,6 +655,12 @@ class ContactContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSe
                   'published', 'sectionVisibility']
         read_only_fields = ['id']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('sectionVisibility') is not None:
+            data['sectionVisibility'] = _canonical_visibility(instance.section_visibility, CONTACT_SECTION_KEYS)
+        return data
+
 
 class FooterLinkAdminSerializer(serializers.Serializer):
     """Writable footer link: {label, labelAr, href}."""
@@ -671,6 +705,12 @@ class FooterContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSer
                   'copyrightText', 'copyrightTextAr', 'builtForText', 'builtForTextAr',
                   'published', 'sectionVisibility']
         read_only_fields = ['id']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('sectionVisibility') is not None:
+            data['sectionVisibility'] = _canonical_visibility(instance.section_visibility, FOOTER_SECTION_KEYS)
+        return data
 
 
 class MediaItemAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):

@@ -362,6 +362,138 @@ class Category(TranslatableModel, TimeStampedModel):
         return self.name
 
 
+# ---------------------------------------------------------------------------
+# Canonical section-visibility maps (shared helper)
+# Defined before PagePresentation so field defaults can reference helpers.
+# ---------------------------------------------------------------------------
+HOME_SECTION_KEYS = [
+    'hero',
+    'stats',
+    'shorts',
+    'news',
+    'initiatives',
+    'consultations',
+    'emirates',
+    'cta',
+]
+
+ABOUT_SECTION_KEYS = [
+    'ourStory',
+    'ourMission',
+    'ourVision',
+    'ourObjective',
+    'whatWeOffer',
+    'ourImpact',
+    'whyChoose',
+    'coreValues',
+]
+
+CONTACT_SECTION_KEYS = [
+    'formLabels',
+    'contactInfo',
+    'locationMap',
+]
+
+FOOTER_SECTION_KEYS = [
+    'brand',
+    'quickLinks',
+    'resources',
+    'contacts',
+    'bottomBar',
+]
+
+SHORTS_SECTION_KEYS = [
+    'topics',
+    'contributors',
+    'faqs',
+    'cta',
+]
+
+NEWS_SECTION_KEYS = [
+    'topics',
+    'contributors',
+    'faqs',
+    'cta',
+    'categories',
+    'orgs',
+]
+
+INITIATIVES_SECTION_KEYS = [
+    'topics',
+    'contributors',
+    'faqs',
+    'cta',
+]
+
+CONSULTATION_SECTION_KEYS = [
+    'topics',
+    'contributors',
+    'faqs',
+    'cta',
+]
+
+EMIRATES_SECTION_KEYS = [
+    'topics',
+    'contributors',
+    'faqs',
+    'cta',
+]
+
+
+def _canonical_visibility(raw, allowed_keys):
+    """Return a complete, stripped visibility map.
+
+    - Every key in allowed_keys is present; missing keys default to True.
+    - Unknown/obsolete keys are removed.
+    - Values are coerced to bool.
+    """
+    if not isinstance(raw, dict):
+        raw = {}
+    out = {}
+    for k in allowed_keys:
+        if k in raw:
+            out[k] = bool(raw[k])
+        else:
+            out[k] = True
+    return out
+
+
+def _default_section_visibility():
+    return {key: True for key in HOME_SECTION_KEYS}
+
+
+def _default_about_section_visibility():
+    return {key: True for key in ABOUT_SECTION_KEYS}
+
+
+def _default_contact_section_visibility():
+    return {key: True for key in CONTACT_SECTION_KEYS}
+
+
+def _default_shorts_section_visibility():
+    return {key: True for key in SHORTS_SECTION_KEYS}
+
+
+def _default_news_section_visibility():
+    return {key: True for key in NEWS_SECTION_KEYS}
+
+
+def _default_initiatives_section_visibility():
+    return {key: True for key in INITIATIVES_SECTION_KEYS}
+
+
+def _default_consultation_section_visibility():
+    return {key: True for key in CONSULTATION_SECTION_KEYS}
+
+
+def _default_emirates_section_visibility():
+    return {key: True for key in EMIRATES_SECTION_KEYS}
+
+
+def _default_footer_section_visibility():
+    return {key: True for key in FOOTER_SECTION_KEYS}
+
+
 class PagePresentation(TranslatableModel, TimeStampedModel):
     """Editable hero / page presentation for the user panel (News, Shorts, Consultation).
 
@@ -420,11 +552,11 @@ class PagePresentation(TranslatableModel, TimeStampedModel):
     )
     shorts_section_visibility = models.JSONField(
         'Shorts Section Visibility',
-        default=dict,
+        default=_default_shorts_section_visibility,
         blank=True,
         help_text=(
             'Controls which sections render on the Shorts user-panel page. '
-            'Keys: hero, topics, contributors, faqs. Missing keys default to true.'
+            'Keys: topics, contributors, faqs, cta. Missing keys default to true.'
         ),
     )
 
@@ -450,11 +582,11 @@ class PagePresentation(TranslatableModel, TimeStampedModel):
     )
     initiatives_section_visibility = models.JSONField(
         'Initiatives Section Visibility',
-        default=dict,
+        default=_default_initiatives_section_visibility,
         blank=True,
         help_text=(
             'Controls which sections render on the Initiatives user-panel page. '
-            'Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.'
+            'Keys: topics, contributors, faqs, cta. Missing keys default to true.'
         ),
     )
 
@@ -480,11 +612,11 @@ class PagePresentation(TranslatableModel, TimeStampedModel):
     )
     consultation_section_visibility = models.JSONField(
         'Consultation Section Visibility',
-        default=dict,
+        default=_default_consultation_section_visibility,
         blank=True,
         help_text=(
             'Controls which sections render on the Consultation user-panel page. '
-            'Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.'
+            'Keys: topics, contributors, faqs, cta. Missing keys default to true.'
         ),
     )
 
@@ -510,11 +642,11 @@ class PagePresentation(TranslatableModel, TimeStampedModel):
     )
     emirates_section_visibility = models.JSONField(
         'Emirates Section Visibility',
-        default=dict,
+        default=_default_emirates_section_visibility,
         blank=True,
         help_text=(
             'Controls which sections render on the Emirates user-panel page. '
-            'Keys: hero, topics, contributors, faqs, cta. Missing keys default to true.'
+            'Keys: topics, contributors, faqs, cta. Missing keys default to true.'
         ),
     )
 
@@ -540,11 +672,11 @@ class PagePresentation(TranslatableModel, TimeStampedModel):
     )
     news_section_visibility = models.JSONField(
         'News Section Visibility',
-        default=dict,
+        default=_default_news_section_visibility,
         blank=True,
         help_text=(
             'Controls which sections render on the News user-panel page. '
-            'Keys: hero, topics, contributors, faqs, cta, categories, orgs. Missing keys default to true.'
+            'Keys: topics, contributors, faqs, cta, categories, orgs. Missing keys default to true.'
         ),
     )
 
@@ -556,21 +688,14 @@ class PagePresentation(TranslatableModel, TimeStampedModel):
     def __str__(self):
         return dict(self.SECTION_CHOICES).get(self.key, self.key)
 
-
-HOME_SECTION_KEYS = [
-    'hero',
-    'stats',
-    'shorts',
-    'news',
-    'initiatives',
-    'consultations',
-    'emirates',
-    'cta',
-]
-
-
-def _default_section_visibility():
-    return {key: True for key in HOME_SECTION_KEYS}
+    def save(self, *args, **kwargs):
+        # Canonicalize each section_visibility to its allowed keys.
+        self.shorts_section_visibility = _canonical_visibility(self.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        self.news_section_visibility = _canonical_visibility(self.news_section_visibility, NEWS_SECTION_KEYS)
+        self.initiatives_section_visibility = _canonical_visibility(self.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        self.consultation_section_visibility = _canonical_visibility(self.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        self.emirates_section_visibility = _canonical_visibility(self.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        super().save(*args, **kwargs)
 
 
 class HomepageContent(TranslatableModel, TimeStampedModel):
@@ -690,12 +815,7 @@ class HomepageContent(TranslatableModel, TimeStampedModel):
         if not self.pk and HomepageContent.objects.exists():
             existing = HomepageContent.objects.first()
             self.pk = existing.pk
-        # Merge defaults so newly-added section keys always render.
-        defaults = _default_section_visibility()
-        current = dict(self.section_visibility or {})
-        for key, value in defaults.items():
-            current.setdefault(key, value)
-        self.section_visibility = current
+        self.section_visibility = _canonical_visibility(self.section_visibility, HOME_SECTION_KEYS)
         super().save(*args, **kwargs)
 
 
@@ -777,9 +897,9 @@ class AboutContent(TranslatableModel, TimeStampedModel):
 
     section_visibility = models.JSONField(
         'Section Visibility',
-        default=dict,
+        default=_default_about_section_visibility,
         blank=True,
-        help_text='Keys: hero, ourStory, ourMission, ourVision, ourObjective, whatWeOffer, ourImpact, whyChoose, coreValues',
+        help_text='Keys: ourStory, ourMission, ourVision, ourObjective, whatWeOffer, ourImpact, whyChoose, coreValues. Missing keys default to true.',
     )
 
     class Meta:
@@ -793,6 +913,7 @@ class AboutContent(TranslatableModel, TimeStampedModel):
         if not self.pk and AboutContent.objects.exists():
             existing = AboutContent.objects.first()
             self.pk = existing.pk
+        self.section_visibility = _canonical_visibility(self.section_visibility, ABOUT_SECTION_KEYS)
         super().save(*args, **kwargs)
 
 
@@ -890,9 +1011,9 @@ class ContactContent(TranslatableModel, TimeStampedModel):
 
     section_visibility = models.JSONField(
         'Section Visibility',
-        default=dict,
+        default=_default_contact_section_visibility,
         blank=True,
-        help_text='Keys: hero, formLabels, contactInfo, locationMap',
+        help_text='Keys: formLabels, contactInfo, locationMap. Missing keys default to true.',
     )
 
     class Meta:
@@ -906,6 +1027,7 @@ class ContactContent(TranslatableModel, TimeStampedModel):
         if not self.pk and ContactContent.objects.exists():
             existing = ContactContent.objects.first()
             self.pk = existing.pk
+        self.section_visibility = _canonical_visibility(self.section_visibility, CONTACT_SECTION_KEYS)
         super().save(*args, **kwargs)
 
 
@@ -1032,12 +1154,7 @@ class FooterContent(TranslatableModel, TimeStampedModel):
         if not self.pk and FooterContent.objects.exists():
             existing = FooterContent.objects.first()
             self.pk = existing.pk
-        # Merge defaults so newly-added section keys always render.
-        defaults = _default_footer_section_visibility()
-        current = dict(self.section_visibility or {})
-        for key, value in defaults.items():
-            current.setdefault(key, value)
-        self.section_visibility = current
+        self.section_visibility = _canonical_visibility(self.section_visibility, FOOTER_SECTION_KEYS)
         super().save(*args, **kwargs)
 
     @classmethod

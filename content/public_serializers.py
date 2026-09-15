@@ -5,6 +5,7 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .models import ABOUT_SECTION_KEYS, CONTACT_SECTION_KEYS, FOOTER_SECTION_KEYS, HOME_SECTION_KEYS, SHORTS_SECTION_KEYS, NEWS_SECTION_KEYS, INITIATIVES_SECTION_KEYS, CONSULTATION_SECTION_KEYS, EMIRATES_SECTION_KEYS, _canonical_visibility
 from .translation import get_translated, is_machine_generated, persist_translation, translate_text
 
 
@@ -658,25 +659,120 @@ class PagePresentationSerializer(ArMachineFlagMixin, serializers.ModelSerializer
             out.append({**f, 'questionAr': qAr, 'answerAr': aAr})
         return out
 
-    def get_topics(self, obj): return self._translate_topics(obj.shorts_topics)
-    def get_contributors(self, obj): return self._translate_contributors(obj.shorts_contributors)
-    def get_contributorsAr(self, obj): return self._translate_contributors_ar(obj.shorts_contributors)
-    def get_faqs(self, obj): return self._translate_faqs(obj.shorts_faqs)
-    def get_initiativesTopics(self, obj): return self._translate_topics(obj.initiatives_topics)
-    def get_initiativesContributors(self, obj): return self._translate_contributors(obj.initiatives_contributors)
-    def get_initiativesContributorsAr(self, obj): return self._translate_contributors_ar(obj.initiatives_contributors)
-    def get_initiativesFaqs(self, obj): return self._translate_faqs(obj.initiatives_faqs)
-    def get_consultationTopics(self, obj): return self._translate_topics(obj.consultation_topics)
-    def get_consultationContributors(self, obj): return self._translate_contributors(obj.consultation_contributors)
-    def get_consultationContributorsAr(self, obj): return self._translate_contributors_ar(obj.consultation_contributors)
-    def get_consultationFaqs(self, obj): return self._translate_faqs(obj.consultation_faqs)
-    def get_emiratesTopics(self, obj): return self._translate_topics(obj.emirates_topics)
-    def get_emiratesContributors(self, obj): return self._translate_contributors(obj.emirates_contributors)
-    def get_emiratesContributorsAr(self, obj): return self._translate_contributors_ar(obj.emirates_contributors)
-    def get_newsTopics(self, obj): return self._translate_topics(obj.news_topics)
-    def get_newsContributors(self, obj): return self._translate_contributors(obj.news_contributors)
-    def get_newsContributorsAr(self, obj): return self._translate_contributors_ar(obj.news_contributors)
-    def get_newsFaqs(self, obj): return self._translate_faqs(obj.news_faqs)
+    def get_topics(self, obj):
+        vis = _canonical_visibility(obj.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        if vis.get('topics') is False:
+            return []
+        return self._translate_topics(obj.shorts_topics)
+    def get_contributors(self, obj):
+        vis = _canonical_visibility(obj.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors(obj.shorts_contributors)
+    def get_contributorsAr(self, obj):
+        vis = _canonical_visibility(obj.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors_ar(obj.shorts_contributors)
+    def get_faqs(self, obj):
+        vis = _canonical_visibility(obj.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        if vis.get('faqs') is False:
+            return []
+        return self._translate_faqs(obj.shorts_faqs)
+    def get_initiativesTopics(self, obj):
+        vis = _canonical_visibility(obj.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        if vis.get('topics') is False:
+            return []
+        return self._translate_topics(obj.initiatives_topics)
+    def get_initiativesContributors(self, obj):
+        vis = _canonical_visibility(obj.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors(obj.initiatives_contributors)
+    def get_initiativesContributorsAr(self, obj):
+        vis = _canonical_visibility(obj.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors_ar(obj.initiatives_contributors)
+    def get_initiativesFaqs(self, obj):
+        vis = _canonical_visibility(obj.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        if vis.get('faqs') is False:
+            return []
+        return self._translate_faqs(obj.initiatives_faqs)
+    def get_consultationTopics(self, obj):
+        vis = _canonical_visibility(obj.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        if vis.get('topics') is False:
+            return []
+        return self._translate_topics(obj.consultation_topics)
+    def get_consultationContributors(self, obj):
+        vis = _canonical_visibility(obj.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors(obj.consultation_contributors)
+    def get_consultationContributorsAr(self, obj):
+        vis = _canonical_visibility(obj.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors_ar(obj.consultation_contributors)
+    def get_consultationFaqs(self, obj):
+        vis = _canonical_visibility(obj.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        if vis.get('faqs') is False:
+            return []
+        return self._translate_faqs(obj.consultation_faqs)
+    def get_emiratesTopics(self, obj):
+        vis = _canonical_visibility(obj.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        if vis.get('topics') is False:
+            return []
+        return self._translate_topics(obj.emirates_topics)
+    def get_emiratesContributors(self, obj):
+        vis = _canonical_visibility(obj.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors(obj.emirates_contributors)
+    def get_emiratesContributorsAr(self, obj):
+        vis = _canonical_visibility(obj.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors_ar(obj.emirates_contributors)
+    def get_emiratesFaqs(self, obj):
+        vis = _canonical_visibility(obj.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        if vis.get('faqs') is False:
+            return []
+        return self._translate_faqs(obj.emirates_faqs)
+    def get_newsTopics(self, obj):
+        vis = _canonical_visibility(obj.news_section_visibility, NEWS_SECTION_KEYS)
+        if vis.get('topics') is False:
+            return []
+        return self._translate_topics(obj.news_topics)
+    def get_newsContributors(self, obj):
+        vis = _canonical_visibility(obj.news_section_visibility, NEWS_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors(obj.news_contributors)
+    def get_newsContributorsAr(self, obj):
+        vis = _canonical_visibility(obj.news_section_visibility, NEWS_SECTION_KEYS)
+        if vis.get('contributors') is False:
+            return []
+        return self._translate_contributors_ar(obj.news_contributors)
+    def get_newsFaqs(self, obj):
+        vis = _canonical_visibility(obj.news_section_visibility, NEWS_SECTION_KEYS)
+        if vis.get('faqs') is False:
+            return []
+        return self._translate_faqs(obj.news_faqs)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Canonicalize all visibility maps so clients always receive complete stable maps
+        # and obsolete keys (e.g. legacy `hero`) are never leaked.
+        data['sectionVisibility'] = _canonical_visibility(instance.shorts_section_visibility, SHORTS_SECTION_KEYS)
+        data['initiativesSectionVisibility'] = _canonical_visibility(instance.initiatives_section_visibility, INITIATIVES_SECTION_KEYS)
+        data['consultationSectionVisibility'] = _canonical_visibility(instance.consultation_section_visibility, CONSULTATION_SECTION_KEYS)
+        data['emiratesSectionVisibility'] = _canonical_visibility(instance.emirates_section_visibility, EMIRATES_SECTION_KEYS)
+        data['newsSectionVisibility'] = _canonical_visibility(instance.news_section_visibility, NEWS_SECTION_KEYS)
+        # Serializer protection: hide cta when disabled
+        if not data['sectionVisibility'].get('cta', True):
+            data['shortsCta'] = {}
+        return data
 
     class Meta:
         model = PagePresentation
@@ -782,6 +878,45 @@ class HomepageContentSerializer(serializers.ModelSerializer):
     ctaSecondaryLink = serializers.CharField(source='cta_secondary_link', read_only=True)
 
     sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        vis = _canonical_visibility(instance.section_visibility, HOME_SECTION_KEYS)
+        data['sectionVisibility'] = vis
+        if not vis.get('hero', True):
+            for k in ['heroEyebrow', 'heroEyebrowAr', 'heroTitle', 'heroTitleAr', 'heroSubtitle', 'heroSubtitleAr',
+                      'heroSearchPlaceholder', 'heroSearchPlaceholderAr', 'heroSearchButton', 'heroSearchButtonAr',
+                      'heroPrimaryCtaLabel', 'heroPrimaryCtaLabelAr', 'heroSecondaryCtaLabel', 'heroSecondaryCtaLabelAr',
+                      'heroImage', 'heroImageAlt', 'heroFloatingCards']:
+                if k == 'heroFloatingCards':
+                    data[k] = []
+                else:
+                    data[k] = ''
+        if not vis.get('stats', True):
+            data['stats'] = []
+        if not vis.get('shorts', True):
+            for k in ['shortsTitle', 'shortsTitleAr', 'shortsSubtitle', 'shortsSubtitleAr', 'shortsCtaLabel', 'shortsCtaLabelAr', 'shortsEmptyText', 'shortsEmptyTextAr']:
+                data[k] = ''
+        if not vis.get('news', True):
+            for k in ['newsTitle', 'newsTitleAr', 'newsSubtitle', 'newsSubtitleAr', 'newsCtaLabel', 'newsCtaLabelAr']:
+                data[k] = ''
+        if not vis.get('initiatives', True):
+            for k in ['initiativesTitle', 'initiativesTitleAr', 'initiativesSubtitle', 'initiativesSubtitleAr', 'initiativesCtaLabel', 'initiativesCtaLabelAr']:
+                data[k] = ''
+        if not vis.get('consultations', True):
+            for k in ['consultationsTitle', 'consultationsTitleAr', 'consultationsSubtitle', 'consultationsSubtitleAr',
+                      'consultationsCtaLabel', 'consultationsCtaLabelAr', 'consultationsFreeTab', 'consultationsFreeTabAr',
+                      'consultationsPaidTab', 'consultationsPaidTabAr']:
+                data[k] = ''
+        if not vis.get('emirates', True):
+            for k in ['emiratesTitle', 'emiratesTitleAr', 'emiratesSubtitle', 'emiratesSubtitleAr',
+                      'emiratesCapitalLabel', 'emiratesCapitalLabelAr', 'emiratesHeadquartersLabel', 'emiratesHeadquartersLabelAr',
+                      'emiratesCtaLabel', 'emiratesCtaLabelAr']:
+                data[k] = ''
+        if not vis.get('cta', True):
+            for k in ['ctaTitle', 'ctaTitleAr', 'ctaSubtitle', 'ctaSubtitleAr', 'ctaPrimaryLabel', 'ctaPrimaryLabelAr', 'ctaSecondaryLabel', 'ctaSecondaryLabelAr']:
+                data[k] = ''
+        return data
 
     class Meta:
         model = HomepageContent
@@ -925,6 +1060,51 @@ class AboutContentSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
             })
         return out
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        vis = _canonical_visibility(instance.section_visibility, ABOUT_SECTION_KEYS)
+        data['sectionVisibility'] = vis
+        if not vis.get('ourStory', True):
+            for k in ['ourStory', 'ourStoryAr', 'ourStoryText', 'ourStoryTextAr']:
+                data[k] = ''
+        if not vis.get('ourMission', True):
+            for k in ['ourMission', 'ourMissionAr', 'ourMissionText', 'ourMissionTextAr']:
+                data[k] = ''
+        if not vis.get('ourVision', True):
+            for k in ['ourVision', 'ourVisionAr', 'ourVisionText', 'ourVisionTextAr']:
+                data[k] = ''
+        if not vis.get('ourObjective', True):
+            for k in ['ourObjective', 'ourObjectiveAr', 'ourObjectiveText', 'ourObjectiveTextAr', 'objectives', 'objectivesAr']:
+                if 'objectives' in k:
+                    data[k] = []
+                else:
+                    data[k] = ''
+        if not vis.get('whatWeOffer', True):
+            for k in ['whatWeOffer', 'whatWeOfferAr', 'whatWeOfferText', 'whatWeOfferTextAr', 'offerings', 'offeringsAr']:
+                if k in ('offerings', 'offeringsAr'):
+                    data[k] = []
+                else:
+                    data[k] = ''
+        if not vis.get('ourImpact', True):
+            for k in ['ourImpact', 'ourImpactAr', 'ourImpactText', 'ourImpactTextAr', 'impact', 'impactAr']:
+                if k in ('impact', 'impactAr'):
+                    data[k] = []
+                else:
+                    data[k] = ''
+        if not vis.get('whyChoose', True):
+            for k in ['whyChoose', 'whyChooseAr', 'whyChooseText', 'whyChooseTextAr', 'whyValues', 'whyValuesAr']:
+                if k in ('whyValues', 'whyValuesAr'):
+                    data[k] = []
+                else:
+                    data[k] = ''
+        if not vis.get('coreValues', True):
+            for k in ['coreValues', 'coreValuesAr', 'coreValuesText', 'coreValuesTextAr', 'coreValueList', 'coreValueListAr']:
+                if k in ('coreValueList', 'coreValueListAr'):
+                    data[k] = []
+                else:
+                    data[k] = ''
+        return data
+
     class Meta:
         model = AboutContent
         fields = ['id',
@@ -1021,6 +1201,35 @@ class ContactContentSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     longitude = serializers.CharField(read_only=True)
     sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        vis = _canonical_visibility(instance.section_visibility, CONTACT_SECTION_KEYS)
+        data['sectionVisibility'] = vis
+        if not vis.get('formLabels', True):
+            for k in ['sendMessage', 'sendMessageAr', 'sendMessageSub', 'sendMessageSubAr',
+                      'fullName', 'fullNameAr', 'fullNamePlaceholder', 'fullNamePlaceholderAr',
+                      'emailLabel', 'emailLabelAr', 'emailPlaceholder', 'emailPlaceholderAr',
+                      'userType', 'userTypeAr', 'selectUserType', 'selectUserTypeAr',
+                      'individual', 'individualAr', 'couple', 'coupleAr', 'organization', 'organizationAr',
+                      'subjectLabel', 'subjectLabelAr', 'subjectPlaceholder', 'subjectPlaceholderAr',
+                      'phoneLabel', 'phoneLabelAr', 'phonePlaceholder', 'phonePlaceholderAr',
+                      'messageLabel', 'messageLabelAr', 'messagePlaceholder', 'messagePlaceholderAr',
+                      'sendButton', 'sendButtonAr', 'successMessage', 'successMessageAr', 'sending', 'sendingAr']:
+                data[k] = ''
+        if not vis.get('contactInfo', True):
+            for k in ['contactInfo', 'contactInfoAr', 'officeAddress', 'officeAddressAr', 'workingHours', 'workingHoursAr',
+                      'generalInquiries', 'generalInquiriesAr', 'supportHeading', 'supportHeadingAr',
+                      'addressLines', 'addressLinesAr', 'hoursLines', 'hoursLinesAr',
+                      'inquiriesLines', 'inquiriesLinesAr', 'supportLines', 'supportLinesAr']:
+                if k in ('addressLines', 'addressLinesAr', 'hoursLines', 'hoursLinesAr', 'inquiriesLines', 'inquiriesLinesAr', 'supportLines', 'supportLinesAr'):
+                    data[k] = []
+                else:
+                    data[k] = ''
+        if not vis.get('locationMap', True):
+            for k in ['ourLocation', 'ourLocationAr', 'ourLocationText', 'ourLocationTextAr', 'mapTitle', 'mapTitleAr', 'mapEmbedUrl', 'latitude', 'longitude']:
+                data[k] = ''
+        return data
+
     class Meta:
         model = ContactContent
         fields = ['id',
@@ -1078,6 +1287,29 @@ class FooterContentSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     builtForText = serializers.CharField(source='built_for_text', read_only=True)
     builtForTextAr = serializers.CharField(source='built_for_text_ar', read_only=True)
     sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        vis = _canonical_visibility(instance.section_visibility, FOOTER_SECTION_KEYS)
+        data['sectionVisibility'] = vis
+        if not vis.get('brand', True):
+            for k in ['brandText', 'brandTextAr', 'governmentLabel', 'governmentLabelAr', 'logoUrl']:
+                data[k] = ''
+        if not vis.get('quickLinks', True):
+            data['quickLinks'] = []
+            data['quickLinksHeading'] = ''
+            data['quickLinksHeadingAr'] = ''
+        if not vis.get('resources', True):
+            data['resourceLinks'] = []
+            data['resourceLinksHeading'] = ''
+            data['resourceLinksHeadingAr'] = ''
+        if not vis.get('contacts', True):
+            for k in ['phone', 'email', 'address', 'addressAr', 'contactsHeading', 'contactsHeadingAr']:
+                data[k] = ''
+        if not vis.get('bottomBar', True):
+            for k in ['copyrightText', 'copyrightTextAr', 'builtForText', 'builtForTextAr']:
+                data[k] = ''
+        return data
 
     class Meta:
         model = FooterContent
