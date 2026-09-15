@@ -340,21 +340,27 @@ class CategoryPublicList(generics.ListAPIView):
 
 
 class ConsultationPublicDetailByNameView(generics.RetrieveAPIView):
-    """GET /api/consultations/:sessionTitle/ (name lookup fallback)"""
+    """GET /api/consultations/:sessionTitle/ (name lookup fallback).
+
+    Returns 404 when no Published record matches slug or title. This endpoint
+    is not wired to public URLs but is kept for backward compatibility — it
+    must not reveal Draft/Pending items or leak unpublished titles via 403.
+    """
 
     permission_classes = [AllowAny]
     serializer_class = ConsultationDetailSerializer
     lookup_field = 'slug'
 
     def get_object(self):
+        from rest_framework.exceptions import NotFound
         slug = self.kwargs.get(self.lookup_field)
         if not slug:
-            return None
+            raise NotFound('Consultation not found.')
         obj = Consultation.objects.filter(slug=slug, status='Published').first()
         if not obj:
             obj = Consultation.objects.filter(session_title__iexact=slug, status='Published').first()
         if not obj:
-            self.permission_denied(self.request)
+            raise NotFound('Consultation not found.')
         return obj
 
 
@@ -500,7 +506,7 @@ class GlobalSearchView(APIView):
             | Q(counselor__icontains=q)
         ).order_by('-date', '-created_at')[:self.MAX_PER_GROUP]
 
-        initiatives = Initiative.objects.filter(status='Published').filter(
+        initiatives = Initiative.objects.filter(status='Published', is_listed=True).filter(
             Q(title__icontains=q)
             | Q(title_ar__icontains=q)
             | Q(subtitle__icontains=q)

@@ -131,6 +131,12 @@ class InitiativeApplicationCreateView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, initiative_id):
+        from content.models import Initiative
+        initiative = Initiative.objects.filter(pk=initiative_id).first()
+        if not initiative or initiative.status != 'Published':
+            raise NotFound('Initiative not found.')
+        if not initiative.show_application_form:
+            raise PermissionDenied('Applications are currently closed for this initiative.')
         data = dict(request.data)
         data['initiativeId'] = initiative_id
         serializer = InitiativeApplicationSerializer(data=data)

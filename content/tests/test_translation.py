@@ -17,7 +17,7 @@ from unittest import mock
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 
-from content.models import AboutContent, NewsArticle, Short
+from content.models import AboutContent, Category, NewsArticle, Short
 from content.translation import (
     clear_provider_down_marker,
     clear_failure_marker,
@@ -347,6 +347,67 @@ class AdminRetranslateEndpointTests(TestCase):
             )
         self.assertEqual(res.status_code, 200)
         provider.assert_called()
+
+
+class AdminSerializerMachineFlagTests(TestCase):
+    """The admin serializers expose read-only `<key>IsMachine` flags.
+
+    These flags power the dashboard's Human/Machine/Missing translation status
+    and must never trigger translation or persistence on their own.
+    """
+
+    def setUp(self):
+        cache.clear()
+
+    def test_machine_arabic_reported_true(self):
+        from content.admin_serializers import ShortAdminSerializer
+
+        short = Short.objects.create(
+            video_title='A great video',
+            slug='a-great-video',
+            status='Published',
+            video_title_ar=FAKE_ARABIC,
+            ar_is_machine={'video_title_ar': True},
+        )
+        data = ShortAdminSerializer(short).data
+        self.assertEqual(data['videoTitleAr'], FAKE_ARABIC)
+        self.assertTrue(data['videoTitleArIsMachine'])
+
+    def test_human_arabic_reported_false(self):
+        from content.admin_serializers import ShortAdminSerializer
+
+        short = Short.objects.create(
+            video_title='A great video',
+            slug='a-great-video',
+            status='Published',
+            video_title_ar='كتبها الإنسان',
+        )
+        data = ShortAdminSerializer(short).data
+        self.assertFalse(data['videoTitleArIsMachine'])
+
+    def test_blank_arabic_reported_false_and_not_persisted(self):
+        from content.admin_serializers import ShortAdminSerializer
+
+        short = Short.objects.create(
+            video_title='A great video', slug='a-great-video', status='Published'
+        )
+        with mock.patch('content.translation._call_providers') as provider:
+            data = ShortAdminSerializer(short).data
+        provider.assert_not_called()
+        self.assertFalse(data['videoTitleArIsMachine'])
+        self.assertEqual(data['videoTitleAr'], '')
+
+    def test_category_ar_field_override(self):
+        from content.admin_serializers import CategoryAdminSerializer
+
+        category = Category.objects.create(
+            name='Health',
+            name_ar=FAKE_ARABIC,
+            ar_is_machine={'name_ar': True},
+        )
+        data = CategoryAdminSerializer(category).data
+        self.assertEqual(data['categoryAr'], FAKE_ARABIC)
+        self.assertTrue(data['categoryArIsMachine'])
 
 
 class SingletonPageContentTests(TestCase):

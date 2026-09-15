@@ -15,6 +15,13 @@ def custom_exception_handler(exc, context):
       "error": { "code": "...", "message": "...", "details": { field: [...] } }
     }
     """
+    from django.http import Http404
+    # Map Django Http404 (raised by generics.get_object) to DRF's NOT_FOUND envelope
+    # so public detail endpoints return 404 instead of 500 and don't trigger the
+    # unhandled-error logger path (which hits a Python 3.14 + Django 5.0 copy bug).
+    if isinstance(exc, Http404):
+        from rest_framework.exceptions import NotFound
+        exc = NotFound(str(exc) or 'Not found.')
     response = exception_handler(exc, context)
 
     if response is not None:

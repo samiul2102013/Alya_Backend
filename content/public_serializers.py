@@ -123,10 +123,31 @@ class ShortDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
                   'showRelated', 'status', 'lastUpdated', 'relatedVideos']
 
     def get_relatedVideos(self, obj):
+        if not obj.show_related:
+            return []
         qs = Short.objects.filter(
             category=obj.category, status='Published'
         ).exclude(pk=obj.pk).order_by('-published_at')[:4]
         return ShortListSerializer(qs, many=True).data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Omit/hide data for blocks explicitly disabled by show_* flags so the
+        # public JSON does not leak hidden content even if the client ignores flags.
+        if not instance.show_key_topics:
+            data['keyTopics'] = []
+        if not instance.show_resources:
+            data['resources'] = []
+        if not instance.show_share:
+            data['shareUrl'] = ''
+        if not instance.show_speaker:
+            data['speaker'] = ''
+            data['speakerAr'] = ''
+        if not instance.show_views:
+            data['views'] = 0
+        if not instance.show_related:
+            data['relatedVideos'] = []
+        return data
 
 
 class NewsListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
@@ -196,10 +217,30 @@ class NewsDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
                   'showRelatedResources', 'showShare', 'showRelatedStories', 'status', 'relatedStories']
 
     def get_relatedStories(self, obj):
+        if not obj.show_related_stories:
+            return []
         qs = NewsArticle.objects.filter(
             category=obj.category, status='Published'
         ).exclude(pk=obj.pk).order_by('-published_date')[:3]
         return RelatedStorySerializer(qs, many=True).data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not instance.show_article_info:
+            data['author'] = ''
+            data['authorAr'] = ''
+            data['editorialTeam'] = ''
+            data['organization'] = ''
+            data['moc'] = ''
+            data['city'] = ''
+            data['emirate'] = ''
+        if not instance.show_related_resources:
+            data['resources'] = []
+        if not instance.show_share:
+            data['shareUrl'] = ''
+        if not instance.show_related_stories:
+            data['relatedStories'] = []
+        return data
 
 
 class InitiativeListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
@@ -242,6 +283,10 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
     descriptionAr = serializers.SerializerMethodField()
     purposeAr = serializers.SerializerMethodField()
     badgeAr = serializers.SerializerMethodField()
+    objectives = serializers.JSONField(read_only=True)
+    objectivesAr = serializers.JSONField(source='objectives_ar', read_only=True)
+    benefits = serializers.JSONField(read_only=True)
+    benefitsAr = serializers.JSONField(source='benefits_ar', read_only=True)
 
     def get_descriptionAr(self, obj):
         return _tr(obj, 'description', 'description_ar')
@@ -261,7 +306,39 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
         ]
 
     def get_supportOffered(self, obj):
+        if not obj.show_support_offered:
+            return {
+                'financial_support': False,
+                'housing_support': False,
+                'educational_support': False,
+                'marriage_training_program': False,
+                'pre_marital_preparation': False,
+            }
         return obj.support_offered
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not instance.show_about:
+            data['description'] = ''
+            data['descriptionAr'] = ''
+            data['purpose'] = ''
+            data['purposeAr'] = ''
+            data['objectives'] = []
+            data['objectivesAr'] = []
+        if not instance.show_support_offered:
+            data['supportOffered'] = {
+                'financial_support': False,
+                'housing_support': False,
+                'educational_support': False,
+                'marriage_training_program': False,
+                'pre_marital_preparation': False,
+            }
+        if not instance.show_benefits:
+            data['benefits'] = []
+            data['benefitsAr'] = []
+        if not instance.show_application_form:
+            data['contact'] = []
+        return data
 
 
 class InitiativeLightSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
@@ -335,7 +412,7 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
     whatYouWillLearnAr = serializers.SerializerMethodField()
     whoShouldAttend = serializers.JSONField(source='who_should_attend', read_only=True)
     whoShouldAttendAr = serializers.SerializerMethodField()
-    objectives = serializers.JSONField(source='objectives', read_only=True)
+    objectives = serializers.JSONField(read_only=True)
     objectivesAr = serializers.SerializerMethodField()
     bookingNotice = serializers.CharField(source='booking_notice', read_only=True)
     bookingNoticeAr = serializers.SerializerMethodField()
@@ -391,6 +468,28 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
             'whatYouWillLearn', 'whatYouWillLearnAr', 'whoShouldAttend', 'whoShouldAttendAr', 'schedule', 'bookingNotice', 'bookingNoticeAr', 'showDoctor',
             'showLearnMore', 'showGallery', 'showSchedule', 'showBooking', 'isBookable',
         ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not instance.show_doctor:
+            data['counselor'] = ''
+            data['counselorAr'] = ''
+            data['counselorPhoto'] = ''
+            data['counselorTitle'] = ''
+            data['counselorTitleAr'] = ''
+            data['counselorBio'] = ''
+            data['counselorBioAr'] = ''
+        if not instance.show_learn_more:
+            data['learnMore'] = {}
+        if not instance.show_gallery:
+            data['gallery'] = []
+            data['coverImage'] = ''  # list cover is first gallery item
+        if not instance.show_schedule:
+            data['schedule'] = {}
+        if not instance.show_booking:
+            data['isBookable'] = False
+            data['showBooking'] = False
+        return data
 
 
 class EmirateListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
@@ -461,6 +560,13 @@ class EmirateDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
             is_listed=True,
         )
         return InitiativeLightSerializer(qs, many=True).data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not instance.show_status:
+            # Hide status badge value but keep entity accessible (status is Published).
+            data['status'] = ''
+        return data
 
 
 class CategorySerializer(ArMachineFlagMixin, serializers.ModelSerializer):

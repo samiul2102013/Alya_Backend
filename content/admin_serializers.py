@@ -1,11 +1,49 @@
+import re
+
 from rest_framework import serializers
 
 from .enums import ShortCategory
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
+from .translation import is_machine_generated
 from .utils import unique_slug
 
 
-class ShortAdminSerializer(serializers.ModelSerializer):
+def _snake(name: str) -> str:
+    """camelCase -> snake_case, e.g. heroTitle -> hero_title."""
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+
+
+class AdminArMachineFlagMixin:
+    """Adds `<key>IsMachine` read-only flags next to every Arabic admin field.
+
+    This is the same additive contract the public serializers expose through
+    ``ArMachineFlagMixin``, but WITHOUT any auto-translation or persistence:
+    the admin dashboard must explicitly call ``POST /api/admin/retranslate`` so
+    a human reviewer can never have Arabic silently replaced on page load.
+
+    A flag of ``True`` means the Arabic value was produced by the machine
+    translation engine; ``False`` means it was written/reviewed by a human (or
+    the field is blank).
+    """
+
+    # Admin payload key -> model Arabic field, for keys that don't follow the
+    # default `<snake(base)>_ar` convention.
+    AR_FIELD_OVERRIDES = {}
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for key, value in list(data.items()):
+            if not key.endswith('Ar') or not isinstance(value, str):
+                continue
+            base = key[:-2]
+            ar_field = self.AR_FIELD_OVERRIDES.get(key) or (_snake(base) + '_ar')
+            if not hasattr(instance, ar_field):
+                continue
+            data[key + 'IsMachine'] = is_machine_generated(instance, ar_field)
+        return data
+
+
+class ShortAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     videoTitle = serializers.CharField(source='video_title', required=False, allow_blank=True)
     videoTitleAr = serializers.CharField(source='video_title_ar', required=False, allow_blank=True)
@@ -45,7 +83,7 @@ class ShortAdminSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class NewsAdminSerializer(serializers.ModelSerializer):
+class NewsAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', required=False, allow_blank=True)
     articleTitleAr = serializers.CharField(source='article_title_ar', required=False, allow_blank=True)
@@ -94,7 +132,7 @@ class NewsAdminSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class InitiativeAdminSerializer(serializers.ModelSerializer):
+class InitiativeAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
     subtitleAr = serializers.CharField(source='subtitle_ar', required=False, allow_blank=True)
@@ -136,7 +174,7 @@ class InitiativeAdminSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class ConsultationAdminSerializer(serializers.ModelSerializer):
+class ConsultationAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     sessionTitle = serializers.CharField(source='session_title', required=False, allow_blank=True)
     sessionTitleAr = serializers.CharField(source='session_title_ar', required=False, allow_blank=True)
@@ -197,7 +235,7 @@ class ConsultationAdminSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class EmirateAdminSerializer(serializers.ModelSerializer):
+class EmirateAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     emiratesName = serializers.CharField(source='emirates_name', required=False, allow_blank=True)
     emiratesNameAr = serializers.CharField(source='emirates_name_ar', required=False, allow_blank=True)
@@ -227,7 +265,10 @@ class EmirateAdminSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class CategoryAdminSerializer(serializers.ModelSerializer):
+class CategoryAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
+    # The Arabic name is stored on `name_ar`, not the default `category_ar`.
+    AR_FIELD_OVERRIDES = {'categoryAr': 'name_ar'}
+
     id = serializers.UUIDField(source='pk', read_only=True)
     category = serializers.CharField(source='name', required=False, allow_blank=True)
     categoryAr = serializers.CharField(source='name_ar', required=False, allow_blank=True)
@@ -239,7 +280,7 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class PagePresentationAdminSerializer(serializers.ModelSerializer):
+class PagePresentationAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
     descriptionAr = serializers.CharField(source='description_ar', required=False, allow_blank=True)
@@ -281,7 +322,7 @@ class PagePresentationAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'key']
 
 
-class HomepageContentAdminSerializer(serializers.ModelSerializer):
+class HomepageContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
 
     # Hero
@@ -403,7 +444,7 @@ class HomepageContentAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class AboutContentAdminSerializer(serializers.ModelSerializer):
+class AboutContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
 
     titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
@@ -479,7 +520,7 @@ class AboutContentAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class ContactContentAdminSerializer(serializers.ModelSerializer):
+class ContactContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
 
     titleAr = serializers.CharField(source='title_ar', required=False, allow_blank=True)
@@ -595,7 +636,7 @@ class FooterLinkAdminSerializer(serializers.Serializer):
     href = serializers.CharField(required=False, allow_blank=True)
 
 
-class FooterContentAdminSerializer(serializers.ModelSerializer):
+class FooterContentAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     logoUrl = serializers.CharField(source='logo_url', required=False, allow_blank=True)
     brandText = serializers.CharField(source='brand_text', required=False, allow_blank=True)
@@ -632,7 +673,7 @@ class FooterContentAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class MediaItemAdminSerializer(serializers.ModelSerializer):
+class MediaItemAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     fileUrl = serializers.URLField(source='file_url', required=False, allow_blank=True)
     altAr = serializers.CharField(source='alt_ar', required=False, allow_blank=True)

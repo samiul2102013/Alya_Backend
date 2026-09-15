@@ -82,14 +82,14 @@ class Short(TranslatableModel, TimeStampedModel):
     resources = models.JSONField('Resources', default=list, blank=True)
     share_url = models.CharField('Share URL', max_length=1000, blank=True)
 
-    show_key_topics = models.BooleanField('Show Key Topics', default=True)
-    show_resources = models.BooleanField('Show Resources', default=True)
-    show_share = models.BooleanField('Show Share', default=True)
-    show_speaker = models.BooleanField('Show Speaker', default=True)
-    show_views = models.BooleanField('Show Views', default=True)
-    show_related = models.BooleanField('Show Related', default=True)
+    show_key_topics = models.BooleanField('Show Key Topics', default=True, help_text='When disabled, public API returns empty key_topics and the detail page hides the Key Topics block.')
+    show_resources = models.BooleanField('Show Resources', default=True, help_text='When disabled, public API returns empty resources and the detail page hides the Resources block.')
+    show_share = models.BooleanField('Show Share', default=True, help_text='When disabled, public API returns empty share_url and the detail page hides the Share block.')
+    show_speaker = models.BooleanField('Show Speaker', default=True, help_text='When disabled, public API returns empty speaker / speakerAr and the detail page hides the Speaker row.')
+    show_views = models.BooleanField('Show Views', default=True, help_text='When disabled, public API omits views count (returns 0) and the detail page hides the Views row.')
+    show_related = models.BooleanField('Show Related', default=True, help_text='When disabled, public API returns empty relatedVideos and the detail page hides the Related Videos block.')
 
-    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT, help_text='Controls public visibility. Only Published items appear on public endpoints; Draft and Pending return 404 and are excluded from lists, search, related content, and emirate-nested initiatives. Admin APIs still return all statuses.')
 
     class Meta:
         verbose_name = 'Video'
@@ -127,12 +127,12 @@ class NewsArticle(TranslatableModel, TimeStampedModel):
     resources = models.JSONField('Resources', default=list, blank=True)
     share_url = models.CharField('Share URL', max_length=1000, blank=True)
 
-    show_article_info = models.BooleanField('Show Article Info', default=True)
-    show_related_resources = models.BooleanField('Show Related Resources', default=True)
-    show_share = models.BooleanField('Show Share', default=True)
-    show_related_stories = models.BooleanField('Show Related Stories', default=True)
+    show_article_info = models.BooleanField('Show Article Info', default=True, help_text='When disabled, public API omits author, authorAr, editorial_team, organization, moc, city and emirates and the detail page hides the Article Info block.')
+    show_related_resources = models.BooleanField('Show Related Resources', default=True, help_text='When disabled, public API returns empty resources and the detail page hides the Related Resources block.')
+    show_share = models.BooleanField('Show Share', default=True, help_text='When disabled, public API returns empty share_url and the detail page hides the Share block.')
+    show_related_stories = models.BooleanField('Show Related Stories', default=True, help_text='When disabled, public API returns empty relatedStories and the detail page hides the Related Stories block.')
 
-    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT, help_text='Controls public visibility. Only Published items appear on public endpoints; Draft and Pending return 404 and are excluded from lists, search, and related stories. Admin APIs still return all statuses.')
 
     class Meta:
         verbose_name = 'News Article'
@@ -181,15 +181,15 @@ class Initiative(TranslatableModel, TimeStampedModel):
     benefits_ar = models.JSONField('Benefits (Arabic)', default=list, blank=True)
     contact = models.JSONField('Contact', default=list, blank=True)
 
-    is_featured = models.BooleanField('Featured on Home Page', default=False, help_text='If checked, this initiative is shown on the user panel (single featured).')
-    is_listed = models.BooleanField('Show on Initiatives Listing', default=True, help_text='Show this initiative in the public /initiatives list. Featured initiatives are always listed.')
+    is_featured = models.BooleanField('Featured on Home Page', default=False, help_text='If checked, this initiative is shown on the user panel (single featured). Only visible when status is Published.')
+    is_listed = models.BooleanField('Show on Initiatives Listing', default=True, help_text='Show this initiative in the public /initiatives list. Featured initiatives are always listed. Only Published and listed items appear publicly.')
 
-    show_about = models.BooleanField('Show About', default=True)
-    show_support_offered = models.BooleanField('Show Support Offered', default=True)
-    show_benefits = models.BooleanField('Show Benefits', default=True)
-    show_application_form = models.BooleanField('Show Application Form', default=True)
+    show_about = models.BooleanField('Show About', default=True, help_text='When disabled, public API omits description, descriptionAr, purpose, purposeAr, objectives and objectivesAr and the detail page hides the About block.')
+    show_support_offered = models.BooleanField('Show Support Offered', default=True, help_text='When disabled, public API returns empty supportOffered and the detail page hides the Support Offered block.')
+    show_benefits = models.BooleanField('Show Benefits', default=True, help_text='When disabled, public API returns empty benefits/benefitsAr and the detail page hides the Benefits block.')
+    show_application_form = models.BooleanField('Show Application Form', default=True, help_text='When disabled, public API returns empty contact and the detail page hides the Application Form block.')
 
-    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT, help_text='Controls public visibility. Only Published items appear on public endpoints; Draft and Pending return 404 and are excluded from lists, featured, search, emirate-nested lists and direct slug access. Admin APIs still return all statuses.')
 
     class Meta:
         verbose_name = 'Initiative'
@@ -287,14 +287,14 @@ class Consultation(TranslatableModel, TimeStampedModel):
 
     schedule = models.JSONField('Schedule', default=dict, blank=True)
 
-    show_doctor = models.BooleanField('Show Doctor', default=True)
-    show_learn_more = models.BooleanField('Show Learn More', default=True)
-    show_gallery = models.BooleanField('Show Gallery', default=True)
-    show_schedule = models.BooleanField('Show Schedule', default=True)
-    show_booking = models.BooleanField('Show Booking', default=True)
-    is_bookable = models.BooleanField('Is Bookable', default=True)
+    show_doctor = models.BooleanField('Show Doctor', default=True, help_text='When disabled, public API omits counselor, counselorAr, counselor_photo, counselor_title, counselor_titleAr, counselor_bio and counselor_bioAr and the detail page hides the Doctor/Counselor block.')
+    show_learn_more = models.BooleanField('Show Learn More', default=True, help_text='When disabled, public API returns empty learn_more and the detail page hides the Learn More block.')
+    show_gallery = models.BooleanField('Show Gallery', default=True, help_text='When disabled, public API returns empty gallery and the detail page hides the Gallery block.')
+    show_schedule = models.BooleanField('Show Schedule', default=True, help_text='When disabled, public API returns empty schedule and the detail page hides the Schedule block.')
+    show_booking = models.BooleanField('Show Booking', default=True, help_text='When disabled, public API marks is_bookable as false and the detail page hides the Booking CTA; use is_bookable to block actual bookings server-side.')
+    is_bookable = models.BooleanField('Is Bookable', default=True, help_text='Server-side gate for POST /api/consultations/book. When false, booking is rejected even if Show Booking is enabled.')
 
-    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.DRAFT, help_text='Controls public visibility. Only Published sessions appear on public endpoints; Draft and Pending return 404 and are excluded from lists, search and direct slug/title access. Admin APIs still return all statuses.')
 
     class Meta:
         verbose_name = 'Consultation'
@@ -331,8 +331,8 @@ class Emirate(TranslatableModel, TimeStampedModel):
     image = models.CharField('Image', max_length=500, blank=True)
     website_url = models.CharField('Website URL', max_length=1000, blank=True)
 
-    show_status = models.BooleanField('Show Status', default=True)
-    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED)
+    show_status = models.BooleanField('Show Status', default=True, help_text='When disabled, public API omits the status badge/label and the detail page hides the Status row; the record remains accessible if status is Published.')
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED, help_text='Controls public visibility. Only Published emirates appear on public endpoints; Draft and Pending return 404 and are excluded from lists, search and direct slug access. Admin APIs still return all statuses.')
 
     class Meta:
         verbose_name = 'Emirate'
@@ -344,14 +344,14 @@ class Emirate(TranslatableModel, TimeStampedModel):
 
 
 class Category(TranslatableModel, TimeStampedModel):
-    """Category entity (API spec 2.6)."""
+    """Category entity (API spec 2.6). No detail-page show_* blocks; visibility is controlled solely by status."""
 
     name = models.CharField('Category', max_length=100, unique=True)
     name_ar = models.CharField('Category (Arabic)', max_length=100, blank=True)
     description = models.TextField('Description', blank=True)
     description_ar = models.TextField('Description (Arabic)', blank=True)
     date = models.DateField('Date', null=True, blank=True)
-    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED)
+    status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED, help_text='Controls public visibility. Only Published categories appear on public /categories; Draft and Pending are excluded. Admin APIs still return all statuses.')
 
     class Meta:
         verbose_name = 'Category'
