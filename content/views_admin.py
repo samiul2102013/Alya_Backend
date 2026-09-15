@@ -249,3 +249,65 @@ class MediaItemAdminViewSet(ModelViewSet):
         if category_filter:
             qs = qs.filter(category__iexact=category_filter)
         return qs
+
+
+class RetranslateAdminView(APIView):
+    """POST /api/admin/retranslate — (re)generate machine Arabic for a record.
+
+    Body: { "model": "short"|"news"|"initiative"|"consultation"|"emirate"|
+            "category"|"presentation"|"homepage"|"about"|"contact"|"footer",
+            "id": "<uuid>",
+            "force": bool   (regenerate machine Arabic),
+            "force_human": bool (also overwrite human-reviewed Arabic) }
+
+    Safety rules:
+    - Human-reviewed Arabic is NEVER touched unless force_human=true is sent
+      explicitly.
+    - Failed provider calls are not persisted; a retry can be run again later.
+    """
+
+    MODEL_MAP = {
+        'short': Short,
+        'news': NewsArticle,
+        'initiative': Initiative,
+        'consultation': Consultation,
+        'emirate': Emirate,
+        'category': Category,
+        'presentation': PagePresentation,
+        'homepage': HomepageContent,
+        'about': AboutContent,
+        'contact': ContactContent,
+        'footer': FooterContent,
+    }
+
+    def post(self, request):
+        from .translation import retranslate_object, reset_failure_state
+
+        model_key = str(request.data.get('model', '')).strip().lower()
+        model = self.MODEL_MAP.get(model_key)
+        if model is None:
+            return Response(
+                {'detail': f"Unknown model '{model_key}'. Valid: {sorted(self.MODEL_MAP)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        record_id = request.data.get('id')
+        instance = model.objects.filter(pk=record_id).first() if record_id else model.objects.first()
+        if instance is None:
+            return Response(
+                {'detail': 'Record not found. Provide a valid "id" (or none for the singleton).'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        force = bool(request.data.get('force', False))
+        force_human = bool(request.data.get('force_human', False))
+        # A deliberate retry must reach the provider even if it failed recently.
+        reset_failure_state()
+        results = retranslate_object(instance, force=force, force_human=force_human)
+        return Response({
+            'model': model_key,
+            'id': str(instance.pk),
+            'force': force,
+            'force_human': force_human,
+            'updated_fields': results,
+        })

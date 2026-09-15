@@ -42,6 +42,7 @@ from .views_admin import (
     MediaItemAdminViewSet,
     NewsAdminViewSet,
     PagePresentationAdminViewSet,
+    RetranslateAdminView,
     ShortAdminViewSet,
 )
 
@@ -65,6 +66,7 @@ urlpatterns = router.urls + [
     path('admin/about', AboutContentAdminView.as_view(), name='admin-about'),
     path('admin/contact', ContactContentAdminView.as_view(), name='admin-contact'),
     path('admin/footer', FooterContentAdminView.as_view(), name='admin-footer'),
+    path('admin/retranslate', RetranslateAdminView.as_view(), name='admin-retranslate'),
     # Public
     path('shorts', ShortPublicView.as_view(), name='shorts-list'),
     path('shorts/<str:slug>', ShortPublicDetail.as_view(), name='shorts-detail'),

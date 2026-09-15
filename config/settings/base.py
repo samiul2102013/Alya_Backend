@@ -143,7 +143,21 @@ CORS_ALLOWED_ORIGINS = env.list(
              'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
 )
 
-# --- Translation (auto AR fallback) ---
+# --- Shared cache (Redis when configured, local-memory fallback) ---
+# Used by the translation engine and other cache consumers. REDIS_URL is the
+# same service Celery uses, so no extra infrastructure is required.
+REDIS_URL = env('REDIS_URL', default='')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'KEY_PREFIX': 'alia',
+            'TIMEOUT': None,  # every cache.set() passes an explicit TTL
+        }
+    }
+
+# --- Translation (auto AR fallback + persistence) ---
 TRANSLATION_ENABLED = env.bool('TRANSLATION_ENABLED', default=True)
 TRANSLATION_API_URL = env('TRANSLATION_API_URL', default='')  # e.g. https://libretranslate.example.com/translate
 TRANSLATION_CACHE_TTL = env.int('TRANSLATION_CACHE_TTL', default=60 * 60 * 24 * 30)

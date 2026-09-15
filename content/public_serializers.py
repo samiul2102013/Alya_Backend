@@ -1,9 +1,56 @@
+import re
+
 from django.db.models import Q
 
 from rest_framework import serializers
 
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
-from .translation import get_translated, translate_text
+from .translation import get_translated, is_machine_generated, persist_translation, translate_text
+
+
+def _tr(obj, en_field: str, ar_field: str) -> str:
+    """Arabic for a bilingual pair: persisted value, else translate + persist.
+
+    The translation engine never overwrites existing Arabic and never persists
+    failed translations, so admin-written Arabic and provider outages are both
+    handled safely (see content/translation.py).
+    """
+    return persist_translation(obj, en_field, ar_field)
+
+
+def _snake(name: str) -> str:
+    """camelCase -> snake_case, e.g. heroTitle -> hero_title."""
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+
+
+class ArMachineFlagMixin:
+    """Adds `<key>IsMachine` flags next to Arabic payload keys (additive).
+
+    For every string payload key ending in `Ar` whose model Arabic field
+    exists, exposes whether the Arabic value was machine-generated. When
+    PERSIST_BLANK_AR is True (singleton page content), blank Arabic keys are
+    also translated from their English sibling and persisted on the fly.
+    """
+
+    PERSIST_BLANK_AR = False
+    AR_FIELD_OVERRIDES = {}
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for key, value in list(data.items()):
+            if not key.endswith('Ar') or not isinstance(value, str):
+                continue
+            base = key[:-2]
+            ar_field = self.AR_FIELD_OVERRIDES.get(key) or (_snake(base) + '_ar')
+            if not hasattr(instance, ar_field):
+                continue
+            if self.PERSIST_BLANK_AR and not str(value).strip():
+                en_field = ar_field[:-3]
+                en_value = getattr(instance, en_field, '') or ''
+                if str(en_value).strip():
+                    data[key] = persist_translation(instance, en_field, ar_field)
+            data[key + 'IsMachine'] = is_machine_generated(instance, ar_field)
+        return data
 
 
 class ShortsCtaSerializer(serializers.Serializer):
@@ -19,7 +66,7 @@ class ShortsCtaSerializer(serializers.Serializer):
     exploreLabelAr = serializers.CharField(read_only=True, allow_blank=True)
 
 
-class ShortListSerializer(serializers.ModelSerializer):
+class ShortListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     videoTitle = serializers.CharField(source='video_title', read_only=True)
     videoTitleAr = serializers.SerializerMethodField()
@@ -29,7 +76,7 @@ class ShortListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
 
     def get_videoTitleAr(self, obj):
-        return get_translated(obj.video_title_ar, obj.video_title, 'ar')
+        return _tr(obj, 'video_title', 'video_title_ar')
 
     class Meta:
         model = Short
@@ -37,7 +84,7 @@ class ShortListSerializer(serializers.ModelSerializer):
                   'maritalStage', 'duration', 'coverImage', 'views', 'publishedAt', 'status']
 
 
-class ShortDetailSerializer(serializers.ModelSerializer):
+class ShortDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     videoTitle = serializers.CharField(source='video_title', read_only=True)
     videoTitleAr = serializers.SerializerMethodField()
@@ -59,13 +106,13 @@ class ShortDetailSerializer(serializers.ModelSerializer):
     speakerAr = serializers.SerializerMethodField()
 
     def get_videoTitleAr(self, obj):
-        return get_translated(obj.video_title_ar, obj.video_title, 'ar')
+        return _tr(obj, 'video_title', 'video_title_ar')
 
     def get_descriptionAr(self, obj):
-        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+        return _tr(obj, 'description', 'description_ar')
 
     def get_speakerAr(self, obj):
-        return get_translated(getattr(obj, 'speaker_ar', ''), obj.speaker, 'ar')
+        return _tr(obj, 'speaker', 'speaker_ar')
 
     class Meta:
         model = Short
@@ -82,7 +129,7 @@ class ShortDetailSerializer(serializers.ModelSerializer):
         return ShortListSerializer(qs, many=True).data
 
 
-class NewsListSerializer(serializers.ModelSerializer):
+class NewsListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', read_only=True)
     articleTitleAr = serializers.SerializerMethodField()
@@ -91,7 +138,7 @@ class NewsListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
 
     def get_articleTitleAr(self, obj):
-        return get_translated(obj.article_title_ar, obj.article_title, 'ar')
+        return _tr(obj, 'article_title', 'article_title_ar')
 
     class Meta:
         model = NewsArticle
@@ -99,7 +146,7 @@ class NewsListSerializer(serializers.ModelSerializer):
                   'publishedDate', 'status']
 
 
-class RelatedStorySerializer(serializers.ModelSerializer):
+class RelatedStorySerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', read_only=True)
     articleTitleAr = serializers.SerializerMethodField()
@@ -107,14 +154,14 @@ class RelatedStorySerializer(serializers.ModelSerializer):
     publishedDate = serializers.DateField(source='published_date', read_only=True)
 
     def get_articleTitleAr(self, obj):
-        return get_translated(obj.article_title_ar, obj.article_title, 'ar')
+        return _tr(obj, 'article_title', 'article_title_ar')
 
     class Meta:
         model = NewsArticle
         fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'coverImage', 'publishedDate']
 
 
-class NewsDetailSerializer(serializers.ModelSerializer):
+class NewsDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     articleTitle = serializers.CharField(source='article_title', read_only=True)
     articleTitleAr = serializers.SerializerMethodField()
@@ -133,13 +180,13 @@ class NewsDetailSerializer(serializers.ModelSerializer):
     authorAr = serializers.SerializerMethodField()
 
     def get_articleTitleAr(self, obj):
-        return get_translated(obj.article_title_ar, obj.article_title, 'ar')
+        return _tr(obj, 'article_title', 'article_title_ar')
 
     def get_contentAr(self, obj):
-        return get_translated(getattr(obj, 'content_ar', ''), obj.content, 'ar')
+        return _tr(obj, 'content', 'content_ar')
 
     def get_authorAr(self, obj):
-        return get_translated(getattr(obj, 'author_ar', ''), obj.author, 'ar')
+        return _tr(obj, 'author', 'author_ar')
 
     class Meta:
         model = NewsArticle
@@ -155,7 +202,7 @@ class NewsDetailSerializer(serializers.ModelSerializer):
         return RelatedStorySerializer(qs, many=True).data
 
 
-class InitiativeListSerializer(serializers.ModelSerializer):
+class InitiativeListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.SerializerMethodField()
     subtitleAr = serializers.SerializerMethodField()
@@ -170,13 +217,13 @@ class InitiativeListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
 
     def get_titleAr(self, obj):
-        return get_translated(obj.title_ar, obj.title, 'ar')
+        return _tr(obj, 'title', 'title_ar')
 
     def get_subtitleAr(self, obj):
-        return get_translated(obj.subtitle_ar, obj.subtitle, 'ar')
+        return _tr(obj, 'subtitle', 'subtitle_ar')
 
     def get_badgeAr(self, obj):
-        return get_translated(getattr(obj, 'badge_ar', ''), obj.badge, 'ar')
+        return _tr(obj, 'badge', 'badge_ar')
 
     class Meta:
         model = Initiative
@@ -197,13 +244,13 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
     badgeAr = serializers.SerializerMethodField()
 
     def get_descriptionAr(self, obj):
-        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+        return _tr(obj, 'description', 'description_ar')
 
     def get_purposeAr(self, obj):
-        return get_translated(getattr(obj, 'purpose_ar', ''), obj.purpose, 'ar')
+        return _tr(obj, 'purpose', 'purpose_ar')
 
     def get_badgeAr(self, obj):
-        return get_translated(getattr(obj, 'badge_ar', ''), obj.badge, 'ar')
+        return _tr(obj, 'badge', 'badge_ar')
 
     class Meta:
         model = Initiative
@@ -217,7 +264,7 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
         return obj.support_offered
 
 
-class InitiativeLightSerializer(serializers.ModelSerializer):
+class InitiativeLightSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     """Lightweight initiative used under an emirate."""
 
     id = serializers.UUIDField(source='pk', read_only=True)
@@ -228,10 +275,10 @@ class InitiativeLightSerializer(serializers.ModelSerializer):
     shareUrl = serializers.CharField(source='share_url', read_only=True)
 
     def get_titleAr(self, obj):
-        return get_translated(obj.title_ar, obj.title, 'ar')
+        return _tr(obj, 'title', 'title_ar')
 
     def get_subtitleAr(self, obj):
-        return get_translated(obj.subtitle_ar, obj.subtitle, 'ar')
+        return _tr(obj, 'subtitle', 'subtitle_ar')
 
     class Meta:
         model = Initiative
@@ -239,7 +286,7 @@ class InitiativeLightSerializer(serializers.ModelSerializer):
                   'officialWebsiteUrl', 'shareUrl']
 
 
-class ConsultationListSerializer(serializers.ModelSerializer):
+class ConsultationListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     sessionTitle = serializers.CharField(source='session_title', read_only=True)
     sessionTitleAr = serializers.SerializerMethodField()
@@ -253,7 +300,7 @@ class ConsultationListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
 
     def get_sessionTitleAr(self, obj):
-        return get_translated(obj.session_title_ar, obj.session_title, 'ar')
+        return _tr(obj, 'session_title', 'session_title_ar')
 
     class Meta:
         model = Consultation
@@ -295,16 +342,16 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
     descriptionAr = serializers.SerializerMethodField()
 
     def get_counselorTitleAr(self, obj):
-        return get_translated(getattr(obj, 'counselor_title_ar', ''), obj.counselor_title, 'ar')
+        return _tr(obj, 'counselor_title', 'counselor_title_ar')
 
     def get_counselorBioAr(self, obj):
-        return get_translated(getattr(obj, 'counselor_bio_ar', ''), obj.counselor_bio, 'ar')
+        return _tr(obj, 'counselor_bio', 'counselor_bio_ar')
 
     def get_counselorAr(self, obj):
-        return get_translated(getattr(obj, 'counselor_ar', ''), obj.counselor, 'ar')
+        return _tr(obj, 'counselor', 'counselor_ar')
 
     def get_descriptionAr(self, obj):
-        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+        return _tr(obj, 'description', 'description_ar')
 
     def _translate_list(self, lst):
         if not lst: return []
@@ -326,7 +373,7 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
         return self._translate_list(obj.who_should_attend)
 
     def get_bookingNoticeAr(self, obj):
-        return get_translated(getattr(obj, 'booking_notice_ar', ''), obj.booking_notice, 'ar')
+        return _tr(obj, 'booking_notice', 'booking_notice_ar')
 
     showDoctor = serializers.BooleanField(source='show_doctor', read_only=True)
     showLearnMore = serializers.BooleanField(source='show_learn_more', read_only=True)
@@ -346,7 +393,7 @@ class ConsultationDetailSerializer(ConsultationListSerializer):
         ]
 
 
-class EmirateListSerializer(serializers.ModelSerializer):
+class EmirateListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     emiratesName = serializers.CharField(source='emirates_name', read_only=True)
     emiratesNameAr = serializers.SerializerMethodField()
@@ -357,23 +404,23 @@ class EmirateListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
 
     def get_emiratesNameAr(self, obj):
-        return get_translated(obj.emirates_name_ar, obj.emirates_name, 'ar')
+        return _tr(obj, 'emirates_name', 'emirates_name_ar')
 
     def get_titleAr(self, obj):
-        return get_translated(getattr(obj, 'title_ar', ''), obj.title, 'ar')
+        return _tr(obj, 'title', 'title_ar')
 
     def get_descriptionAr(self, obj):
-        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+        return _tr(obj, 'description', 'description_ar')
 
     def get_centerCountAr(self, obj):
-        return get_translated(getattr(obj, 'center_count_ar', ''), obj.center_count, 'ar')
+        return _tr(obj, 'center_count', 'center_count_ar')
 
     class Meta:
         model = Emirate
         fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'titleAr', 'description', 'descriptionAr', 'centerCount', 'centerCountAr', 'image', 'status']
 
 
-class EmirateDetailSerializer(serializers.ModelSerializer):
+class EmirateDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     emiratesName = serializers.CharField(source='emirates_name', read_only=True)
     emiratesNameAr = serializers.SerializerMethodField()
@@ -386,16 +433,16 @@ class EmirateDetailSerializer(serializers.ModelSerializer):
     centerCount = serializers.CharField(source='center_count', read_only=True)
 
     def get_emiratesNameAr(self, obj):
-        return get_translated(obj.emirates_name_ar, obj.emirates_name, 'ar')
+        return _tr(obj, 'emirates_name', 'emirates_name_ar')
 
     def get_titleAr(self, obj):
-        return get_translated(getattr(obj, 'title_ar', ''), obj.title, 'ar')
+        return _tr(obj, 'title', 'title_ar')
 
     def get_descriptionAr(self, obj):
-        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+        return _tr(obj, 'description', 'description_ar')
 
     def get_centerCountAr(self, obj):
-        return get_translated(getattr(obj, 'center_count_ar', ''), obj.center_count, 'ar')
+        return _tr(obj, 'center_count', 'center_count_ar')
     websiteUrl = serializers.CharField(source='website_url', read_only=True)
     showStatus = serializers.BooleanField(source='show_status', read_only=True)
     status = serializers.CharField(read_only=True)
@@ -416,7 +463,7 @@ class EmirateDetailSerializer(serializers.ModelSerializer):
         return InitiativeLightSerializer(qs, many=True).data
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(source='pk', read_only=True)
     category = serializers.CharField(source='name', read_only=True)
     categoryAr = serializers.SerializerMethodField()
@@ -424,17 +471,19 @@ class CategorySerializer(serializers.ModelSerializer):
     status = serializers.CharField(read_only=True)
 
     def get_categoryAr(self, obj):
-        return get_translated(getattr(obj, 'name_ar', ''), obj.name, 'ar')
+        return _tr(obj, 'name', 'name_ar')
 
     def get_descriptionAr(self, obj):
-        return get_translated(getattr(obj, 'description_ar', ''), obj.description, 'ar')
+        return _tr(obj, 'description', 'description_ar')
 
     class Meta:
         model = Category
         fields = ['id', 'category', 'categoryAr', 'description', 'descriptionAr', 'date', 'status']
 
 
-class PagePresentationSerializer(serializers.ModelSerializer):
+class PagePresentationSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
+
+    PERSIST_BLANK_AR = True
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.SerializerMethodField()
     descriptionAr = serializers.SerializerMethodField()
@@ -468,8 +517,8 @@ class PagePresentationSerializer(serializers.ModelSerializer):
     emiratesContributorsAr = serializers.SerializerMethodField()
     newsContributorsAr = serializers.SerializerMethodField()
 
-    def get_titleAr(self, obj): return get_translated(obj.title_ar, obj.title, 'ar')
-    def get_descriptionAr(self, obj): return get_translated(obj.description_ar, obj.description, 'ar')
+    def get_titleAr(self, obj): return _tr(obj, 'title', 'title_ar')
+    def get_descriptionAr(self, obj): return _tr(obj, 'description', 'description_ar')
 
     def _translate_topics(self, lst):
         out=[]
@@ -657,7 +706,9 @@ class HomepageContentSerializer(serializers.ModelSerializer):
                   'sectionVisibility']
 
 
-class AboutContentSerializer(serializers.ModelSerializer):
+class AboutContentSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
+
+    PERSIST_BLANK_AR = True
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.SerializerMethodField()
     descriptionAr = serializers.SerializerMethodField()
@@ -711,24 +762,24 @@ class AboutContentSerializer(serializers.ModelSerializer):
     heroImageAlt = serializers.CharField(source='hero_image_alt', read_only=True)
     sectionVisibility = serializers.JSONField(source='section_visibility', read_only=True)
 
-    def get_titleAr(self, obj): return get_translated(obj.title_ar, obj.title, 'ar')
-    def get_descriptionAr(self, obj): return get_translated(obj.description_ar, obj.description, 'ar')
-    def get_ourStoryAr(self, obj): return get_translated(obj.our_story_ar, obj.our_story, 'ar')
-    def get_ourStoryTextAr(self, obj): return get_translated(obj.our_story_text_ar, obj.our_story_text, 'ar')
-    def get_ourMissionAr(self, obj): return get_translated(obj.our_mission_ar, obj.our_mission, 'ar')
-    def get_ourMissionTextAr(self, obj): return get_translated(obj.our_mission_text_ar, obj.our_mission_text, 'ar')
-    def get_ourVisionAr(self, obj): return get_translated(obj.our_vision_ar, obj.our_vision, 'ar')
-    def get_ourVisionTextAr(self, obj): return get_translated(obj.our_vision_text_ar, obj.our_vision_text, 'ar')
-    def get_ourObjectiveAr(self, obj): return get_translated(obj.our_objective_ar, obj.our_objective, 'ar')
-    def get_ourObjectiveTextAr(self, obj): return get_translated(obj.our_objective_text_ar, obj.our_objective_text, 'ar')
-    def get_whatWeOfferAr(self, obj): return get_translated(obj.what_we_offer_ar, obj.what_we_offer, 'ar')
-    def get_whatWeOfferTextAr(self, obj): return get_translated(obj.what_we_offer_text_ar, obj.what_we_offer_text, 'ar')
-    def get_ourImpactAr(self, obj): return get_translated(obj.our_impact_ar, obj.our_impact, 'ar')
-    def get_ourImpactTextAr(self, obj): return get_translated(obj.our_impact_text_ar, obj.our_impact_text, 'ar')
-    def get_whyChooseAr(self, obj): return get_translated(obj.why_choose_ar, obj.why_choose, 'ar')
-    def get_whyChooseTextAr(self, obj): return get_translated(obj.why_choose_text_ar, obj.why_choose_text, 'ar')
-    def get_coreValuesAr(self, obj): return get_translated(obj.core_values_ar, obj.core_values, 'ar')
-    def get_coreValuesTextAr(self, obj): return get_translated(obj.core_values_text_ar, obj.core_values_text, 'ar')
+    def get_titleAr(self, obj): return _tr(obj, 'title', 'title_ar')
+    def get_descriptionAr(self, obj): return _tr(obj, 'description', 'description_ar')
+    def get_ourStoryAr(self, obj): return _tr(obj, 'our_story', 'our_story_ar')
+    def get_ourStoryTextAr(self, obj): return _tr(obj, 'our_story_text', 'our_story_text_ar')
+    def get_ourMissionAr(self, obj): return _tr(obj, 'our_mission', 'our_mission_ar')
+    def get_ourMissionTextAr(self, obj): return _tr(obj, 'our_mission_text', 'our_mission_text_ar')
+    def get_ourVisionAr(self, obj): return _tr(obj, 'our_vision', 'our_vision_ar')
+    def get_ourVisionTextAr(self, obj): return _tr(obj, 'our_vision_text', 'our_vision_text_ar')
+    def get_ourObjectiveAr(self, obj): return _tr(obj, 'our_objective', 'our_objective_ar')
+    def get_ourObjectiveTextAr(self, obj): return _tr(obj, 'our_objective_text', 'our_objective_text_ar')
+    def get_whatWeOfferAr(self, obj): return _tr(obj, 'what_we_offer', 'what_we_offer_ar')
+    def get_whatWeOfferTextAr(self, obj): return _tr(obj, 'what_we_offer_text', 'what_we_offer_text_ar')
+    def get_ourImpactAr(self, obj): return _tr(obj, 'our_impact', 'our_impact_ar')
+    def get_ourImpactTextAr(self, obj): return _tr(obj, 'our_impact_text', 'our_impact_text_ar')
+    def get_whyChooseAr(self, obj): return _tr(obj, 'why_choose', 'why_choose_ar')
+    def get_whyChooseTextAr(self, obj): return _tr(obj, 'why_choose_text', 'why_choose_text_ar')
+    def get_coreValuesAr(self, obj): return _tr(obj, 'core_values', 'core_values_ar')
+    def get_coreValuesTextAr(self, obj): return _tr(obj, 'core_values_text', 'core_values_text_ar')
 
     def get_objectivesAr(self, obj):
         vals = obj.objectives or []
@@ -785,7 +836,9 @@ class AboutContentSerializer(serializers.ModelSerializer):
                   'sectionVisibility']
 
 
-class ContactContentSerializer(serializers.ModelSerializer):
+class ContactContentSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
+
+    PERSIST_BLANK_AR = True
     id = serializers.UUIDField(source='pk', read_only=True)
     titleAr = serializers.CharField(source='title_ar', read_only=True)
     descriptionAr = serializers.CharField(source='description_ar', read_only=True)
@@ -896,7 +949,9 @@ class FooterLinkSerializer(serializers.Serializer):
     href = serializers.CharField(read_only=True, allow_blank=True)
 
 
-class FooterContentSerializer(serializers.ModelSerializer):
+class FooterContentSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
+
+    PERSIST_BLANK_AR = True
     id = serializers.UUIDField(source='pk', read_only=True)
     logoUrl = serializers.CharField(source='logo_url', read_only=True)
     brandText = serializers.CharField(source='brand_text', read_only=True)
