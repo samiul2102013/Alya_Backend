@@ -1,10 +1,11 @@
 import os
 import shutil
+import time
 import uuid
 from datetime import datetime, timezone, timedelta
 
 from django.conf import settings
-from django.db import transaction
+from django.db import OperationalError, transaction
 from rest_framework import status as drf_status
 from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
@@ -37,6 +38,37 @@ def _safe_int(value, default=0):
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _record_chunk(session_pk, chunk_index, chunk_size):
+    """Record a received chunk and add its size, safely under concurrency.
+
+    The admin uploads several chunks in parallel. A plain read-modify-write of
+    the session's JSON `received_chunks` races: two requests read the same list,
+    each appends its own index, and the last write wins — dropping an index so
+    /uploads/complete later reports chunks missing although every .part file
+    exists. `select_for_update()` serialises the update on Postgres (no-op on
+    SQLite, which serialises writers itself), and the small retry loop absorbs
+    SQLite's transient "database is locked" under parallel writes.
+
+    Returns the refreshed session.
+    """
+    last_error = None
+    for attempt in range(6):
+        try:
+            with transaction.atomic():
+                locked = UploadSession.objects.select_for_update().get(pk=session_pk)
+                received = list(locked.received_chunks or [])
+                if chunk_index not in received:
+                    received.append(chunk_index)
+                    locked.received_chunks = received
+                    locked.total_size = (locked.total_size or 0) + chunk_size
+                    locked.save(update_fields=['received_chunks', 'total_size', 'updated_at'])
+                return locked
+        except OperationalError as exc:  # SQLite "database is locked" under parallel writes.
+            last_error = exc
+            time.sleep(0.05 * (attempt + 1))
+    raise last_error
 
 
 def _cleanup_stale_sessions():
@@ -221,12 +253,9 @@ class ChunkedUploadView(APIView):
             for piece in chunk.chunks():
                 f.write(piece)
 
+        # Record the chunk under a row lock (see _record_chunk docstring).
+        session = _record_chunk(session.pk, chunk_index, chunk.size)
         received = list(session.received_chunks or [])
-        if chunk_index not in received:
-            received.append(chunk_index)
-            session.received_chunks = received
-            session.total_size = (session.total_size or 0) + chunk.size
-            session.save(update_fields=['received_chunks', 'total_size', 'updated_at'])
 
         if session.total_size > max_bytes:
             shutil.rmtree(tmp, ignore_errors=True)
