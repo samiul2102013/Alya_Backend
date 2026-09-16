@@ -1,21 +1,28 @@
 from django.db import connection
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.http import JsonResponse
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
-class HealthCheckView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+@method_decorator(csrf_exempt, name='dispatch')
+class HealthCheckView(View):
+    """Container & infrastructure health check.
+
+    Implemented as a lightweight standard Django View returning JsonResponse to
+    bypass DRF middleware, authentication, and throttling. Docker container
+    healthchecks ping this endpoint every 15 seconds; DRF throttling must never
+    intercept or rate-limit these pings (which causes false-positive container
+    unhealthy errors and deployment failures).
+    """
 
     def get(self, request):
         try:
             with connection.cursor() as cursor:
                 cursor.execute('SELECT 1')
-            return Response({'status': 'healthy'}, status=status.HTTP_200_OK)
+            return JsonResponse({'status': 'healthy'}, status=200)
         except Exception as e:
-            return Response(
+            return JsonResponse(
                 {'status': 'unhealthy', 'error': str(e)},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                status=503,
             )
