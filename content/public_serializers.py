@@ -45,10 +45,11 @@ class ArMachineFlagMixin:
             ar_field = self.AR_FIELD_OVERRIDES.get(key) or (_snake(base) + '_ar')
             if not hasattr(instance, ar_field):
                 continue
-            if self.PERSIST_BLANK_AR and not str(value).strip():
+            if self.PERSIST_BLANK_AR:
                 en_field = ar_field[:-3]
                 en_value = getattr(instance, en_field, '') or ''
-                if str(en_value).strip():
+                ar_value = getattr(instance, ar_field, '') or ''
+                if (not str(ar_value).strip() and str(en_value).strip()) or (not str(en_value).strip() and str(ar_value).strip()):
                     data[key] = persist_translation(instance, en_field, ar_field)
             data[key + 'IsMachine'] = is_machine_generated(instance, ar_field)
         # Post-fill English fields that were serialized blank before

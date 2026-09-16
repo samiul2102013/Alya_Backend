@@ -54,9 +54,11 @@ class ShortPublicView(generics.ListAPIView):
         if marital_stage in ('premarital', 'marital', 'postMarital'):
             qs = qs.filter(marital_stage=marital_stage)
 
-        language = params.get('language', '').strip()
-        if language in ('ar', 'en', 'both'):
-            qs = qs.filter(language=language)
+        language = params.get('language', '').strip() or params.get('lang', '').strip() or params.get('locale', '').strip()
+        if language in ('ar', 'en'):
+            qs = qs.filter(Q(language=language) | Q(language='both'))
+        elif language == 'both':
+            qs = qs.filter(language='both')
 
         date = params.get('date', '').strip()
         if date in ('week', 'month', 'year'):
@@ -234,9 +236,11 @@ class ConsultationPublicList(generics.ListAPIView):
         if marital_stage in ('premarital', 'marital', 'postMarital'):
             qs = qs.filter(marital_stage=marital_stage)
 
-        language = params.get('language', '').strip()
-        if language in ('ar', 'en', 'both'):
-            qs = qs.filter(language=language)
+        language = params.get('language', '').strip() or params.get('lang', '').strip() or params.get('locale', '').strip()
+        if language in ('ar', 'en'):
+            qs = qs.filter(Q(language=language) | Q(language='both'))
+        elif language == 'both':
+            qs = qs.filter(language='both')
 
         free = params.get('free', '').strip().lower()
         if free in ('true', '1'):
