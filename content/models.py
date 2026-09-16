@@ -1183,7 +1183,7 @@ class MediaItem(TimeStampedModel):
     caption = models.CharField('Caption', max_length=500, blank=True)
     caption_ar = models.CharField('Caption (Arabic)', max_length=500, blank=True)
     category = models.CharField('Category', max_length=20, choices=MediaCategory.choices, default=MediaCategory.IMAGE)
-    file_size = models.PositiveIntegerField('File Size (bytes)', default=0)
+    file_size = models.PositiveBigIntegerField('File Size (bytes)', default=0)
     width = models.PositiveIntegerField('Width (px)', default=0)
     height = models.PositiveIntegerField('Height (px)', default=0)
     status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED)

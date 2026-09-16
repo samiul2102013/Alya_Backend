@@ -1,7 +1,7 @@
 import os
 import shutil
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from django.conf import settings
 from django.db import transaction
@@ -39,6 +39,20 @@ def _safe_int(value, default=0):
         return default
 
 
+def _cleanup_stale_sessions():
+    """Best-effort cleanup of orphaned tmp dirs and incomplete sessions older than 24h."""
+    try:
+        ttl = getattr(settings, 'UPLOAD_SESSION_TTL_SECONDS', 86400)
+        cutoff = datetime.now(timezone.utc) - timedelta(seconds=ttl)
+        stale = UploadSession.objects.filter(status='pending', updated_at__lt=cutoff)[:30]
+        for s in stale:
+            shutil.rmtree(_tmp_dir(s.file_id), ignore_errors=True)
+            s.status = 'aborted'
+            s.save(update_fields=['status', 'updated_at'])
+    except Exception:
+        pass
+
+
 class ChunkedUploadView(APIView):
     """POST /api/uploads
 
@@ -60,7 +74,48 @@ class ChunkedUploadView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser, FileUploadParser]
 
+    def get(self, request):
+        file_id = request.query_params.get('file_id') or request.query_params.get('fileId')
+        if not file_id:
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': 'FILE_ID_REQUIRED',
+                        'message': 'Provide `file_id` query parameter.',
+                        'details': {},
+                    },
+                },
+                status=drf_status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            file_id_uuid = uuid.UUID(str(file_id))
+            session = UploadSession.objects.get(file_id=file_id_uuid)
+        except (ValueError, UploadSession.DoesNotExist):
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': 'SESSION_NOT_FOUND',
+                        'message': 'No upload session found for this file_id.',
+                        'details': {},
+                    },
+                },
+                status=drf_status.HTTP_404_NOT_FOUND,
+            )
+        return Response({
+            'success': True,
+            'fileId': str(session.file_id),
+            'filename': session.filename,
+            'received': session.received_chunks or [],
+            'total': session.total_chunks,
+            'bytesReceived': session.total_size or 0,
+            'status': session.status,
+            'complete': len(session.received_chunks or []) >= session.total_chunks,
+        })
+
     def post(self, request):
+        _cleanup_stale_sessions()
         max_bytes = int(getattr(settings, 'MAX_UPLOAD_SIZE_BYTES', 5 * 1024 * 1024 * 1024))
 
         # --- Simple single-shot mode ---
@@ -331,6 +386,8 @@ class ChunkedUploadCompleteView(APIView):
         if category not in {'image', 'video', 'document'}:
             category = 'image'
 
+        actual_file_size = os.path.getsize(final_path)
+
         with transaction.atomic():
             item = MediaItem.objects.create(
                 file_url=absolute,
@@ -339,15 +396,16 @@ class ChunkedUploadCompleteView(APIView):
                 alt_ar=(request.data.get('altAr') or '')[:300],
                 caption=(request.data.get('caption') or '')[:500],
                 caption_ar=(request.data.get('captionAr') or '')[:500],
-                file_size=session.total_size or 0,
+                file_size=actual_file_size,
                 width=0,
                 height=0,
                 category=category,
                 status='Published',
             )
+            session.total_size = actual_file_size
             session.status = 'completed'
             session.media_item_id = item.pk
-            session.save(update_fields=['status', 'media_item_id', 'updated_at'])
+            session.save(update_fields=['status', 'total_size', 'media_item_id', 'updated_at'])
 
         return self._ok(item)
 
