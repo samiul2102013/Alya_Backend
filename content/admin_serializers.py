@@ -81,7 +81,22 @@ class ShortAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer)
             validated_data['slug'] = unique_slug(
                 Short, validated_data.get('video_title') or 'short'
             )
-        return super().create(validated_data)
+        instance = super().create(validated_data)
+        try:
+            from .translation import retranslate_object
+            retranslate_object(instance)
+        except Exception:
+            pass
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        try:
+            from .translation import retranslate_object
+            retranslate_object(instance)
+        except Exception:
+            pass
+        return instance
 
 
 class NewsAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
@@ -115,7 +130,22 @@ class NewsAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
             validated_data['slug'] = unique_slug(
                 NewsArticle, validated_data.get('article_title') or 'news'
             )
-        return super().create(validated_data)
+        instance = super().create(validated_data)
+        try:
+            from .translation import retranslate_object
+            retranslate_object(instance)
+        except Exception:
+            pass
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        try:
+            from .translation import retranslate_object
+            retranslate_object(instance)
+        except Exception:
+            pass
+        return instance
 
     def validate(self, attrs):
         # Dates are backend-managed, not admin-editable:

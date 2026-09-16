@@ -113,9 +113,37 @@ def _translate_via_mymemory(text: str, source: str, target: str) -> str | None:
     return None
 
 
+def _translate_via_google_gtx(text: str, source: str = "en", target: str = "ar") -> str | None:
+    try:
+        resp = requests.get(
+            "https://translate.googleapis.com/translate_a/single",
+            params={"client": "gtx", "sl": source, "tl": target, "dt": "t", "q": text},
+            timeout=DEFAULT_TIMEOUT,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+        )
+        if resp.ok:
+            data = resp.json()
+            if data and isinstance(data, list) and len(data) > 0 and isinstance(data[0], list):
+                translated = "".join(part[0] for part in data[0] if part and len(part) > 0 and part[0])
+                if translated and translated.strip():
+                    return translated.strip()
+    except Exception as e:
+        logger.debug("Google GTX translate failed: %s", e)
+    return None
+
+
 def _call_providers(text: str, source: str, target: str) -> str | None:
-    """Call translation provider (LibreTranslate). Returns None on failure."""
-    return _translate_via_libre(text, source, target)
+    """Call translation providers in order: LibreTranslate -> Google GTX -> MyMemory."""
+    res = _translate_via_libre(text, source, target)
+    if res:
+        return res
+    res = _translate_via_google_gtx(text, source, target)
+    if res:
+        return res
+    res = _translate_via_mymemory(text, source, target)
+    if res:
+        return res
+    return None
 
 
 def _mark_failure(text: str, source: str, target: str) -> None:
@@ -367,6 +395,8 @@ def persist_translation(
         if getattr(instance, "pk", None):
             type(instance).objects.filter(pk=instance.pk).update(**db_updates)
 
+    if target == "en":
+        return getattr(instance, en_field, "") or ar_value
     return getattr(instance, ar_field, "") or en_value
 
 

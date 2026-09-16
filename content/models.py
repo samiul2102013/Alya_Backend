@@ -1376,7 +1376,7 @@ TRANSLATABLE_JSON_FIELDS = {
                          'initiatives_faqs', 'consultation_topics', 'consultation_faqs',
                          'emirates_topics', 'emirates_faqs', 'news_topics', 'news_faqs'],
     'HomepageContent': ['stats', 'hero_floating_cards'],
-    'Short': [],
+    'Short': ['key_topics'],
     'NewsArticle': [],
     'Emirate': [],
     'Category': [],

@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from .models import AboutContent, Category, Consultation, ContactContent, Emirate, FooterContent, HomepageContent, Initiative, MediaItem, NewsArticle, PagePresentation, Short
 from .models import ABOUT_SECTION_KEYS, CONTACT_SECTION_KEYS, FOOTER_SECTION_KEYS, HOME_SECTION_KEYS, SHORTS_SECTION_KEYS, NEWS_SECTION_KEYS, INITIATIVES_SECTION_KEYS, CONSULTATION_SECTION_KEYS, EMIRATES_SECTION_KEYS, _canonical_visibility
-from .translation import get_translated, is_machine_generated, persist_translation, translate_text
+from .translation import _is_arabic, get_translated, is_machine_generated, persist_translation, translate_text
 
 
 def _tr(obj, en_field: str, ar_field: str) -> str:
@@ -109,7 +109,10 @@ class ShortDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     publishedAt = serializers.DateTimeField(source='published_at', read_only=True)
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     videoUrl = serializers.CharField(source='video_url', read_only=True)
-    keyTopics = serializers.JSONField(source='key_topics', read_only=True)
+    keyTopics = serializers.SerializerMethodField()
+    keyTopicsAr = serializers.SerializerMethodField()
+    resources = serializers.SerializerMethodField()
+    resourcesAr = serializers.SerializerMethodField()
     shareUrl = serializers.CharField(source='share_url', read_only=True)
     showKeyTopics = serializers.BooleanField(source='show_key_topics', read_only=True)
     showResources = serializers.BooleanField(source='show_resources', read_only=True)
@@ -131,11 +134,74 @@ class ShortDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     def get_speakerAr(self, obj):
         return _tr(obj, 'speaker', 'speaker_ar')
 
+    def get_keyTopics(self, obj):
+        topics = obj.key_topics or []
+        if not isinstance(topics, list):
+            return []
+        out = []
+        for t in topics:
+            if not isinstance(t, str) or not t.strip():
+                continue
+            if _is_arabic(t):
+                out.append(translate_text(t, 'ar', 'en'))
+            else:
+                out.append(t)
+        return out
+
+    def get_keyTopicsAr(self, obj):
+        topics = obj.key_topics or []
+        if not isinstance(topics, list):
+            return []
+        out = []
+        for t in topics:
+            if not isinstance(t, str) or not t.strip():
+                continue
+            if not _is_arabic(t):
+                out.append(translate_text(t, 'en', 'ar'))
+            else:
+                out.append(t)
+        return out
+
+    def get_resources(self, obj):
+        items = obj.resources or []
+        if not isinstance(items, list):
+            return []
+        out = []
+        for r in items:
+            if isinstance(r, str):
+                title = translate_text(r, 'ar', 'en') if _is_arabic(r) else r
+                out.append({'title': title, 'url': '', 'type': ''})
+            elif isinstance(r, dict):
+                title = r.get('title', '')
+                title_en = r.get('titleEn') or (translate_text(title, 'ar', 'en') if _is_arabic(title) else title)
+                out.append({**r, 'title': title_en})
+            else:
+                out.append(r)
+        return out
+
+    def get_resourcesAr(self, obj):
+        items = obj.resources or []
+        if not isinstance(items, list):
+            return []
+        out = []
+        for r in items:
+            if isinstance(r, str):
+                title_ar = translate_text(r, 'en', 'ar') if not _is_arabic(r) else r
+                out.append({'title': title_ar, 'titleAr': title_ar, 'url': '', 'type': ''})
+            elif isinstance(r, dict):
+                title = r.get('title', '')
+                title_ar = r.get('titleAr') or (translate_text(title, 'en', 'ar') if not _is_arabic(title) else title)
+                out.append({**r, 'title': title_ar, 'titleAr': title_ar})
+            else:
+                out.append(r)
+        return out
+
     class Meta:
         model = Short
         fields = ['id', 'videoTitle', 'videoTitleAr', 'slug', 'category', 'organization', 'family',
                   'language', 'maritalStage', 'duration', 'publishedAt', 'coverImage', 'videoUrl',
-                  'speaker', 'speakerAr', 'views', 'description', 'descriptionAr', 'keyTopics', 'resources', 'shareUrl',
+                  'speaker', 'speakerAr', 'views', 'description', 'descriptionAr', 'keyTopics', 'keyTopicsAr',
+                  'resources', 'resourcesAr', 'shareUrl',
                   'showKeyTopics', 'showResources', 'showShare', 'showSpeaker', 'showViews',
                   'showRelated', 'status', 'lastUpdated', 'relatedVideos']
 
@@ -149,12 +215,22 @@ class ShortDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        req = self.context.get('request')
+        lang = ''
+        if req:
+            lang = req.query_params.get('locale', '').strip() or req.query_params.get('lang', '').strip()
+        if lang == 'ar':
+            data['keyTopics'] = data.get('keyTopicsAr') or data.get('keyTopics')
+            data['resources'] = data.get('resourcesAr') or data.get('resources')
+
         # Omit/hide data for blocks explicitly disabled by show_* flags so the
         # public JSON does not leak hidden content even if the client ignores flags.
         if not instance.show_key_topics:
             data['keyTopics'] = []
+            data['keyTopicsAr'] = []
         if not instance.show_resources:
             data['resources'] = []
+            data['resourcesAr'] = []
         if not instance.show_share:
             data['shareUrl'] = ''
         if not instance.show_speaker:
