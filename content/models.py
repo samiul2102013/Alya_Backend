@@ -1415,6 +1415,23 @@ def _bilingual_pre_save(sender, instance, **kwargs):
                 setattr(instance, 'ar_is_machine', registry)
                 setattr(instance, ar_field, '')
 
+    # Bidirectional: also invalidate ar→en cache when Arabic fields change.
+    pairs = TRANSLATABLE_FIELDS.get(type(instance).__name__, [])
+    for en_field, ar_field in pairs:
+        old_ar = str(getattr(old, ar_field, None) or '')
+        new_ar = str(getattr(instance, ar_field, None) or '')
+        if old_ar != new_ar:
+            if old_ar:
+                clear_translation_cache(old_ar, 'ar', 'en')
+            # If Arabic changed and English was machine-generated, clear it
+            # so the next read regenerates from new Arabic.
+            registry = dict(getattr(instance, 'ar_is_machine', None) or {})
+            en_machine_key = en_field + '_is_machine'
+            if registry.get(en_machine_key):
+                registry.pop(en_machine_key, None)
+                setattr(instance, 'ar_is_machine', registry)
+                setattr(instance, en_field, '')
+
     for json_field in TRANSLATABLE_JSON_FIELDS.get(type(instance).__name__, []):
         old_list = getattr(old, json_field, None) or []
         new_list = getattr(instance, json_field, None) or []
@@ -1422,6 +1439,7 @@ def _bilingual_pre_save(sender, instance, **kwargs):
             for item in old_list:
                 if isinstance(item, str) and item.strip():
                     clear_translation_cache(item, 'en', 'ar')
+                    clear_translation_cache(item, 'ar', 'en')
 
 
 for _model in (

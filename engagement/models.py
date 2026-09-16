@@ -67,6 +67,7 @@ class Booking(TimeStampedModel):
         c = self.consultation
         return {
             'sessionTitle': c.session_title,
+            'sessionTitleAr': c.session_title_ar or c.session_title,
             'sessionType': c.session_type,
             'date': c.date.isoformat() if c.date else None,
             'startTime': c.start_time,
@@ -75,8 +76,11 @@ class Booking(TimeStampedModel):
             'timeZone': c.time_zone,
             'meetingFormat': c.meeting_format,
             'location': c.counselor_title,
+            'locationAr': c.counselor_title_ar or c.counselor_title,
             'counselor': c.counselor,
+            'counselorAr': c.counselor_ar or c.counselor,
         }
+
 
     def __str__(self):
         return self.reference or self.full_name

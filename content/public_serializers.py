@@ -51,6 +51,21 @@ class ArMachineFlagMixin:
                 if str(en_value).strip():
                     data[key] = persist_translation(instance, en_field, ar_field)
             data[key + 'IsMachine'] = is_machine_generated(instance, ar_field)
+        # Post-fill English fields that were serialized blank before
+        # persist_translation (called by get_*Ar) populated them from Arabic.
+        for key, value in list(data.items()):
+            if key.endswith('Ar') or key.endswith('IsMachine'):
+                continue
+            if not isinstance(value, str) or value.strip():
+                continue
+            # Find the model field for this key
+            field_obj = self.fields.get(key)
+            if field_obj is None:
+                continue
+            model_field = getattr(field_obj, 'source', None) or key
+            instance_val = getattr(instance, model_field, None)
+            if instance_val and str(instance_val).strip():
+                data[key] = str(instance_val)
         return data
 
 
