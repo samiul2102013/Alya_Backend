@@ -355,6 +355,8 @@ class InitiativeListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     endDate = serializers.DateField(source='end_date', read_only=True)
     coverImage = serializers.CharField(source='cover_image', read_only=True)
     officialWebsiteUrl = serializers.CharField(source='official_website_url', read_only=True)
+    websiteButtonLabel = serializers.CharField(source='website_button_label', read_only=True)
+    websiteButtonLabelAr = serializers.SerializerMethodField()
     shareUrl = serializers.CharField(source='share_url', read_only=True)
     isFeatured = serializers.BooleanField(source='is_featured', read_only=True)
     isListed = serializers.BooleanField(source='is_listed', read_only=True)
@@ -369,10 +371,13 @@ class InitiativeListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     def get_badgeAr(self, obj):
         return _tr(obj, 'badge', 'badge_ar')
 
+    def get_websiteButtonLabelAr(self, obj):
+        return _tr(obj, 'website_button_label', 'website_button_label_ar')
+
     class Meta:
         model = Initiative
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
-                  'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'officialWebsiteUrl', 'shareUrl',
+                  'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'officialWebsiteUrl', 'websiteButtonLabel', 'websiteButtonLabelAr', 'shareUrl',
                   'isFeatured', 'isListed', 'status']
 
 

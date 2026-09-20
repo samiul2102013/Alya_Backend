@@ -161,6 +161,8 @@ class Initiative(TranslatableModel, TimeStampedModel):
     cover_image = models.CharField('Cover Image', max_length=500, blank=True)
     badge = models.CharField('Badge', max_length=100, blank=True)
     official_website_url = models.CharField('Official Website URL', max_length=1000, blank=True)
+    website_button_label = models.CharField('Website Button Label', max_length=200, blank=True)
+    website_button_label_ar = models.CharField('Website Button Label (Arabic)', max_length=200, blank=True)
     share_url = models.CharField('Share URL', max_length=1000, blank=True)
 
     description = models.TextField('Description', blank=True)
@@ -1234,6 +1236,7 @@ TRANSLATABLE_FIELDS = {
         ('description', 'description_ar'),
         ('purpose', 'purpose_ar'),
         ('badge', 'badge_ar'),
+        ('website_button_label', 'website_button_label_ar'),
     ],
     'Consultation': [
         ('session_title', 'session_title_ar'),

@@ -180,6 +180,8 @@ class InitiativeAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerial
     endDate = serializers.DateField(source='end_date', required=False, allow_null=True)
     coverImage = serializers.CharField(source='cover_image', required=False, allow_blank=True)
     officialWebsiteUrl = serializers.CharField(source='official_website_url', required=False, allow_blank=True)
+    websiteButtonLabel = serializers.CharField(source='website_button_label', required=False, allow_blank=True)
+    websiteButtonLabelAr = serializers.CharField(source='website_button_label_ar', required=False, allow_blank=True)
     shareUrl = serializers.CharField(source='share_url', required=False, allow_blank=True)
     supportOffered = serializers.JSONField(source='support_offered', required=False)
     basicInformation = serializers.JSONField(source='basic_information', required=False)
@@ -195,7 +197,7 @@ class InitiativeAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerial
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
                   'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'basicInformationAr', 'supportOffered',
                   'benefits', 'benefitsAr', 'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'contact', 'contactAr',
-                  'officialWebsiteUrl', 'shareUrl', 'isFeatured', 'isListed',
+                  'officialWebsiteUrl', 'websiteButtonLabel', 'websiteButtonLabelAr', 'shareUrl', 'isFeatured', 'isListed',
                   'showAbout', 'showSupportOffered',
                   'showBenefits', 'showApplicationForm', 'status']
         read_only_fields = ['id', 'slug']
