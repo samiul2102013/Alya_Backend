@@ -172,6 +172,8 @@ class InitiativeAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerial
     objectivesAr = serializers.JSONField(source='objectives_ar', required=False)
     badgeAr = serializers.CharField(source='badge_ar', required=False, allow_blank=True)
     benefitsAr = serializers.JSONField(source='benefits_ar', required=False)
+    basicInformationAr = serializers.JSONField(source='basic_information_ar', required=False)
+    contactAr = serializers.JSONField(source='contact_ar', required=False)
     startDate = serializers.DateField(source='start_date', required=False, allow_null=True)
     endDate = serializers.DateField(source='end_date', required=False, allow_null=True)
     coverImage = serializers.CharField(source='cover_image', required=False, allow_blank=True)
@@ -189,8 +191,8 @@ class InitiativeAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerial
     class Meta:
         model = Initiative
         fields = ['id', 'slug', 'title', 'titleAr', 'subtitle', 'subtitleAr', 'category', 'emirates',
-                  'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'supportOffered',
-                  'benefits', 'benefitsAr', 'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'contact',
+                  'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'basicInformationAr', 'supportOffered',
+                  'benefits', 'benefitsAr', 'startDate', 'endDate', 'coverImage', 'badge', 'badgeAr', 'contact', 'contactAr',
                   'officialWebsiteUrl', 'shareUrl', 'isFeatured', 'isListed',
                   'showAbout', 'showSupportOffered',
                   'showBenefits', 'showApplicationForm', 'status']

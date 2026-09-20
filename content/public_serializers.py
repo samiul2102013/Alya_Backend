@@ -369,6 +369,8 @@ class InitiativeListSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
 class InitiativeDetailSerializer(InitiativeListSerializer):
     supportOffered = serializers.SerializerMethodField()
     basicInformation = serializers.JSONField(source='basic_information', read_only=True)
+    basicInformationAr = serializers.SerializerMethodField()
+    contactAr = serializers.SerializerMethodField()
     showAbout = serializers.BooleanField(source='show_about', read_only=True)
     showSupportOffered = serializers.BooleanField(source='show_support_offered', read_only=True)
     showBenefits = serializers.BooleanField(source='show_benefits', read_only=True)
@@ -377,9 +379,35 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
     purposeAr = serializers.SerializerMethodField()
     badgeAr = serializers.SerializerMethodField()
     objectives = serializers.JSONField(read_only=True)
-    objectivesAr = serializers.JSONField(source='objectives_ar', read_only=True)
+    objectivesAr = serializers.SerializerMethodField()
     benefits = serializers.JSONField(read_only=True)
-    benefitsAr = serializers.JSONField(source='benefits_ar', read_only=True)
+    benefitsAr = serializers.SerializerMethodField()
+
+    @staticmethod
+    def _translate_list(lst):
+        if not lst:
+            return []
+        return [
+            item if _is_arabic(str(item)) else translate_text(str(item), 'en', 'ar')
+            for item in lst
+            if item is not None and str(item).strip()
+        ]
+
+    def get_basicInformationAr(self, obj):
+        stored = getattr(obj, 'basic_information_ar', None)
+        return stored if stored else self._translate_list(obj.basic_information)
+
+    def get_objectivesAr(self, obj):
+        stored = getattr(obj, 'objectives_ar', None)
+        return stored if stored else self._translate_list(obj.objectives)
+
+    def get_benefitsAr(self, obj):
+        stored = getattr(obj, 'benefits_ar', None)
+        return stored if stored else self._translate_list(obj.benefits)
+
+    def get_contactAr(self, obj):
+        stored = getattr(obj, 'contact_ar', None)
+        return stored if stored else self._translate_list(obj.contact)
 
     def get_descriptionAr(self, obj):
         return _tr(obj, 'description', 'description_ar')
@@ -393,8 +421,8 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
     class Meta:
         model = Initiative
         fields = InitiativeListSerializer.Meta.fields + [
-            'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'supportOffered',
-            'benefits', 'benefitsAr', 'contact', 'showAbout', 'showSupportOffered', 'showBenefits',
+            'description', 'descriptionAr', 'purpose', 'purposeAr', 'objectives', 'objectivesAr', 'basicInformation', 'basicInformationAr', 'supportOffered',
+            'benefits', 'benefitsAr', 'contact', 'contactAr', 'showAbout', 'showSupportOffered', 'showBenefits',
             'showApplicationForm', 'badgeAr',
         ]
 
@@ -431,6 +459,7 @@ class InitiativeDetailSerializer(InitiativeListSerializer):
             data['benefitsAr'] = []
         if not instance.show_application_form:
             data['contact'] = []
+            data['contactAr'] = []
         return data
 
 

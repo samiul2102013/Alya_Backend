@@ -169,6 +169,7 @@ class Initiative(TranslatableModel, TimeStampedModel):
     objectives_ar = models.JSONField('Objectives (Arabic)', default=list, blank=True)
 
     basic_information = models.JSONField('Basic Information', default=list, blank=True)
+    basic_information_ar = models.JSONField('Basic Information (Arabic)', default=list, blank=True)
     badge_ar = models.CharField('Badge (Arabic)', max_length=100, blank=True)
 
     financial_support = models.BooleanField('Financial Support', default=False)
@@ -180,6 +181,7 @@ class Initiative(TranslatableModel, TimeStampedModel):
     benefits = models.JSONField('Benefits', default=list, blank=True)
     benefits_ar = models.JSONField('Benefits (Arabic)', default=list, blank=True)
     contact = models.JSONField('Contact', default=list, blank=True)
+    contact_ar = models.JSONField('Contact (Arabic)', default=list, blank=True)
 
     is_featured = models.BooleanField('Featured on Home Page', default=False, help_text='If checked, this initiative is shown on the user panel (single featured). Only visible when status is Published.')
     is_listed = models.BooleanField('Show on Initiatives Listing', default=True, help_text='Show this initiative in the public /initiatives list. Featured initiatives are always listed. Only Published and listed items appear publicly.')
@@ -1369,7 +1371,7 @@ def changed_translatable_fields(instance, old_instance):
 # (see public serializers). Their items also feed the per-text translation
 # cache, so edits must invalidate those entries too.
 TRANSLATABLE_JSON_FIELDS = {
-    'Initiative': ['objectives', 'benefits'],
+    'Initiative': ['objectives', 'benefits', 'basic_information', 'contact'],
     'Consultation': ['objectives', 'what_you_will_learn', 'who_should_attend'],
     'AboutContent': ['objectives', 'why_values', 'core_value_list'],
     'PagePresentation': ['shorts_topics', 'shorts_faqs', 'initiatives_topics',
