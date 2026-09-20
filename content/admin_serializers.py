@@ -105,6 +105,8 @@ class NewsAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     articleTitleAr = serializers.CharField(source='article_title_ar', required=False, allow_blank=True)
     contentAr = serializers.CharField(source='content_ar', required=False, allow_blank=True)
     authorAr = serializers.CharField(source='author_ar', required=False, allow_blank=True)
+    organizationAr = serializers.CharField(source='organization_ar', required=False, allow_blank=True)
+    cityAr = serializers.CharField(source='city_ar', required=False, allow_blank=True)
     editorialTeam = serializers.CharField(source='editorial_team', required=False, allow_blank=True)
     coverImage = serializers.CharField(source='cover_image', required=False, allow_blank=True)
     emirate = serializers.CharField(source='emirates', required=False, allow_blank=True)
@@ -119,7 +121,7 @@ class NewsAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerializer):
     class Meta:
         model = NewsArticle
         fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'source', 'language',
-                  'content', 'contentAr', 'coverImage', 'author', 'authorAr', 'editorialTeam', 'organization', 'moc', 'city',
+                  'content', 'contentAr', 'coverImage', 'author', 'authorAr', 'editorialTeam', 'organization', 'organizationAr', 'moc', 'city', 'cityAr',
                   'emirate', 'publishedDate', 'updatedDate', 'resources', 'shareUrl', 'showArticleInfo',
                   'showRelatedResources', 'showShare', 'showRelatedStories', 'status']
         read_only_fields = ['id', 'slug']

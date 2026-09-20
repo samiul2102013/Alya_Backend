@@ -118,8 +118,10 @@ class NewsArticle(TranslatableModel, TimeStampedModel):
     author_ar = models.CharField('Author (Arabic)', max_length=200, blank=True)
     editorial_team = models.CharField('Editorial Team', max_length=200, blank=True)
     organization = models.CharField('Organization', max_length=200, blank=True)
+    organization_ar = models.CharField('Organization (Arabic)', max_length=200, blank=True)
     moc = models.CharField('MOC / Issuing Body', max_length=200, blank=True)
     city = models.CharField('City', max_length=200, blank=True)
+    city_ar = models.CharField('City (Arabic)', max_length=200, blank=True)
     emirates = models.CharField('Emirates', max_length=30, choices=Emirates.choices, blank=True)
     published_date = models.DateField('Published Date', null=True, blank=True)
     updated_date = models.DateField('Updated Date', null=True, blank=True)
@@ -1223,6 +1225,8 @@ TRANSLATABLE_FIELDS = {
         ('article_title', 'article_title_ar'),
         ('content', 'content_ar'),
         ('author', 'author_ar'),
+        ('organization', 'organization_ar'),
+        ('city', 'city_ar'),
     ],
     'Initiative': [
         ('title', 'title_ar'),

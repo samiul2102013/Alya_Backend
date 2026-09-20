@@ -292,6 +292,8 @@ class NewsDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     relatedStories = serializers.SerializerMethodField()
     contentAr = serializers.SerializerMethodField()
     authorAr = serializers.SerializerMethodField()
+    organizationAr = serializers.SerializerMethodField()
+    cityAr = serializers.SerializerMethodField()
 
     def get_articleTitleAr(self, obj):
         return _tr(obj, 'article_title', 'article_title_ar')
@@ -302,10 +304,16 @@ class NewsDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     def get_authorAr(self, obj):
         return _tr(obj, 'author', 'author_ar')
 
+    def get_organizationAr(self, obj):
+        return _tr(obj, 'organization', 'organization_ar')
+
+    def get_cityAr(self, obj):
+        return _tr(obj, 'city', 'city_ar')
+
     class Meta:
         model = NewsArticle
         fields = ['id', 'slug', 'articleTitle', 'articleTitleAr', 'category', 'source', 'language',
-                  'content', 'contentAr', 'coverImage', 'author', 'authorAr', 'editorialTeam', 'organization', 'moc', 'city',
+                  'content', 'contentAr', 'coverImage', 'author', 'authorAr', 'editorialTeam', 'organization', 'organizationAr', 'moc', 'city', 'cityAr',
                   'emirate', 'publishedDate', 'updatedDate', 'resources', 'shareUrl', 'showArticleInfo',
                   'showRelatedResources', 'showShare', 'showRelatedStories', 'status', 'relatedStories']
 
@@ -324,8 +332,10 @@ class NewsDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
             data['authorAr'] = ''
             data['editorialTeam'] = ''
             data['organization'] = ''
+            data['organizationAr'] = ''
             data['moc'] = ''
             data['city'] = ''
+            data['cityAr'] = ''
             data['emirate'] = ''
         if not instance.show_related_resources:
             data['resources'] = []
