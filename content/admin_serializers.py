@@ -198,6 +198,16 @@ class InitiativeAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerial
                   'showBenefits', 'showApplicationForm', 'status']
         read_only_fields = ['id', 'slug']
 
+    def to_internal_value(self, data):
+        # Empty date inputs from the admin form arrive as ""; treat them as null
+        # instead of failing date-format validation.
+        if hasattr(data, 'copy'):
+            data = data.copy()
+            for field in ('startDate', 'endDate'):
+                if data.get(field) == '':
+                    data[field] = None
+        return super().to_internal_value(data)
+
     def create(self, validated_data):
         # Resolve the slug BEFORE the INSERT (see ShortAdminSerializer.create).
         if not validated_data.get('slug'):
