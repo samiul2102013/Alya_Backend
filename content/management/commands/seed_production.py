@@ -869,10 +869,10 @@ class Command(BaseCommand):
             'cta_secondary_link': '/consultation',
             'published': True,
         }
-        if HomepageContent.objects.exists():
-            HomepageContent.objects.update(defaults=homepage_defaults)
-        else:
-            HomepageContent.objects.create(**homepage_defaults)
+        HomepageContent.objects.update_or_create(
+            pk=HomepageContent.objects.first().pk if HomepageContent.objects.exists() else None,
+            defaults=homepage_defaults,
+        )
         self.stdout.write(self.style.SUCCESS('HomepageContent: seeded'))
 
         # ---------------------------------------------------------------- terms & privacy
@@ -891,17 +891,11 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS('Created superuser admin@kodevio.com / admin12345'))
 
-        # ---- prune any records not part of the canonical seed (idempotency) ----
-        seed_slugs = {
-            Emirate: {e['slug'] for e in emirates},
-            Initiative: {i['slug'] for i in initiatives},
-            NewsArticle: {n['slug'] for n in news},
-            Short: {s['slug'] for s in shorts},
-            Consultation: {c['slug'] for c in consultations},
-            PagePresentation: {p['key'] for p in presentations},
-        }
-        for model, slugs in seed_slugs.items():
-            model.objects.exclude(pk__in=model.objects.filter(**({'slug__in': slugs} if model is not PagePresentation else {'key__in': slugs})).values('pk')).delete()
+        # NOTE: this command intentionally does NOT prune records that are absent
+        # from the canonical seed. An earlier version deleted every
+        # initiative / news / short / consultation / emirate / presentation that
+        # was not in the seed list, which wiped content created or edited in the
+        # admin dashboard. Seeding must only upsert.
 
         # ---------------------------------------------------------------- about content
         about_data = {
