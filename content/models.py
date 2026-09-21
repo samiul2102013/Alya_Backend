@@ -336,6 +336,7 @@ class Emirate(TranslatableModel, TimeStampedModel):
     center_count_ar = models.CharField('Center Count (Arabic)', max_length=100, blank=True)
     image = models.CharField('Image', max_length=500, blank=True)
     website_url = models.CharField('Website URL', max_length=1000, blank=True)
+    browse_initiatives_url = models.CharField('Browse Initiatives URL', max_length=1000, blank=True, help_text='Destination of the Browse Initiatives button on the public emirate detail page. Empty defaults to /initiatives.')
 
     show_status = models.BooleanField('Show Status', default=True, help_text='When disabled, public API omits the status badge/label and the detail page hides the Status row; the record remains accessible if status is Published.')
     status = models.CharField('Status', max_length=20, choices=Status.choices, default=Status.PUBLISHED, help_text='Controls public visibility. Only Published emirates appear on public endpoints; Draft and Pending return 404 and are excluded from lists, search and direct slug access. Admin APIs still return all statuses.')

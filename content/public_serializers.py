@@ -680,6 +680,7 @@ class EmirateDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     def get_centerCountAr(self, obj):
         return _tr(obj, 'center_count', 'center_count_ar')
     websiteUrl = serializers.CharField(source='website_url', read_only=True)
+    browseInitiativesUrl = serializers.CharField(source='browse_initiatives_url', read_only=True)
     showStatus = serializers.BooleanField(source='show_status', read_only=True)
     status = serializers.CharField(read_only=True)
     initiatives = serializers.SerializerMethodField()
@@ -687,7 +688,7 @@ class EmirateDetailSerializer(ArMachineFlagMixin, serializers.ModelSerializer):
     class Meta:
         model = Emirate
         fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'titleAr', 'description', 'descriptionAr', 'dateTime',
-                  'contactPhone', 'serviceCenters', 'centerCount', 'centerCountAr', 'image', 'websiteUrl', 'showStatus',
+                  'contactPhone', 'serviceCenters', 'centerCount', 'centerCountAr', 'image', 'websiteUrl', 'browseInitiativesUrl', 'showStatus',
                   'status', 'initiatives']
 
     def get_initiatives(self, obj):

@@ -294,12 +294,13 @@ class EmirateAdminSerializer(AdminArMachineFlagMixin, serializers.ModelSerialize
     serviceCenters = serializers.IntegerField(source='service_centers', required=False)
     centerCount = serializers.CharField(source='center_count', required=False, allow_blank=True)
     websiteUrl = serializers.CharField(source='website_url', required=False, allow_blank=True)
+    browseInitiativesUrl = serializers.CharField(source='browse_initiatives_url', required=False, allow_blank=True)
     showStatus = serializers.BooleanField(source='show_status', required=False)
 
     class Meta:
         model = Emirate
         fields = ['id', 'slug', 'emiratesName', 'emiratesNameAr', 'title', 'titleAr', 'description', 'descriptionAr', 'dateTime',
-                  'contactPhone', 'serviceCenters', 'centerCount', 'centerCountAr', 'image', 'websiteUrl', 'showStatus',
+                  'contactPhone', 'serviceCenters', 'centerCount', 'centerCountAr', 'image', 'websiteUrl', 'browseInitiativesUrl', 'showStatus',
                   'status']
         read_only_fields = ['id', 'slug']
 
